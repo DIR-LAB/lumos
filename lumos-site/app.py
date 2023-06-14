@@ -74,19 +74,30 @@ if chart_select_radio_jrt == "CDF Run Time Chart":
         plt.xlabel(xlabel, fontsize=20)
         plt.ylabel(ylabel, fontsize=20)
         plt.margins(0)
-        plt.ylim(0, 100)
+        plt.ylim(0, 100) # frequeny
         plt.grid(True)
 
     plt.style.use("default")
-    plot_cdf(bw_df["run_time"], 1000,"Time (s)", linestyle=":")
-    plot_cdf(mira_df_2["run_time"], 1000,"Time (s)", linestyle="--")
-    plot_cdf(philly_df["run_time"], 1000,"Time (s)", linestyle="-.")
-    plot_cdf(hl_df["run_time"], 10009999,"Job Run Time (s)", linestyle="--")
+
+    for item in system_models_jrt:
+        if "Mira" in selected_system_models_jrt:
+            plot_cdf(mira_df_2["run_time"], 1000,"Time (s)", linestyle="--", color="red")
+        if "Blue Waters" in selected_system_models_jrt:
+            plot_cdf(bw_df["run_time"], 1000,"Time (s)", linestyle=":", color="blue")
+        if "Philly" in selected_system_models_jrt:
+            plot_cdf(philly_df["run_time"], 1000,"Time (s)", linestyle="-.", color="green")
+        if "Helios" in selected_system_models_jrt:
+            plot_cdf(hl_df["run_time"], 10009999,"Job Run Time (s)", linestyle="--", color="violet")
+       
+    
     plt.rc('legend',fontsize=22)
-    plt.legend(["bw", "mira", "philly","helios"])
+    plt.legend(selected_system_models_jrt, loc="lower right")
 
     # plt.rc("legend", "default")
     plt.xscale("log")
+    st.set_option('deprecation.showPyplotGlobalUse', False)
+
+    st.pyplot()
 
 elif chart_select_radio_jrt == "Detailed Run Time Distribution Chart":
     #drt = detailed run time
