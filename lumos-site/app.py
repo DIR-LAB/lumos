@@ -79,6 +79,7 @@ if chart_select_radio_jrt == "CDF Run Time Chart":
 
     plt.style.use("default")
 
+
     for item in system_models_jrt:
         if "Mira" in selected_system_models_jrt:
             plot_cdf(mira_df_2["run_time"], 1000,"Time (s)", linestyle="--", color="red")
