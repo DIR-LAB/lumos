@@ -95,11 +95,8 @@ if chart_select_radio_jrt == "CDF Run Time Chart":
 
     # plt.rc("legend", "default")
     plt.xscale("log")
-<<<<<<< HEAD
     plt.show()
     st.pyplot(plt.gcf())
-=======
->>>>>>> e707c791f457825df7716f6834a36f83bfba4100
 
 elif chart_select_radio_jrt == "Detailed Run Time Distribution Chart":
     #drt = detailed run time
@@ -162,9 +159,5 @@ elif chart_select_radio_jrt == "Detailed Run Time Distribution Chart":
     plt.xticks(x_value, labels)
     plt.legend(["bw", "mira", "philly", "helios"], prop={'size': 14})
     plt.xlabel("Job Run Time (s)", fontsize=20)
-<<<<<<< HEAD
     plt.show()
     st.pyplot()
-=======
-
->>>>>>> e707c791f457825df7716f6834a36f83bfba4100
