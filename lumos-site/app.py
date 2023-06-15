@@ -2,6 +2,7 @@ import streamlit as st
 from PIL import Image
 import numpy as np
 import pandas as pd
+import warnings
 from streamlit_option_menu import option_menu
 from matplotlib import pyplot as plt
 import seaborn
@@ -68,7 +69,6 @@ if chart_select_radio_jrt == "CDF Run Time Chart":
     
     #Alex code here for displaying the cdf chart
     # Plots Figure 1(a) from page 3, 3.1.1
-
     st.markdown("<a name='cdf_chart_section'></a>", unsafe_allow_html=True)
 
     def plot_cdf(x, bins, xlabel, ylabel="Frequency (%)", color="", linestyle="--"):
@@ -94,7 +94,7 @@ if chart_select_radio_jrt == "CDF Run Time Chart":
 
     plt.style.use("default")
     
-    if len(selected_system_models_jrt) > 1:
+    if len(selected_system_models_jrt) >= 1:
         for item in system_models_jrt:
             if "Mira" in selected_system_models_jrt:
                 plot_cdf(mira_df_2["run_time"], 1000,"Time (s)", linestyle="--", color="red")
@@ -104,14 +104,15 @@ if chart_select_radio_jrt == "CDF Run Time Chart":
                 plot_cdf(philly_df["run_time"], 1000,"Time (s)", linestyle="-.", color="green")
             if "Helios" in selected_system_models_jrt:
                 plot_cdf(hl_df["run_time"], 10009999,"Job Run Time (s)", linestyle="--", color="violet")
-        
-        
+          
         plt.rc('legend',fontsize=12)
         plt.legend(selected_system_models_jrt, loc="lower right")
     else:
-        st.write("## Please select one or more system models in the sidebar to view the graph.")
-    
+        st.write("## Please select one or more system models in the sidebar to plot the graph.")
 
+    #avoiding the user warning for now
+    warnings.filterwarnings("ignore", message="Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.")
+    
     plt.xscale("log")
     plt.show()
     st.pyplot(plt.gcf())
