@@ -8,6 +8,8 @@ import seaborn
 from datetime import datetime
 from collections import Counter, defaultdict
 import json
+import time 
+import matplotlib
 banner_image = Image.open('JOB TRACE VISULAZATION.png')
 
 st.image(banner_image)
@@ -55,10 +57,20 @@ if chart_select_radio_jrt == "CDF Run Time Chart":
         cdf_run_time_value_slider_jrt = int(10**cdf_run_time_slider_jrt)
                     
         submit_cdf_sidebar_button = st.form_submit_button("Apply")
+        if submit_cdf_sidebar_button:
+            if len(selected_system_models_jrt) > 1:
+                 with st.spinner("Loading...."):
+                    time.sleep(7)
+                 st.success("Done!")
+            else:
+                st.write("Please select the system models to see the graph")
+           
     
     #Alex code here for displaying the cdf chart
     # Plots Figure 1(a) from page 3, 3.1.1
+
     st.markdown("<a name='cdf_chart_section'></a>", unsafe_allow_html=True)
+
     def plot_cdf(x, bins, xlabel, ylabel="Frequency (%)", color="", linestyle="--"):
         plt.xticks(fontsize=16)
         plt.yticks(fontsize=16)
@@ -74,27 +86,32 @@ if chart_select_radio_jrt == "CDF Run Time Chart":
         plt.xlabel(xlabel, fontsize=20)
         plt.ylabel(ylabel, fontsize=20)
         plt.margins(0)
-        plt.ylim(0, 100) # frequeny
+        plt.ylim(0, cdf_frequency_slider_jrt) 
+        plt.xlim(10**0, cdf_run_time_value_slider_jrt) 
+        
+
         plt.grid(True)
 
     plt.style.use("default")
-
-
-    for item in system_models_jrt:
-        if "Mira" in selected_system_models_jrt:
-            plot_cdf(mira_df_2["run_time"], 1000,"Time (s)", linestyle="--", color="red")
-        if "Blue Waters" in selected_system_models_jrt:
-            plot_cdf(bw_df["run_time"], 1000,"Time (s)", linestyle=":", color="blue")
-        if "Philly" in selected_system_models_jrt:
-            plot_cdf(philly_df["run_time"], 1000,"Time (s)", linestyle="-.", color="green")
-        if "Helios" in selected_system_models_jrt:
-            plot_cdf(hl_df["run_time"], 10009999,"Job Run Time (s)", linestyle="--", color="violet")
-       
     
-    plt.rc('legend',fontsize=22)
-    plt.legend(selected_system_models_jrt, loc="lower right")
+    if len(selected_system_models_jrt) > 1:
+        for item in system_models_jrt:
+            if "Mira" in selected_system_models_jrt:
+                plot_cdf(mira_df_2["run_time"], 1000,"Time (s)", linestyle="--", color="red")
+            if "Blue Waters" in selected_system_models_jrt:
+                plot_cdf(bw_df["run_time"], 1000,"Time (s)", linestyle=":", color="blue")
+            if "Philly" in selected_system_models_jrt:
+                plot_cdf(philly_df["run_time"], 1000,"Time (s)", linestyle="-.", color="green")
+            if "Helios" in selected_system_models_jrt:
+                plot_cdf(hl_df["run_time"], 10009999,"Job Run Time (s)", linestyle="--", color="violet")
+        
+        
+        plt.rc('legend',fontsize=12)
+        plt.legend(selected_system_models_jrt, loc="lower right")
+    else:
+        st.write("## Please select one or more system models in the sidebar to view the graph.")
+    
 
-    # plt.rc("legend", "default")
     plt.xscale("log")
     plt.show()
     st.pyplot(plt.gcf())
