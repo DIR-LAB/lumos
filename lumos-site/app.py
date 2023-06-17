@@ -94,6 +94,7 @@ if nav_bar_horizontal == "Job Run Time":
         plt.style.use("default")
         
         if len(selected_system_models_jrt) >= 1:
+            st.write("CDF of Run Time Chart")
             for item in system_models_jrt:
                 if "Blue Waters" in selected_system_models_jrt:
                     plot_cdf(bw_df["run_time"], 1000, "Time (s)", linestyle=":", color="blue")
@@ -106,15 +107,15 @@ if nav_bar_horizontal == "Job Run Time":
             
             plt.rc('legend', fontsize=12)
             plt.legend(selected_system_models_jrt, loc="lower right")
-        else:
-            st.write("## Please select one or more system models in the sidebar to plot the graph.")
-
-        # Avoiding the user warning for now
-        warnings.filterwarnings("ignore", message="Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.")
+                    # Avoiding the user warning for now
+            warnings.filterwarnings("ignore", message="Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.")
         
-        plt.xscale("log")
-        plt.show()
-        st.pyplot(plt.gcf())
+            plt.xscale("log")
+            plt.show()
+            st.pyplot(plt.gcf())
+        else:
+            st.write("## Please select one or more system models in the sidebar to plot the chart.")
+
 
     elif chart_select_radio_jrt == "Detailed Run Time Distribution Chart":
         # drt = detailed run time
@@ -160,13 +161,14 @@ if nav_bar_horizontal == "Job Run Time":
             plt.ylabel(ylabel, fontsize=20)
             plt.margins(0)
             plt.ylim(0, drt_frequency_slider_jrt * 100)
-            plt.xlim(0, cdf_run_time_value_slider_jrt)
+            plt.xlim(0, 100)
 
             plt.grid(True)
 
         plt.style.use("default")
 
         if len(drt_selected_system_models_jrt) >= 1 and len(drt_selected_time_range_jrt) >= 1:
+            st.write("Detailed Run Time Distribution Chart")
             for item in drt_selected_system_models_jrt:
                 if "Blue Waters" in drt_selected_system_models_jrt:
                     if "0sec to 30sec" in drt_selected_time_range_jrt:
@@ -215,14 +217,13 @@ if nav_bar_horizontal == "Job Run Time":
 
             plt.rc('legend', fontsize=12)
             plt.legend(drt_selected_system_models_jrt, loc="upper right")
+                    # Avoiding the user warning for now
+            warnings.filterwarnings("ignore", message="Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.")
+
+            plt.show()
+            st.pyplot(plt.gcf())
         else:
-            st.write("## Please select one or more system models and time ranges in the sidebar to plot the graph.")
-
-        # Avoiding the user warning for now
-        warnings.filterwarnings("ignore", message="Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.")
-
-        plt.show()
-        st.pyplot(plt.gcf())
+            st.write("## Please select one or more system models and time ranges in the sidebar to plot the chart.")
 
 # Job Arrival pattern page code
 elif nav_bar_horizontal == "Job Arrival Pattern":
