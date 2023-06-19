@@ -119,7 +119,7 @@ if nav_bar_horizontal == "Job Run Time":
 
     elif chart_select_radio_jrt == "Detailed Run Time Distribution Chart":
         # drt = detailed run time
-        drt_time_ranges = ['0~30s', '30s~10min', '10min~1h', '1h~12h', "more than 12h"]
+        drt_time_ranges = ["0sec to 30sec", "30sec to 10min", "10min to 1h", "1h to 12h", "more than 12h"]
 
         with st.sidebar.form("detailed_run_time_form_jrt"):
             st.write("## Adjust the following settings to change the detailed run time chart:")
@@ -142,57 +142,86 @@ if nav_bar_horizontal == "Job Run Time":
         # Alex code here for displaying the detailed run time chart
         # Plots Figure 1(b) from page 4, 3.1.2
         st.markdown("<a name='drt_chart_section'></a>", unsafe_allow_html=True)
-        def lt_xs(data, t1, t2):
-            lt10min_jobs_num = len(data[data < t2][data >= t1])
-            all_jobs_num = len(data)
-            return lt10min_jobs_num / all_jobs_num
 
-        def lt_xs_all(t1, t2):
-            res = []
-            res.append(lt_xs(bw_df["run_time"], t1, t2))
-            res.append(lt_xs(mira_df_2["run_time"], t1, t2))
-            res.append(lt_xs(philly_df["run_time"], t1, t2))
-            res.append(lt_xs(hl_df["run_time"], t1, t2))
-            return res
+        def plot_detailed_run_time_distribution(data, bins, xlabel, ylabel="Frequency (%)", color="", linestyle="--"):
+            plt.xticks(fontsize=16)
+            plt.yticks(fontsize=16)
 
-        x = [0, 30, 600, 3600, 12 * 3600, 100000]
-        x_value = np.array([1, 2, 3, 4, 5])
-        labels = ['0~30s', '30s~10min', '10min~1h', '1h~12h', "more than 12h"]
-        bw = []
-        mr = []
-        ply = []
-        hl = []
-        width = 0.2
+            counts, bin_edges = np.histogram(data, bins=bins)
+            counts = counts / float(sum(counts))
+            bin_width = bin_edges[1] - bin_edges[0]
+            bin_centers = bin_edges[:-1] + bin_width / 2
 
-        for i in range(1, len(x)):
-            if labels[i-1] in drt_selected_time_range_jrt:
-                res = lt_xs_all(x[i-1], x[i])
-                bw.append(res[0])
-                mr.append(res[1])
-                ply.append(res[2])
-                hl.append(res[3])
+            if color:
+                plt.bar(bin_centers, counts * 100, width=bin_width, color=color)
+            else:
+                plt.bar(bin_centers, counts * 100, width=bin_width)
 
-        x_value_selected = np.arange(1, len(drt_selected_time_range_jrt) + 1)
+            plt.xlabel(xlabel, fontsize=20)
+            plt.ylabel(ylabel, fontsize=20)
+            plt.margins(0)
+            plt.ylim(0, drt_frequency_slider_jrt * 100)
+            plt.xlim(0, 100)
 
-        if len(system_models_jrt) >= 1 and len(drt_selected_time_range_jrt) >= 1:
-            for model in system_models_jrt:
-                    if "Blue Waters" in drt_selected_system_models_jrt:
-                        plt.bar(x_value_selected - 3 * width / 2, bw, width, edgecolor='black', hatch="x", color="blue")
-                    if "Mira" in drt_selected_system_models_jrt:
-                        plt.bar(x_value_selected - width / 2, mr, width, edgecolor='black', hatch="\\", color="red")
-                    if "Philly" in drt_selected_system_models_jrt:
-                        plt.bar(x_value_selected + width / 2, ply, width, edgecolor='black', hatch=".", color="green")
-                    if "Helios" in drt_selected_system_models_jrt:
-                        plt.bar(x_value_selected + 3 * width / 2, hl, width, edgecolor='black', hatch="-", color="violet")
+            plt.grid(True)
 
-            plt.xticks(x_value_selected, drt_selected_time_range_jrt)
-            plt.legend(drt_selected_system_models_jrt, prop={'size': 12}, loc="upper right")
-            plt.ylabel("Frequency (%)", fontsize=18)
-            plt.xlabel("Job Run Time (s)", fontsize=18)
-            st.set_option('deprecation.showPyplotGlobalUse', False)
+        plt.style.use("default")
+
+        if len(drt_selected_system_models_jrt) >= 1 and len(drt_selected_time_range_jrt) >= 1:
+            st.write("Detailed Run Time Distribution Chart")
+            for item in drt_selected_system_models_jrt:
+                if "Blue Waters" in drt_selected_system_models_jrt:
+                    if "0sec to 30sec" in drt_selected_time_range_jrt:
+                        plot_detailed_run_time_distribution(bw_df[bw_df["run_time"] <= 30]["run_time"], 30, "Time (s)", linestyle=":", color="blue")
+                    if "30sec to 10min" in drt_selected_time_range_jrt:
+                        plot_detailed_run_time_distribution(bw_df[(bw_df["run_time"] > 30) & (bw_df["run_time"] <= 600)]["run_time"], 30, "Time (s)", linestyle="-", color="blue")
+                    if "10min to 1h" in drt_selected_time_range_jrt:
+                        plot_detailed_run_time_distribution(bw_df[(bw_df["run_time"] > 600) & (bw_df["run_time"] <= 3600)]["run_time"], 30, "Time (s)", linestyle="--", color="blue")
+                    if "1h to 12h" in drt_selected_time_range_jrt:
+                        plot_detailed_run_time_distribution(bw_df[(bw_df["run_time"] > 3600) & (bw_df["run_time"] <= 43200)]["run_time"], 30, "Time (s)", linestyle="-.", color="blue")
+                    if "more than 12h" in drt_selected_time_range_jrt:
+                        plot_detailed_run_time_distribution(bw_df[bw_df["run_time"] > 43200]["run_time"], 30, "Time (s)", linestyle=":", color="blue")
+                if "Mira" in drt_selected_system_models_jrt:
+                    if "0sec to 30sec" in drt_selected_time_range_jrt:
+                        plot_detailed_run_time_distribution(mira_df_2[mira_df_2["run_time"] <= 30]["run_time"], 30, "Time (s)", linestyle=":", color="red")
+                    if "30sec to 10min" in drt_selected_time_range_jrt:
+                        plot_detailed_run_time_distribution(mira_df_2[(mira_df_2["run_time"] > 30) & (mira_df_2["run_time"] <= 600)]["run_time"], 30, "Time (s)", linestyle="-", color="red")
+                    if "10min to 1h" in drt_selected_time_range_jrt:
+                        plot_detailed_run_time_distribution(mira_df_2[(mira_df_2["run_time"] > 600) & (mira_df_2["run_time"] <= 3600)]["run_time"], 30, "Time (s)", linestyle="--", color="red")
+                    if "1h to 12h" in drt_selected_time_range_jrt:
+                        plot_detailed_run_time_distribution(mira_df_2[(mira_df_2["run_time"] > 3600) & (mira_df_2["run_time"] <= 43200)]["run_time"], 30, "Time (s)", linestyle="-.", color="red")
+                    if "more than 12h" in drt_selected_time_range_jrt:
+                        plot_detailed_run_time_distribution(mira_df_2[mira_df_2["run_time"] > 43200]["run_time"], 30, "Time (s)", linestyle=":", color="red")
+                if "Philly" in drt_selected_system_models_jrt:
+                    if "0sec to 30sec" in drt_selected_time_range_jrt:
+                        plot_detailed_run_time_distribution(philly_df[philly_df["run_time"] <= 30]["run_time"], 30, "Time (s)", linestyle=":", color="green")
+                    if "30sec to 10min" in drt_selected_time_range_jrt:
+                        plot_detailed_run_time_distribution(philly_df[(philly_df["run_time"] > 30) & (philly_df["run_time"] <= 600)]["run_time"], 30, "Time (s)", linestyle="-", color="green")
+                    if "10min to 1h" in drt_selected_time_range_jrt:
+                        plot_detailed_run_time_distribution(philly_df[(philly_df["run_time"] > 600) & (philly_df["run_time"] <= 3600)]["run_time"], 30, "Time (s)", linestyle="--", color="green")
+                    if "1h to 12h" in drt_selected_time_range_jrt:
+                        plot_detailed_run_time_distribution(philly_df[(philly_df["run_time"] > 3600) & (philly_df["run_time"] <= 43200)]["run_time"], 30, "Time (s)", linestyle="-.", color="green")
+                    if "more than 12h" in drt_selected_time_range_jrt:
+                        plot_detailed_run_time_distribution(philly_df[philly_df["run_time"] > 43200]["run_time"], 30, "Time (s)", linestyle=":", color="green")
+                if "Helios" in drt_selected_system_models_jrt:
+                    if "0sec to 30sec" in drt_selected_time_range_jrt:
+                        plot_detailed_run_time_distribution(hl_df[hl_df["run_time"] <= 30]["run_time"], 30, "Time (s)", linestyle=":", color="violet")
+                    if "30sec to 10min" in drt_selected_time_range_jrt:
+                        plot_detailed_run_time_distribution(hl_df[(hl_df["run_time"] > 30) & (hl_df["run_time"] <= 600)]["run_time"], 30, "Time (s)", linestyle="-", color="violet")
+                    if "10min to 1h" in drt_selected_time_range_jrt:
+                        plot_detailed_run_time_distribution(hl_df[(hl_df["run_time"] > 600) & (hl_df["run_time"] <= 3600)]["run_time"], 30, "Time (s)", linestyle="--", color="violet")
+                    if "1h to 12h" in drt_selected_time_range_jrt:
+                        plot_detailed_run_time_distribution(hl_df[(hl_df["run_time"] > 3600) & (hl_df["run_time"] <= 43200)]["run_time"], 30, "Time (s)", linestyle="-.", color="violet")
+                    if "more than 12h" in drt_selected_time_range_jrt:
+                        plot_detailed_run_time_distribution(hl_df[hl_df["run_time"] > 43200]["run_time"], 30, "Time (s)", linestyle=":", color="violet")
+
+            plt.rc('legend', fontsize=12)
+            plt.legend(drt_selected_system_models_jrt, loc="upper right")
+                    # Avoiding the user warning for now
+            warnings.filterwarnings("ignore", message="Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.")
+
             plt.show()
-            st.pyplot()
-
+            st.pyplot(plt.gcf())
         else:
             st.write("## Please select one or more system models and time ranges in the sidebar to plot the chart.")
 
@@ -200,47 +229,54 @@ if nav_bar_horizontal == "Job Run Time":
 elif nav_bar_horizontal == "Job Arrival Pattern":
     selected_system_models_jap = []
     chart_select_radio_jap = None;
-    with st.form("select_chart_model_jap"):
-        st.write("### Select a chart you want to view")
-        chart_select_radio_jap = st.radio("Chart Selection", [None, "Daily Submit Pattern", "Weekly Submit Pattern", "Job Arrival Interval"], horizontal=True)
-        submit_chart_radio_button_jap = st.form_submit_button("Select")
-        if submit_chart_radio_button_jap:
-            if chart_select_radio_jap is not None:
-                  with st.spinner("Loading...."):
-                        time.sleep(1)
-                  st.success(f"Done, You have selected: {chart_select_radio_jap}")
-            else:
-                text_color = "red"
-                st.markdown(f'<span style="color:{text_color}">You have selected "None", please select an other option to view chart.</span>', unsafe_allow_html=True)
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        with st.form("select_chart_model_jap"):
+            st.write("### Select a chart you want to view")
+            chart_select_radio_jap = st.radio("Chart Selection", [None, "Daily Submit Pattern", "Weekly Submit Pattern", "Job Arrival Interval"])
+            submit_chart_radio_button_jap = st.form_submit_button("Select")
+            if submit_chart_radio_button_jap:
+                if chart_select_radio_jap is not None:
+                    with st.spinner("Loading...."):
+                            time.sleep(1)
+                    st.success(f"Done, You have selected: {chart_select_radio_jap}")
+                else:
+                    text_color = "red"
+                    st.markdown(f'<span style="color:{text_color}">You have selected "None", please select an other option to view chart.</span>', unsafe_allow_html=True)
 
-            if chart_select_radio_jap == "Daily Submit Pattern":
-                st.markdown('<script>scrollToSection("dsp_chart_section")</script>', unsafe_allow_html=True)
-            elif chart_select_radio_jap == "Weekly Submit Pattern":
-                st.markdown('<script>scrollToSection("wsp_chart_section")</script>', unsafe_allow_html=True)
-            elif chart_select_radio_jap == "Job Arrival Interval":
-                st.markdown('<script>scrollToSection("jap_chart_section")</script>', unsafe_allow_html=True)
+                if chart_select_radio_jap == "Daily Submit Pattern":
+                    st.markdown('<script>scrollToSection("dsp_chart_section")</script>', unsafe_allow_html=True)
+                elif chart_select_radio_jap == "Weekly Submit Pattern":
+                    st.markdown('<script>scrollToSection("wsp_chart_section")</script>', unsafe_allow_html=True)
+                elif chart_select_radio_jap == "Job Arrival Interval":
+                    st.markdown('<script>scrollToSection("jap_chart_section")</script>', unsafe_allow_html=True)
 
     # Models form  
-    if chart_select_radio_jap is not None:
-        st.sidebar.write("# Parameters Control Panel")
-        with st.sidebar.form("system_models_form_jap"):
-            st.write("## Select a model(s) below and click 'Set' to plot:")
+    # if chart_select_radio_jap is not None:
+        
+    with col2:
+        with st.form("system_models_form_jap"):
+            st.write("### Select a model(s) below and click 'Set' to plot:")
             for item in system_models_jrt:
                     model_checkbox_jap = st.checkbox(item)
                     if model_checkbox_jap:
                         selected_system_models_jap.append(item)
             submit_system_models_jap = st.form_submit_button("Set")
             if submit_system_models_jap:
-                if (len(selected_system_models_jap) >= 1):
-                    with st.spinner("Loading...."):
-                        time.sleep(1)
-                    st.success(f"Done, you have set {selected_system_models_jap}")
-                else:
-                    text_color = "red"
-                    st.markdown(f'<span style="color:{text_color}">Please select one or more system model(s) and then click "Set".</span>', unsafe_allow_html=True)
-            
+                    if (len(selected_system_models_jap) >= 1):
+                        with st.spinner("Loading...."):
+                            time.sleep(1)
+                        if chart_select_radio_jap is not None:
+                            st.success(f"Done, you have set {selected_system_models_jap}")
+                        else:
+                            st.success(f'Done setting your system models. Please select a chart you want to view in the chart selection form (Hint: chart selection form is located beside this form).')
+                    else:
+                        text_color = "red"
+                        st.markdown(f'<span style="color:{text_color}">Please select one or more system model(s) and then click "Set".</span>', unsafe_allow_html=True)
     #  Code for individual charts             
     if chart_select_radio_jap == "Daily Submit Pattern":
+        st.sidebar.write("# Parameters Control Panel")
         with st.sidebar.form("dsp_personal_parameters_update_form"):
             st.write("## Adjust the following parameters and click on 'Apply Changes' to change the Daily Submit Pattern chart:")
             dsp_job_count_slider_jap = st.slider("Adjust Job Submit Count Range (x-axis):", min_value=0, max_value=180, step=20)

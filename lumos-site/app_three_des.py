@@ -223,7 +223,7 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
     # Models form  
     if chart_select_radio_jap is not None:
         st.sidebar.write("# Parameters Control Panel")
-        with st.sidebar.form("system_models_form_jap"):
+        with st.form("system_models_form_jap"):
             st.write("## Select a model(s) below and click 'Set' to plot:")
             for item in system_models_jrt:
                     model_checkbox_jap = st.checkbox(item)
