@@ -295,8 +295,58 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
                      text_color = "red"
                      st.markdown(f'<span style = "color: {text_color}">Please set system model(s) above first and then adjust the parameters here.</span>', unsafe_allow_html=True)
 
-        # Alex your code here  
-        
+        # Daily Submit Pattern
+        def get_time_of_day(time, timestamp=True):
+            if timestamp:
+                time = datetime.fromtimestamp(time)
+            else:
+                time = datetime.strptime(time, '%Y-%m-%d %H:%M:%S')
+            return (time.hour + (time.minute>30))%24, datetime.strftime(time, '%Y-%m-%d')
+
+        def get_day_of_week(time):
+            time = datetime.fromtimestamp(time)
+            return time.isocalendar()[2], time.isocalendar()[1]
+            
+        def plot_time_submit(submit_time, xlabel, ylabel="Number of Submitted Jobs", week=False, marker="o"):
+            if week == True:
+                time, days = list(zip(*[get_time_of_day(i) for i in submit_time]))
+                dd = Counter()
+                for i in time:
+                    dd[i] += 1
+                keys = sorted(dd.keys())
+                n = len(set(days))
+            else:
+                days, weeks = list(zip(*[get_day_of_week(i) for i in submit_time]))
+                dd = Counter()
+                for i in days:
+                    dd[i] += 1
+                keys = sorted(dd.keys())
+                n = len(set(weeks))
+            plt.plot(keys, [np.array(dd[j])/n for j in keys], marker=marker, linewidth=3, markersize=12)
+            
+
+            # Hour of day
+            plt.figure(figsize=(12,5))
+            plt.xticks(fontsize=16)
+            plt.yticks(fontsize=16) 
+            plot_time_submit(bw_df["submit_time"], xlabel="Hour of the Day", week=True,marker="^")
+            plot_time_submit(mira_df_2["submit_time"], xlabel="Hour of the Day", week=True,marker="o")
+            plot_time_submit(philly_df["submit_time"], xlabel="Hour of the Day", week=True,marker="s")
+            plot_time_submit(hl_df["submit_time"], xlabel="Hour of the Day", week=True,marker="d")
+            plt.xlabel("Hour of the Day", fontsize=20)
+            plt.ylabel("Job Submit Count", fontsize=20)
+            # plt.margins(1)
+            plt.ylim(bottom=0)
+            plt.tight_layout()
+            plt.xlim(-0.2, 23.2)
+            plt.grid(True)
+            plt.legend(["bw", "mira", "philly","helios", ],  prop={'size': 14})
+            # plt.legend(["bw", "mira", "philly","helios", ], prop={'size': 12},bbox_to_anchor=(0, 1, 1., .102),loc='lower left',
+            #           ncol=4, fancybox=True, shadow=True)
+            plt.xticks(range(0, 24, 1))
+            plt.rc('legend',fontsize=20)
+            plt.show()
+                
 
 
     elif chart_select_radio_jap == "Weekly Submit Pattern":
