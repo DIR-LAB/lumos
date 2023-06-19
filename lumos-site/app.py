@@ -71,6 +71,20 @@ if nav_bar_horizontal == "Job Run Time":
         # Plots Figure 1(a) from page 3, 3.1.1
         st.markdown("<a name='cdf_chart_section'></a>", unsafe_allow_html=True)
 
+        def plot_detailed_run_time_distribution(data, bins, xlabel, ylabel="Frequency (%)", color="", linestyle="--"):
+            plt.xticks(fontsize=16)
+            plt.yticks(fontsize=16)
+
+            counts, bin_edges = np.histogram(data, bins=bins)
+            counts = counts / float(sum(counts))
+            bin_width = bin_edges[1] - bin_edges[0]
+            bin_centers = bin_edges[:-1] + bin_width / 2
+
+            if color:
+                plt.bar(bin_centers, counts * 100, width=bin_width, color=color)
+            else:
+                plt.bar(bin_centers, counts * 100, width=bin_width)
+
         def plot_cdf(x, bins, xlabel, ylabel="Frequency (%)", color="", linestyle="--"):
             plt.xticks(fontsize=16)
             plt.yticks(fontsize=16)
@@ -142,6 +156,31 @@ if nav_bar_horizontal == "Job Run Time":
         # Alex code here for displaying the detailed run time chart
         # Plots Figure 1(b) from page 4, 3.1.2
         st.markdown("<a name='drt_chart_section'></a>", unsafe_allow_html=True)
+        
+        def plot_detailed_run_time_distribution(data, bins, xlabel, ylabel="Frequency (%)", color="", linestyle="--"):
+            plt.xticks(fontsize=16)
+            plt.yticks(fontsize=16)
+
+            counts, bin_edges = np.histogram(data, bins=bins)
+            counts = counts / float(sum(counts))
+            bin_width = bin_edges[1] - bin_edges[0]
+            bin_centers = bin_edges[:-1] + bin_width / 2
+
+            if color:
+                plt.bar(bin_centers, counts * 100, width=bin_width, color=color)
+            else:
+                plt.bar(bin_centers, counts * 100, width=bin_width)
+
+            plt.xlabel(xlabel, fontsize=20)
+            plt.ylabel(ylabel, fontsize=20)
+            plt.margins(0)
+            plt.ylim(0, drt_frequency_slider_jrt * 100)
+            plt.xlim(0, drt_selected_system_models_jrt)
+
+            plt.grid(True)
+
+        plt.style.use("default")
+
         def lt_xs(data, t1, t2):
             lt10min_jobs_num = len(data[data < t2][data >= t1])
             all_jobs_num = len(data)
@@ -185,6 +224,7 @@ if nav_bar_horizontal == "Job Run Time":
                     if "Helios" in drt_selected_system_models_jrt:
                         plt.bar(x_value_selected + 3 * width / 2, hl, width, edgecolor='black', hatch="-", color="violet")
 
+            plt.ylim(0.00, drt_frequency_slider_jrt)
             plt.xticks(x_value_selected, drt_selected_time_range_jrt)
             plt.legend(drt_selected_system_models_jrt, prop={'size': 12}, loc="upper right")
             plt.ylabel("Frequency (%)", fontsize=18)
