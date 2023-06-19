@@ -365,7 +365,25 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
                      st.markdown(f'<span style = "color: {text_color}">Please set system model(s) above first and then adjust the parameters here.</span>', unsafe_allow_html=True)
 
           # Alex your code here
+            plt.figure(figsize=(12,5))
+            plt.xticks(fontsize=16)
+            plt.yticks(fontsize=16) 
+            plot_time_submit(bw_df["submit_time"], xlabel="Day of the Week", week=True,marker="^")
+            plot_time_submit(mira_df_2["submit_time"], xlabel="Day of the Week", week=True,marker="o")
+            plot_time_submit(philly_df["submit_time"], xlabel="Day of the Week", week=True,marker="s")
+            plot_time_submit(hl_df["submit_time"], xlabel="Day of the Week", week=True,marker="d")
+            plt.xlabel("Day of the Week", fontsize=20)
+            plt.ylabel("Job Submit Count", fontsize=20)
+            # plt.margins(1)
+            plt.ylim(bottom=0)
+            plt.yticks(range(0, 3000, 500))
+            plt.tight_layout()
+            plt.xlim(1, 7)
+            plt.grid(True)
+            plt.legend(["bw", "mira", "philly","helios", ],  prop={'size': 14})
+            plt.xticks(range(1, 8, 1))
 
+            plt.rc('legend',fontsize=20)
 
 
 
