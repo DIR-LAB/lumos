@@ -71,6 +71,20 @@ if nav_bar_horizontal == "Job Run Time":
         # Plots Figure 1(a) from page 3, 3.1.1
         st.markdown("<a name='cdf_chart_section'></a>", unsafe_allow_html=True)
 
+        def plot_detailed_run_time_distribution(data, bins, xlabel, ylabel="Frequency (%)", color="", linestyle="--"):
+            plt.xticks(fontsize=16)
+            plt.yticks(fontsize=16)
+
+            counts, bin_edges = np.histogram(data, bins=bins)
+            counts = counts / float(sum(counts))
+            bin_width = bin_edges[1] - bin_edges[0]
+            bin_centers = bin_edges[:-1] + bin_width / 2
+
+            if color:
+                plt.bar(bin_centers, counts * 100, width=bin_width, color=color)
+            else:
+                plt.bar(bin_centers, counts * 100, width=bin_width)
+
         def plot_cdf(x, bins, xlabel, ylabel="Frequency (%)", color="", linestyle="--"):
             plt.xticks(fontsize=16)
             plt.yticks(fontsize=16)
@@ -142,6 +156,31 @@ if nav_bar_horizontal == "Job Run Time":
         # Alex code here for displaying the detailed run time chart
         # Plots Figure 1(b) from page 4, 3.1.2
         st.markdown("<a name='drt_chart_section'></a>", unsafe_allow_html=True)
+        
+        def plot_detailed_run_time_distribution(data, bins, xlabel, ylabel="Frequency (%)", color="", linestyle="--"):
+            plt.xticks(fontsize=16)
+            plt.yticks(fontsize=16)
+
+            counts, bin_edges = np.histogram(data, bins=bins)
+            counts = counts / float(sum(counts))
+            bin_width = bin_edges[1] - bin_edges[0]
+            bin_centers = bin_edges[:-1] + bin_width / 2
+
+            if color:
+                plt.bar(bin_centers, counts * 100, width=bin_width, color=color)
+            else:
+                plt.bar(bin_centers, counts * 100, width=bin_width)
+
+            plt.xlabel(xlabel, fontsize=20)
+            plt.ylabel(ylabel, fontsize=20)
+            plt.margins(0)
+            plt.ylim(0, drt_frequency_slider_jrt * 100)
+            plt.xlim(0, drt_selected_system_models_jrt)
+
+            plt.grid(True)
+
+        plt.style.use("default")
+
         def lt_xs(data, t1, t2):
             lt10min_jobs_num = len(data[data < t2][data >= t1])
             all_jobs_num = len(data)
@@ -185,6 +224,7 @@ if nav_bar_horizontal == "Job Run Time":
                     if "Helios" in drt_selected_system_models_jrt:
                         plt.bar(x_value_selected + 3 * width / 2, hl, width, edgecolor='black', hatch="-", color="violet")
 
+            plt.ylim(0.00, drt_frequency_slider_jrt)
             plt.xticks(x_value_selected, drt_selected_time_range_jrt)
             plt.legend(drt_selected_system_models_jrt, prop={'size': 12}, loc="upper right")
             plt.ylabel("Frequency (%)", fontsize=18)
@@ -258,8 +298,58 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
                      text_color = "red"
                      st.markdown(f'<span style = "color: {text_color}">Please set system model(s) above first and then adjust the parameters here.</span>', unsafe_allow_html=True)
 
-        # Alex your code here  
-        
+        # Daily Submit Pattern
+        def get_time_of_day(time, timestamp=True):
+            if timestamp:
+                time = datetime.fromtimestamp(time)
+            else:
+                time = datetime.strptime(time, '%Y-%m-%d %H:%M:%S')
+            return (time.hour + (time.minute>30))%24, datetime.strftime(time, '%Y-%m-%d')
+
+        def get_day_of_week(time):
+            time = datetime.fromtimestamp(time)
+            return time.isocalendar()[2], time.isocalendar()[1]
+            
+        def plot_time_submit(submit_time, xlabel, ylabel="Number of Submitted Jobs", week=False, marker="o"):
+            if week == True:
+                time, days = list(zip(*[get_time_of_day(i) for i in submit_time]))
+                dd = Counter()
+                for i in time:
+                    dd[i] += 1
+                keys = sorted(dd.keys())
+                n = len(set(days))
+            else:
+                days, weeks = list(zip(*[get_day_of_week(i) for i in submit_time]))
+                dd = Counter()
+                for i in days:
+                    dd[i] += 1
+                keys = sorted(dd.keys())
+                n = len(set(weeks))
+            plt.plot(keys, [np.array(dd[j])/n for j in keys], marker=marker, linewidth=3, markersize=12)
+            
+
+            # Hour of day
+            plt.figure(figsize=(12,5))
+            plt.xticks(fontsize=16)
+            plt.yticks(fontsize=16) 
+            plot_time_submit(bw_df["submit_time"], xlabel="Hour of the Day", week=True,marker="^")
+            plot_time_submit(mira_df_2["submit_time"], xlabel="Hour of the Day", week=True,marker="o")
+            plot_time_submit(philly_df["submit_time"], xlabel="Hour of the Day", week=True,marker="s")
+            plot_time_submit(hl_df["submit_time"], xlabel="Hour of the Day", week=True,marker="d")
+            plt.xlabel("Hour of the Day", fontsize=20)
+            plt.ylabel("Job Submit Count", fontsize=20)
+            # plt.margins(1)
+            plt.ylim(bottom=0)
+            plt.tight_layout()
+            plt.xlim(-0.2, 23.2)
+            plt.grid(True)
+            plt.legend(["bw", "mira", "philly","helios", ],  prop={'size': 14})
+            # plt.legend(["bw", "mira", "philly","helios", ], prop={'size': 12},bbox_to_anchor=(0, 1, 1., .102),loc='lower left',
+            #           ncol=4, fancybox=True, shadow=True)
+            plt.xticks(range(0, 24, 1))
+            plt.rc('legend',fontsize=20)
+            plt.show()
+                
 
 
     elif chart_select_radio_jap == "Weekly Submit Pattern":
@@ -278,7 +368,25 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
                      st.markdown(f'<span style = "color: {text_color}">Please set system model(s) above first and then adjust the parameters here.</span>', unsafe_allow_html=True)
 
           # Alex your code here
+            plt.figure(figsize=(12,5))
+            plt.xticks(fontsize=16)
+            plt.yticks(fontsize=16) 
+            plot_time_submit(bw_df["submit_time"], xlabel="Day of the Week", week=True,marker="^")
+            plot_time_submit(mira_df_2["submit_time"], xlabel="Day of the Week", week=True,marker="o")
+            plot_time_submit(philly_df["submit_time"], xlabel="Day of the Week", week=True,marker="s")
+            plot_time_submit(hl_df["submit_time"], xlabel="Day of the Week", week=True,marker="d")
+            plt.xlabel("Day of the Week", fontsize=20)
+            plt.ylabel("Job Submit Count", fontsize=20)
+            # plt.margins(1)
+            plt.ylim(bottom=0)
+            plt.yticks(range(0, 3000, 500))
+            plt.tight_layout()
+            plt.xlim(1, 7)
+            plt.grid(True)
+            plt.legend(["bw", "mira", "philly","helios", ],  prop={'size': 14})
+            plt.xticks(range(1, 8, 1))
 
+            plt.rc('legend',fontsize=20)
 
 
 
