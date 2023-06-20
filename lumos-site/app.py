@@ -46,15 +46,15 @@ if nav_bar_horizontal == "Job Run Time":
 
         with st.sidebar.form("CDF_chart_form_jrt"):
             st.write("## Adjust the following settings to change the CDF chart:")
-            selected_system_models_jrt = []
-            with st.expander("Select System Model(s)"):
+            selected_system_models_jrt = system_models_jrt.copy() 
+            with st.expander("Select System Model(s)", expanded=True):
                 for item in system_models_jrt:
-                    model_checkbox_jrt = st.checkbox(item)
-                    if model_checkbox_jrt:
-                        selected_system_models_jrt.append(item)
+                    model_checkbox_jrt = st.checkbox(item, True)
+                    if not model_checkbox_jrt:
+                        selected_system_models_jrt.remove(item)
 
-            cdf_frequency_slider_jrt = st.slider("Choose frequency range", min_value=0, max_value=100, step=20)
-            cdf_run_time_slider_jrt = st.slider("Choose run time range (in powers of 10)", min_value_exp_run_time_slider, max_value_exp_run_time_slider, step=1)
+            cdf_frequency_slider_jrt = st.slider("Choose frequency range", min_value=0, max_value=100, step=20, value=100)
+            cdf_run_time_slider_jrt = st.slider("Choose run time range (in powers of 10)", min_value_exp_run_time_slider, max_value_exp_run_time_slider, step=1, value=8)
             cdf_run_time_slider_value_jrt = int(10**cdf_run_time_slider_jrt)
                         
             submit_cdf_sidebar_button = st.form_submit_button("Apply")
@@ -123,19 +123,19 @@ if nav_bar_horizontal == "Job Run Time":
 
         with st.sidebar.form("detailed_run_time_form_jrt"):
             st.write("## Adjust the following settings to change the detailed run time chart:")
-            drt_selected_system_models_jrt = []
-            drt_selected_time_range_jrt = []
-            with st.expander("Select System Model(s)"):
+            drt_selected_system_models_jrt = system_models_jrt.copy()
+            drt_selected_time_range_jrt = drt_time_ranges.copy()
+            with st.expander("Select System Model(s)", expanded=True):
                 for item in system_models_jrt:
-                    drt_model_checkbox_jrt = st.checkbox(item)
-                    if drt_model_checkbox_jrt:
-                        drt_selected_system_models_jrt.append(item)
-            drt_frequency_slider_jrt = st.slider("Choose frequency range", min_value=0.0, max_value=0.6, step=0.1)
-            with st.expander("Select Run Time Range"):
+                    drt_model_checkbox_jrt = st.checkbox(item, True)
+                    if not drt_model_checkbox_jrt:
+                        drt_selected_system_models_jrt.remove(item)
+            drt_frequency_slider_jrt = st.slider("Choose frequency range", min_value=0.0, max_value=0.6, step=0.1, value=0.6)
+            with st.expander("Select Run Time Range", expanded=True):
                 for item in drt_time_ranges:
-                    drt_time_range_checkbox_jrt = st.checkbox(item)
-                    if drt_time_range_checkbox_jrt:
-                        drt_selected_time_range_jrt.append(item)
+                    drt_time_range_checkbox_jrt = st.checkbox(item, True)
+                    if not drt_time_range_checkbox_jrt:
+                        drt_selected_time_range_jrt.remove(item)
 
             submit_drt_sidebar_button = st.form_submit_button("Apply")
 
@@ -174,7 +174,7 @@ if nav_bar_horizontal == "Job Run Time":
 
         x_value_selected = np.arange(1, len(drt_selected_time_range_jrt) + 1)
 
-        if len(system_models_jrt) >= 1 and len(drt_selected_time_range_jrt) >= 1:
+        if len(drt_selected_system_models_jrt) >= 1 and len(drt_selected_time_range_jrt) >= 1:
             for model in system_models_jrt:
                     if "Blue Waters" in drt_selected_system_models_jrt:
                         plt.bar(x_value_selected - 3 * width / 2, bw, width, edgecolor='black', hatch="x", color="blue")
@@ -190,9 +190,12 @@ if nav_bar_horizontal == "Job Run Time":
             plt.ylabel("Frequency (%)", fontsize=18)
             plt.xlabel("Job Run Time (s)", fontsize=18)
             st.set_option('deprecation.showPyplotGlobalUse', False)
-            plt.show()
             st.pyplot()
-
+        
+        elif len(drt_selected_system_models_jrt) >= 1 and len(drt_selected_time_range_jrt) < 1:
+            st.write("## Please select one or more time ranges in the sidebar to plot the chart.")
+        elif len(drt_selected_system_models_jrt) < 1 and len(drt_selected_time_range_jrt) >= 1:
+            st.write("## Please select one or more system models in the sidebar to plot the chart.")
         else:
             st.write("## Please select one or more system models and time ranges in the sidebar to plot the chart.")
 
