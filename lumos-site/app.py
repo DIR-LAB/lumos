@@ -322,11 +322,11 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
             dsp_hour_of_the_day_slider_jap = st.slider("**Adjust Hour of the Day Range (x-axis)**", min_value=-1, max_value=24, step=1, value=24)
             dap_submit_parameters_button_jap = st.form_submit_button("Apply Changes")
             if dap_submit_parameters_button_jap:
-                if len(dsp_selected_system_models_jap) < 1:
-                     text_color = "red"
-                     st.markdown(f'<span style = "color: {text_color}">Please select one or more system model(s) and click "Apply Changes".</span>', unsafe_allow_html=True)
+                if len(dsp_selected_system_models_jap) >= 1:
+                     st.success(f"Done!")
                 else:
-                     pass;
+                     text_color = "red"
+                     st.markdown(f'<span style = "color: {text_color}">Please set system model(s) above first and then adjust the parameters here.</span>', unsafe_allow_html=True)
 
         # Alex your code here
         st.markdown("<h2 style='text-align: center; color: black;'>Daily Submit Pattern Chart</h2>", unsafe_allow_html=True)
@@ -363,33 +363,21 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
             st.write("Description for this chart goes here.")
 
     elif chart_select_radio_jap == "Weekly Submit Pattern":
-        wsp_selected_system_models_jap = system_models_jap.copy()
-        with st.spinner("In progress...., Please do not change any settings now"): 
          with st.sidebar.form("wsp_personal_parameters_update_form"):
-            st.write("## Alter the following settings to customize the Weekly Submit Pattern chart:")
-            with st.expander("**Select System Model(s)**", expanded=True):
-                for item in system_models_jap:
-                    wsp_model_checkbox_jap = st.checkbox(item, True)
-                    if not wsp_model_checkbox_jap:
-                        wsp_selected_system_models_jap.remove(item)
-            wsp_job_count_slider_jap = st.slider("Adjust Job Submit Count Range (y-axis):", min_value=0, max_value=3000, step=500, value=3000)
-            wsp_hour_of_the_day_slider_jap = st.slider("Adjust Day of the Week Range (x-axis):", min_value=0, max_value=8, step=1, value=8)
+            st.write("## Adjust the following parameters and click on 'Apply Changes' to change the Weekly Submit Pattern chart:")
+            wsp_job_count_slider_jap = st.slider("Adjust Job Submit Count Range (x-axis):", min_value=0, max_value=3000, step=500)
+            wsp_hour_of_the_day_slider_jap = st.slider("Adjust Day of the Week Range (y-axis):", min_value=0, max_value=8, step=1)
             wsp_submit_parameters_button_jap = st.form_submit_button("Apply Changes")
             if wsp_submit_parameters_button_jap:
-                if len(selected_system_models_jap) < 1:
-                     text_color = "red"
-                     st.markdown(f'<span style = "color: {text_color}">Please select one or more system model(s) and click "Apply Changes".</span>', unsafe_allow_html=True)
+                if len(selected_system_models_jap) >= 1:
+                     with st.spinner("Loading...."):
+                        time.sleep(2)
+                     st.success(f"Done!")
                 else:
-                     pass;
+                     text_color = "red"
+                     st.markdown(f'<span style = "color: {text_color}">Please set system model(s) above first and then adjust the parameters here.</span>', unsafe_allow_html=True)
 
-        st.markdown("<h2 style='text-align: center; color: black;'>Weekly Submit Pattern Chart</h2>", unsafe_allow_html=True)
-        # Alex your code here
-
-
-        
-
-        with st.expander("**Weekly Submit Pattern Chart Description:**", expanded=True):
-            st.write("Description for this chart goes here.")
+          # Alex your code here
 
 
 
