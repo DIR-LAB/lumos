@@ -363,9 +363,6 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
         wsp_selected_system_models_jap = system_models_jap.copy()
         with st.spinner("In progress...., Please do not change any settings now"): 
          with st.sidebar.form("wsp_personal_parameters_update_form"):
-            st.write("## Adjust the following parameters and click on 'Apply Changes' to change the Weekly Submit Pattern chart:")
-            wsp_job_count_slider_jap = st.slider("Adjust Job Submit Count Range (x-axis):", min_value=0, max_value=3000, step=500)
-            wsp_hour_of_the_day_slider_jap = st.slider("Adjust Day of the Week Range (y-axis):", min_value=0, max_value=8, step=1)
             st.write("## Alter the following settings to customize the Weekly Submit Pattern chart:")
             with st.expander("**Select System Model(s)**", expanded=True):
                 for item in system_models_jap:
