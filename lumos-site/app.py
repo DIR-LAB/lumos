@@ -35,7 +35,7 @@ if nav_bar_horizontal == "Job Run Time":
         chart_select_radio_jrt = st.radio("Chart Selection", [None, "CDF Run Time Chart", "Detailed Run Time Distribution Chart"], horizontal=True)
         submit = st.form_submit_button("Select")
         if submit:
-            st.write(f"**You have selected:** {chart_select_radio_jrt}")
+            st.write(f"You have selected: {chart_select_radio_jrt}")
             if chart_select_radio_jrt == "CDF Run Time Chart":
                 st.markdown('<script>scrollToSection("cdf_chart_section")</script>', unsafe_allow_html=True)
             elif chart_select_radio_jrt == "Detailed Run Time Distribution Chart":
@@ -127,7 +127,7 @@ if nav_bar_horizontal == "Job Run Time":
                 plt.show()
                 st.pyplot(plt.gcf())
                 with st.expander("**CDF Run Time Chart Description:**", expanded=True):
-                        st.write("Displays a Cumulative Distribution Functions (CDFs) of the runtime comparisons of the four job traces (Blue Waters, Mira, Philly, and Helios).")
+                        st.write("Description for this chart goes here.")
 
             else:
                 st.write("## Please select one or more system model(s) in the sidebar to plot the chart.")
@@ -240,7 +240,7 @@ if nav_bar_horizontal == "Job Run Time":
                 st.set_option('deprecation.showPyplotGlobalUse', False)
                 st.pyplot()
                 with st.expander("**Detailed Run Time Distribution Chart Description:**", expanded=True):
-                        st.write("Displays a bar chart of the four job traces categorized by run times (30 sec, 1 min, 10 mins, 1h, and 12+hrs) alongside the frequency in which they occur.")
+                        st.write("Description for this chart goes here.")
 
             
             elif len(drt_selected_system_models_jrt) >= 1 and len(drt_selected_time_range_jrt) < 1:
@@ -291,7 +291,7 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
         submit_chart_radio_button_jap = st.form_submit_button("Select")
         if submit_chart_radio_button_jap:
             if chart_select_radio_jap is not None:
-                    st.write(f"**You have selected:** {chart_select_radio_jap}")
+                    st.write()
             else:
                 text_color = "red"
                 st.markdown(f'<span style="color:{text_color}">You have selected "None", please select an other option to view chart.</span>', unsafe_allow_html=True)
@@ -356,7 +356,7 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
         plt.show()
         st.pyplot()
         with st.expander("**Daily Submit Pattern Chart Description:**", expanded=True):
-            st.write("Displays a chart presenting the job arrival counts of each job trace for each hour of the day")
+            st.write("Description for this chart goes here.")
 
     elif chart_select_radio_jap == "Weekly Submit Pattern":
         wsp_selected_system_models_jap = system_models_jap.copy()
@@ -420,17 +420,10 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
             # Alex your code here
 
 
-        
-
-            with st.expander("**Job Arrival Interval Chart Description:**", expanded=True):
-                st.write("Description here")
-            
-
 elif nav_bar_horizontal == "Model 3":
     # Code for "Model 3" section goes here
     st.write("This is the 'Model 3' section.")
 
 else:
     st.write("Please select a section from the navigation bar.")
-
 
