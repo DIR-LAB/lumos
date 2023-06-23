@@ -127,7 +127,7 @@ if nav_bar_horizontal == "Job Run Time":
                 plt.show()
                 st.pyplot(plt.gcf())
                 with st.expander("**CDF Run Time Chart Description:**", expanded=True):
-                        st.write("Description for this chart goes here.")
+                         st.write("Displays a Cumulative Distribution Functions (CDFs) of the runtime comparisons of the four job traces (Blue Waters, Mira, Philly, and Helios).")
 
             else:
                 st.write("## Please select one or more system model(s) in the sidebar to plot the chart.")
@@ -240,7 +240,7 @@ if nav_bar_horizontal == "Job Run Time":
                 st.set_option('deprecation.showPyplotGlobalUse', False)
                 st.pyplot()
                 with st.expander("**Detailed Run Time Distribution Chart Description:**", expanded=True):
-                        st.write("Description for this chart goes here.")
+                        st.write("Displays a bar chart of the four job traces categorized by run times (30 sec, 1 min, 10 mins, 1h, and 12+hrs) alongside the frequency in which they occur.")
 
             
             elif len(drt_selected_system_models_jrt) >= 1 and len(drt_selected_time_range_jrt) < 1:
@@ -291,7 +291,7 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
         submit_chart_radio_button_jap = st.form_submit_button("Select")
         if submit_chart_radio_button_jap:
             if chart_select_radio_jap is not None:
-                    st.write()
+                    st.write(f"**You have selected:** {chart_select_radio_jap}")
             else:
                 text_color = "red"
                 st.markdown(f'<span style="color:{text_color}">You have selected "None", please select an other option to view chart.</span>', unsafe_allow_html=True)
@@ -320,10 +320,11 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
             dap_submit_parameters_button_jap = st.form_submit_button("Apply Changes")
             if dap_submit_parameters_button_jap:
                 if len(dsp_selected_system_models_jap) < 1:
-                     st.success(f"Done!")
-                else:
                      text_color = "red"
                      st.markdown(f'<span style = "color: {text_color}">Please set system model(s) above first and then adjust the parameters here.</span>', unsafe_allow_html=True)
+                else:
+                    pass;
+                    
 
         st.markdown("<h2 style='text-align: center; color: black;'>Daily Submit Pattern Chart</h2>", unsafe_allow_html=True)
         plt.figure(figsize=(12,7))
@@ -356,7 +357,7 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
         plt.show()
         st.pyplot()
         with st.expander("**Daily Submit Pattern Chart Description:**", expanded=True):
-            st.write("Description for this chart goes here.")
+            st.write("Displays a chart presenting the job arrival counts of each job trace for each hour of the day")
 
     elif chart_select_radio_jap == "Weekly Submit Pattern":
         wsp_selected_system_models_jap = system_models_jap.copy()
@@ -387,7 +388,7 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
 
 
 
-        with st.expander("**CDF Run Time Chart Description:**", expanded=True):
+        with st.expander("**Weekly Submit Pattern Chart Description:**", expanded=True):
                          st.write("Description for this chart goes here.")
 
 
@@ -418,6 +419,11 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
 
             st.markdown("<h2 style='text-align: center; color: black;'>Job Arrival Interval Chart</h2>", unsafe_allow_html=True)
             # Alex your code here
+
+            with st.expander("**Job Arrival Interval:**", expanded=True):
+                         st.write("Description for this chart goes here.")
+
+
 
 
 elif nav_bar_horizontal == "Model 3":
