@@ -35,7 +35,7 @@ if nav_bar_horizontal == "Job Run Time":
         chart_select_radio_jrt = st.radio("Chart Selection", [None, "CDF Run Time Chart", "Detailed Run Time Distribution Chart"], horizontal=True)
         submit = st.form_submit_button("Select")
         if submit:
-            st.write(f"**You have selected:** {chart_select_radio_jrt}")
+            st.write(f"You have selected: {chart_select_radio_jrt}")
             if chart_select_radio_jrt == "CDF Run Time Chart":
                 st.markdown('<script>scrollToSection("cdf_chart_section")</script>', unsafe_allow_html=True)
             elif chart_select_radio_jrt == "Detailed Run Time Distribution Chart":
@@ -129,7 +129,7 @@ if nav_bar_horizontal == "Job Run Time":
                 plt.show()
                 st.pyplot(plt.gcf())
                 with st.expander("**CDF Run Time Chart Description:**", expanded=True):
-                        st.write("Description for this chart goes here.")
+                        st.write("Displays a Cumulative Distribution Functions (CDFs) of the runtime comparisons of the four job traces (Blue Waters, Mira, Philly, and Helios).")
 
             else:
                 st.write("## Please select one or more system model(s) in the sidebar to plot the chart.")
@@ -243,7 +243,7 @@ if nav_bar_horizontal == "Job Run Time":
                 st.set_option('deprecation.showPyplotGlobalUse', False)
                 st.pyplot()
                 with st.expander("**Detailed Run Time Distribution Chart Description:**", expanded=True):
-                        st.write("Description for this chart goes here.")
+                        st.write("Displays a bar chart of the four job traces categorized by run times (30 sec, 1 min, 10 mins, 1h, and 12+hrs) alongside the frequency in which they occur.")
 
             
             elif len(drt_selected_system_models_jrt) >= 1 and len(drt_selected_time_range_jrt) < 1:
@@ -294,7 +294,7 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
         submit_chart_radio_button_jap = st.form_submit_button("Select")
         if submit_chart_radio_button_jap:
             if chart_select_radio_jap is not None:
-                    st.write(f"**You have selected:** {chart_select_radio_jap}")
+                    st.write()
             else:
                 text_color = "red"
                 st.markdown(f'<span style="color:{text_color}">You have selected "None", please select an other option to view chart.</span>', unsafe_allow_html=True)
@@ -360,7 +360,7 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
         plt.show()
         st.pyplot()
         with st.expander("**Daily Submit Pattern Chart Description:**", expanded=True):
-            st.write("Description for this chart goes here.")
+            st.write("Displays a chart presenting the job arrival counts of each job trace for each hour of the day")
 
     elif chart_select_radio_jap == "Weekly Submit Pattern":
          with st.sidebar.form("wsp_personal_parameters_update_form"):
@@ -385,37 +385,25 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
     elif chart_select_radio_jap == "Job Arrival Interval":
         jap_min_value_exp_arrival_interval_slider = 0
         jap_max_value_exp_arrival_interval_slider = 8 
-        jai_selected_system_models_jap = system_models_jap.copy()
-        with st.spinner("In progress...., Please do not change any settings now"): 
-            with st.sidebar.form("jai_personal_parameters_update_form"):
-                st.write("## Alter the following settings to customize the Job Arrival Interval chart:")
-                with st.expander("**Select System Model(s)**", expanded=True):
-                    for item in system_models_jap:
-                        jai_model_checkbox_jap = st.checkbox(item, True)
-                        if not jai_model_checkbox_jap:
-                            jai_selected_system_models_jap.remove(item)
-                jai_job_count_slider_jap = st.slider("Adjust Frequency Range (y-axis):", min_value=0, max_value=100, step=20, value=100)
-                jai_hour_of_the_day_slider_jap = st.slider("Adjust Job Arrival Interval Range (in powers of 10) (x-axis):", jap_min_value_exp_arrival_interval_slider, jap_max_value_exp_arrival_interval_slider, step=1, value=8)
-                jai_hour_of_the_day_slider_value_jap = int(10**jai_hour_of_the_day_slider_jap)
-                jai_submit_parameters_button_jap = st.form_submit_button("Apply Changes")
 
-                if jai_submit_parameters_button_jap:
-                    if len(selected_system_models_jap) < 1:
-                        text_color = "red"
-                        st.markdown(f'<span style = "color: {text_color}">Please select one or more system model(s) and click "Apply Changes".</span>', unsafe_allow_html=True)
-                    else:
-                        pass;
-                    
-
-            st.markdown("<h2 style='text-align: center; color: black;'>Job Arrival Interval Chart</h2>", unsafe_allow_html=True)
-            # Alex your code here
-
-
-        
-
-            with st.expander("**Job Arrival Interval Chart Description:**", expanded=True):
-                st.write("Description here")
+        with st.sidebar.form("jai_personal_parameters_update_form"):
+            st.write("## Adjust the following parameters and click on 'Apply Changes' to change the Job Arrival Interval chart:")
+            jai_job_count_slider_jap = st.slider("Adjust Frequency Range (x-axis):", min_value=0, max_value=100, step=20)
+            jai_hour_of_the_day_slider_jap = st.slider("Adjust Job Arrival Interval Range (in powers of 10) (y-axis):", jap_min_value_exp_arrival_interval_slider, jap_max_value_exp_arrival_interval_slider, step=1)
+            jai_hour_of_the_day_slider_value_jap = int(10**jai_hour_of_the_day_slider_jap)
             
+            jai_submit_parameters_button_jap = st.form_submit_button("Apply Changes")
+            if jai_submit_parameters_button_jap:
+                if len(selected_system_models_jap) >= 1:
+                     with st.spinner("Loading...."):
+                        time.sleep(2)
+                     st.success(f"Done!")
+                else:
+                    text_color = "red"
+                    st.markdown(f'<span style = "color: {text_color}">Please set system model(s) above first and then adjust the parameters here.</span>', unsafe_allow_html=True)
+
+        # Alex your code here
+
 
 elif nav_bar_horizontal == "Model 3":
     # Code for "Model 3" section goes here
@@ -423,5 +411,4 @@ elif nav_bar_horizontal == "Model 3":
 
 else:
     st.write("Please select a section from the navigation bar.")
-    
 
