@@ -18,8 +18,6 @@ st.image(banner_image)
 
 nav_bar_horizontal = option_menu(None, ["Job Run Time", "Job Arrival Pattern", "Model 3"], default_index=0, orientation="horizontal")
 
-system_models_jrt = ["Mira", "Blue Waters", "Philly", "Helios"]
-
 bw_df = pd.read_csv("../data_blue_waters.csv")
 mira_df_2 = pd.read_csv("../data_mira.csv")
 hl_df = pd.read_csv("../data_helios.csv")
@@ -29,26 +27,29 @@ message = st.empty()
 columns=["job", "user", "project", "state", "gpu_num", "cpu_num", "node_num", "submit_time", "wait_time", "run_time", "wall_time", "node_hour"]
 
 if nav_bar_horizontal == "Job Run Time":
+    system_models_jrt = ["Mira", "Blue Waters", "Philly", "Helios"]
     with st.form("select_chart_model_jrt"):
         #cdf
         st.write("### Select the chart you want to view")
         chart_select_radio_jrt = st.radio("Chart Selection", [None, "CDF Run Time Chart", "Detailed Run Time Distribution Chart"], horizontal=True)
         submit = st.form_submit_button("Select")
         if submit:
-            st.write(f"You have selected: {chart_select_radio_jrt}")
+            st.write(f"**You have selected**: {chart_select_radio_jrt}")
             if chart_select_radio_jrt == "CDF Run Time Chart":
                 st.markdown('<script>scrollToSection("cdf_chart_section")</script>', unsafe_allow_html=True)
             elif chart_select_radio_jrt == "Detailed Run Time Distribution Chart":
                 st.markdown('<script>scrollToSection("drt_chart_section")</script>', unsafe_allow_html=True)
 
     if chart_select_radio_jrt == "CDF Run Time Chart":
-        with st.spinner("In progress...., Please do not change any settings now"):    
-            min_value_exp_run_time_slider = 0
-            max_value_exp_run_time_slider = 8 
+        st.markdown("<h2 style='text-align: center; color: black;'>CDF of Run Time Chart</h2>", unsafe_allow_html=True)
+        min_value_exp_run_time_slider = 0
+        max_value_exp_run_time_slider = 8 
+        selected_system_models_jrt = system_models_jrt.copy() 
 
+        with st.spinner("In progress...., Please do not change any settings now"):  
+            st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
             with st.sidebar.form("CDF_chart_form_jrt"):
                 st.write("## Alter the following settings to customize the CDF chart:")
-                selected_system_models_jrt = system_models_jrt.copy() 
                 with st.expander("**Select System Model(s)**", expanded=True):
                     for item in system_models_jrt:
                         model_checkbox_jrt = st.checkbox(item, True)
@@ -107,7 +108,7 @@ if nav_bar_horizontal == "Job Run Time":
             plt.style.use("default")
             
             if len(selected_system_models_jrt) >= 1:
-                st.markdown("<h2 style='text-align: center; color: black;'>CDF of Run Time Chart</h2>", unsafe_allow_html=True)
+                
                 for item in system_models_jrt:
                     if "Blue Waters" in selected_system_models_jrt:
                         plot_cdf(bw_df["run_time"], 1000, "Time (s)", linestyle=":", color="blue")
@@ -131,14 +132,16 @@ if nav_bar_horizontal == "Job Run Time":
                 st.write("## Please select one or more system model(s) in the sidebar to plot the chart.")
 
     elif chart_select_radio_jrt == "Detailed Run Time Distribution Chart":
-        with st.spinner("In progress...., Please do not change any settings now"): 
+        st.markdown("<h2 style='text-align: center; color: black;'>Detailed Run Time Distribution Chart</h2>", unsafe_allow_html=True)
         # drt = detailed run time
-            drt_time_ranges = ['0~30s', '30s~10min', '10min~1h', '1h~12h', "more than 12h"]
+        drt_time_ranges = ['0~30s', '30s~10min', '10min~1h', '1h~12h', "more than 12h"]
+        drt_selected_system_models_jrt = system_models_jrt.copy()
+        drt_selected_time_range_jrt = drt_time_ranges.copy()
 
+        with st.spinner("In progress...., Please do not change any settings now"): 
+            st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)  
             with st.sidebar.form("detailed_run_time_form_jrt"):
                 st.write("## Alter the following settings to customize the detailed run time chart:")
-                drt_selected_system_models_jrt = system_models_jrt.copy()
-                drt_selected_time_range_jrt = drt_time_ranges.copy()
                 with st.expander("**Select System Model(s)**", expanded=True):
                     for item in system_models_jrt:
                         drt_model_checkbox_jrt = st.checkbox(item, True)
@@ -219,7 +222,7 @@ if nav_bar_horizontal == "Job Run Time":
             x_value_selected = np.arange(1, len(drt_selected_time_range_jrt) + 1)
 
             if len(drt_selected_system_models_jrt) >= 1 and len(drt_selected_time_range_jrt) >= 1:
-                st.markdown("<h2 style='text-align: center; color: black;'>Detailed Run Time Distribution Chart</h2>", unsafe_allow_html=True)
+                
                 for model in system_models_jrt:
                         if "Blue Waters" in drt_selected_system_models_jrt:
                             plt.bar(x_value_selected - 3 * width / 2, bw, width, edgecolor='black', hatch="x", color="blue")
@@ -250,7 +253,6 @@ if nav_bar_horizontal == "Job Run Time":
 
 # Job Arrival pattern page code
 elif nav_bar_horizontal == "Job Arrival Pattern":
-
     system_models_jap = ["Blue Waters", "Mira", "Philly", "Helios"]
     chart_select_radio_jap = None;
 
@@ -304,8 +306,10 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
             
     #  Code for individual charts             
     if chart_select_radio_jap == "Daily Submit Pattern":
+       st.markdown("<h2 style='text-align: center; color: black;'>Daily Submit Pattern Chart</h2>", unsafe_allow_html=True)
+       dsp_selected_system_models_jap = system_models_jap.copy()
        with st.spinner("In progress...., Please do not change any settings now"): 
-        dsp_selected_system_models_jap = system_models_jap.copy()
+        st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)  
         with st.sidebar.form("dsp_personal_parameters_update_form"):
             st.write("## Alter the following settings to customize the Daily Submit Pattern chart:")
             with st.expander("**Select System Model(s)**", expanded=True):
@@ -324,7 +328,6 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
                     pass;
                     
 
-        st.markdown("<h2 style='text-align: center; color: black;'>Daily Submit Pattern Chart</h2>", unsafe_allow_html=True)
         plt.figure(figsize=(12,7))
         plt.xticks(fontsize=16)
         plt.yticks(fontsize=16)
@@ -357,9 +360,10 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
             st.write("Displays a chart presenting the job arrival counts of each job trace for each hour of the day")
 
     elif chart_select_radio_jap == "Weekly Submit Pattern":
-      with st.spinner("In progress...., Please do not change any settings now"):
+        st.markdown("<h2 style='text-align: center; color: black;'>Weekly Submit Pattern Chart</h2>", unsafe_allow_html=True)
         wsp_selected_system_models_jap = system_models_jap.copy()
         with st.spinner("In progress...., Please do not change any settings now"): 
+         st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)  
          with st.sidebar.form("wsp_personal_parameters_update_form"):
             st.write("## Alter the following settings to customize the Weekly Submit Pattern chart:")
             with st.expander("**Select System Model(s)**", expanded=True):
@@ -377,7 +381,6 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
                 else:
                      pass;
 
-        st.markdown("<h2 style='text-align: center; color: black;'>Weekly Submit Pattern Chart</h2>", unsafe_allow_html=True)
 
         plt.figure(figsize=(12,7))
         plt.xticks(fontsize=16)
@@ -416,7 +419,9 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
         jap_min_value_exp_arrival_interval_slider = 0
         jap_max_value_exp_arrival_interval_slider = 8 
         jai_selected_system_models_jap = system_models_jap.copy()
+        st.markdown("<h2 style='text-align: center; color: black;'>Job Arrival Interval Chart</h2>", unsafe_allow_html=True)
         with st.spinner("In progress...., Please do not change any settings now"): 
+            st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)  
             with st.sidebar.form("jai_personal_parameters_update_form"):
                 st.write("## Alter the following settings to customize the Job Arrival Interval chart:")
                 with st.expander("**Select System Model(s)**", expanded=True):
@@ -436,7 +441,7 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
                         pass;
                     
 
-            st.markdown("<h2 style='text-align: center; color: black;'>Job Arrival Interval Chart</h2>", unsafe_allow_html=True)
+            
             # Alex your code here
 
             with st.expander("**Job Arrival Interval:**", expanded=True):
