@@ -120,11 +120,9 @@ if nav_bar_horizontal == "Job Run Time":
                 
                 plt.rc('legend', fontsize=12)
                 plt.legend(selected_system_models_jrt, loc="lower right")
-                        # Avoiding the user warning for now
-                warnings.filterwarnings("ignore", message="Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.")
-            
+                # Avoiding this user warning for now
+                # warnings.filterwarnings("ignore", message="Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.")
                 plt.xscale("log")
-                plt.show()
                 st.pyplot(plt.gcf())
                 with st.expander("**CDF Run Time Chart Description:**", expanded=True):
                          st.write("Displays a Cumulative Distribution Functions (CDFs) of the runtime comparisons of the four job traces (Blue Waters, Mira, Philly, and Helios).")
@@ -354,12 +352,12 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
         plt.grid(True)
         plt.legend(dsp_selected_system_models_jap,  prop={'size': 14}, loc="upper right")
         plt.rc('legend',fontsize=20)
-        plt.show()
         st.pyplot()
         with st.expander("**Daily Submit Pattern Chart Description:**", expanded=True):
             st.write("Displays a chart presenting the job arrival counts of each job trace for each hour of the day")
 
     elif chart_select_radio_jap == "Weekly Submit Pattern":
+      with st.spinner("In progress...., Please do not change any settings now"):
         wsp_selected_system_models_jap = system_models_jap.copy()
         with st.spinner("In progress...., Please do not change any settings now"): 
          with st.sidebar.form("wsp_personal_parameters_update_form"):
@@ -373,7 +371,7 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
             wsp_hour_of_the_day_slider_jap = st.slider("Adjust Day of the Week Range (x-axis):", min_value=0, max_value=8, step=1, value=8)
             wsp_submit_parameters_button_jap = st.form_submit_button("Apply Changes")
             if wsp_submit_parameters_button_jap:
-                if len(selected_system_models_jap) < 1:
+                if len(wsp_selected_system_models_jap) < 1:
                      text_color = "red"
                      st.markdown(f'<span style = "color: {text_color}">Please select one or more system model(s) and click "Apply Changes".</span>', unsafe_allow_html=True)
                 else:
@@ -381,8 +379,32 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
 
         st.markdown("<h2 style='text-align: center; color: black;'>Weekly Submit Pattern Chart</h2>", unsafe_allow_html=True)
 
-          # Alex your code here
-
+        plt.figure(figsize=(12,7))
+        plt.xticks(fontsize=16)
+        plt.yticks(fontsize=16) 
+        for item in wsp_selected_system_models_jap:
+            if "Blue Waters" in wsp_selected_system_models_jap:
+                plot_time_submit(bw_df["submit_time"], xlabel="Day of the Week", week=False,marker="^", color="blue")
+            if "Mira" in wsp_selected_system_models_jap:
+                plot_time_submit(mira_df_2["submit_time"], xlabel="Day of the Week", week=False,marker="o", color="red")
+            if "Philly" in wsp_selected_system_models_jap:
+                plot_time_submit(philly_df["submit_time"], xlabel="Day of the Week", week=False,marker="s", color="green")
+            if "Helios" in wsp_selected_system_models_jap:
+                 plot_time_submit(hl_df["submit_time"], xlabel="Day of the Week", week=False,marker="d", color="violet")
+        plt.xlabel("Day of the Week", fontsize=20)
+        plt.ylabel("Job Submit Count", fontsize=20)
+        # plt.margins(1)
+        # plt.ylim(bottom=0)
+        # plt.yticks(range(0, 3000, 500))
+        plt.ylim(0, wsp_job_count_slider_jap)
+        plt.tight_layout()
+        plt.xlim(0, wsp_hour_of_the_day_slider_jap)
+        plt.grid(True)
+        plt.legend(wsp_selected_system_models_jap,  prop={'size': 14}, loc="upper right")
+        # plt.xticks(range(1, 8, 1))
+        st.set_option('deprecation.showPyplotGlobalUse', False)
+        plt.rc('legend',fontsize=20)
+        st.pyplot()
 
 
         with st.expander("**Weekly Submit Pattern Chart Description:**", expanded=True):
@@ -407,7 +429,7 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
                 jai_hour_of_the_day_slider_value_jap = int(10**jai_hour_of_the_day_slider_jap)
                 jai_submit_parameters_button_jap = st.form_submit_button("Apply Changes")
                 if jai_submit_parameters_button_jap:
-                    if len(selected_system_models_jap) < 1:
+                    if len(jai_selected_system_models_jap) < 1:
                         text_color = "red"
                         st.markdown(f'<span style = "color: {text_color}">Please select one or more system model(s) and click "Apply Changes".</span>', unsafe_allow_html=True)
                     else:
