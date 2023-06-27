@@ -11,19 +11,18 @@ from collections import Counter, defaultdict
 import json
 import time 
 import matplotlib
-
 banner_image = Image.open('JOB TRACE VISULAZATION.png')
-
 st.image(banner_image)
 
-nav_bar_horizontal = option_menu(None, ["Job Run Time", "Job Arrival Pattern", "Model 3", "Job Waiting Time"], default_index=0, orientation="horizontal")
+nav_bar_horizontal = option_menu(None, ["Job Run Time", "Job Arrival Pattern", "Model 3"], default_index=0, orientation="horizontal")
+
+system_models_jrt = ["Mira", "Blue Waters", "Philly", "Helios"]
 
 bw_df = pd.read_csv("../data_blue_waters.csv")
 mira_df_2 = pd.read_csv("../data_mira.csv")
 hl_df = pd.read_csv("../data_helios.csv")
 philly_df = pd.read_csv("../data_philly.csv")
 message = st.empty()
-
 columns=["job", "user", "project", "state", "gpu_num", "cpu_num", "node_num", "submit_time", "wait_time", "run_time", "wall_time", "node_hour"]
 
 if nav_bar_horizontal == "Job Run Time":
@@ -31,7 +30,7 @@ if nav_bar_horizontal == "Job Run Time":
     with st.form("select_chart_model_jrt"):
         #cdf
         st.write("### Select the chart you want to view")
-        chart_select_radio_jrt = st.radio("Chart Selection", [None, "CDF Run Time", "Detailed Run Time Distribution"], horizontal=True)
+        chart_select_radio_jrt = st.radio("Chart Selection", [None, "CDF Run Time Chart", "Detailed Run Time Distribution Chart"], horizontal=True)
         submit = st.form_submit_button("Select")
         if submit:
             st.write(f"**You have selected**: {chart_select_radio_jrt}")
@@ -41,21 +40,20 @@ if nav_bar_horizontal == "Job Run Time":
                 st.markdown('<script>scrollToSection("drt_chart_section")</script>', unsafe_allow_html=True)
 
     if chart_select_radio_jrt == "CDF Run Time Chart":
-        st.markdown("<h2 style='text-align: center; color: black;'>CDF of Run Time Chart</h2>", unsafe_allow_html=True)
         min_value_exp_run_time_slider = 0
         max_value_exp_run_time_slider = 8 
         selected_system_models_jrt = system_models_jrt.copy() 
+        st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
 
         with st.spinner("In progress...., Please do not change any settings now"):  
-            st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
             with st.sidebar.form("CDF_chart_form_jrt"):
                 st.write("## Alter the following settings to customize the CDF chart:")
+                selected_system_models_jrt = system_models_jrt.copy() 
                 with st.expander("**Select System Model(s)**", expanded=True):
                     for item in system_models_jrt:
                         model_checkbox_jrt = st.checkbox(item, True)
                         if not model_checkbox_jrt:
                             selected_system_models_jrt.remove(item)
-
                 cdf_frequency_slider_jrt = st.slider("**Adjust frequency range (y-axis)**", min_value=0, max_value=100, step=20, value=100)
                 cdf_run_time_slider_jrt = st.slider("**Adjust run time range (in powers of 10) (x-axis)**", min_value_exp_run_time_slider, max_value_exp_run_time_slider, step=1, value=8)
                 cdf_run_time_slider_value_jrt = int(10**cdf_run_time_slider_jrt)
@@ -70,45 +68,37 @@ if nav_bar_horizontal == "Job Run Time":
                 
             # Plots Figure 1(a) from page 3, 3.1.1
             st.markdown("<a name='cdf_chart_section'></a>", unsafe_allow_html=True)
-
             def plot_detailed_run_time_distribution(data, bins, xlabel, ylabel="Frequency (%)", color="", linestyle="--"):
                 plt.xticks(fontsize=16)
                 plt.yticks(fontsize=16)
-
                 counts, bin_edges = np.histogram(data, bins=bins)
                 counts = counts / float(sum(counts))
                 bin_width = bin_edges[1] - bin_edges[0]
                 bin_centers = bin_edges[:-1] + bin_width / 2
-
                 if color:
                     plt.bar(bin_centers, counts * 100, width=bin_width, color=color)
                 else:
                     plt.bar(bin_centers, counts * 100, width=bin_width)
-
             def plot_cdf(x, bins, xlabel, ylabel="Frequency (%)", color="", linestyle="--"):
                 plt.xticks(fontsize=16)
                 plt.yticks(fontsize=16)
-
                 x = np.sort(x)
                 cdf = 100 * np.arange(len(x)) / float(len(x))
-
                 if color:
                     plt.plot(x, cdf, linestyle=linestyle, linewidth=5, color=color)
                 else:
                     plt.plot(x, cdf, linestyle=linestyle, linewidth=5)
-
                 plt.xlabel(xlabel, fontsize=14)
                 plt.ylabel(ylabel, fontsize=14)
                 plt.margins(0)
                 plt.ylim(0, cdf_frequency_slider_jrt) 
                 plt.xlim(10**0, cdf_run_time_slider_value_jrt) 
-
                 plt.grid(True)
-
             plt.style.use("default")
-            
+
             if len(selected_system_models_jrt) >= 1:
-                
+                st.markdown("<h2 style='text-align: center; color: black;'>CDF of Run Time Chart</h2>", unsafe_allow_html=True)
+
                 for item in system_models_jrt:
                     if "Blue Waters" in selected_system_models_jrt:
                         plot_cdf(bw_df["run_time"], 1000, "Time (s)", linestyle=":", color="blue")
@@ -127,129 +117,112 @@ if nav_bar_horizontal == "Job Run Time":
                 
                 with st.expander("**CDF Run Time Chart Description:**", expanded=True):
                          st.write("Displays a Cumulative Distribution Functions (CDFs) of the runtime comparisons of the four job traces (Blue Waters, Mira, Philly, and Helios).")
-
             else:
                 st.write("## Please select one or more system model(s) in the sidebar to plot the chart.")
 
     elif chart_select_radio_jrt == "Detailed Run Time Distribution Chart":
-        st.markdown("<h2 style='text-align: center; color: black;'>Detailed Run Time Distribution Chart</h2>", unsafe_allow_html=True)
-        # drt = detailed run time
-        drt_time_ranges = ['0~30s', '30s~10min', '10min~1h', '1h~12h', "more than 12h"]
-        drt_selected_system_models_jrt = system_models_jrt.copy()
-        drt_selected_time_range_jrt = drt_time_ranges.copy()
-
-        with st.spinner("In progress...., Please do not change any settings now"): 
-            st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)  
-            with st.sidebar.form("detailed_run_time_form_jrt"):
-                st.write("## Alter the following settings to customize the detailed run time chart:")
-                with st.expander("**Select System Model(s)**", expanded=True):
-                    for item in system_models_jrt:
-                        drt_model_checkbox_jrt = st.checkbox(item, True)
-                        if not drt_model_checkbox_jrt:
-                            drt_selected_system_models_jrt.remove(item)
-                drt_frequency_slider_jrt = st.slider("**Adjust frequency range (y-axis)**", min_value=0.0, max_value=0.6, step=0.1, value=0.6)
-                with st.expander("**Select Run Time Range (x-axis)**", expanded=True):
-                    for item in drt_time_ranges:
-                        drt_time_range_checkbox_jrt = st.checkbox(item, True)
-                        if not drt_time_range_checkbox_jrt:
-                            drt_selected_time_range_jrt.remove(item)
-
-                submit_drt_sidebar_button = st.form_submit_button("Apply")
-                if submit_drt_sidebar_button:
-                    if len(drt_selected_system_models_jrt) < 1:
-                         text_color = "red"
-                         st.markdown(f'<span style="color:{text_color}">Please select one or more system model(s) in the sidebar to plot the CDF chart.</span>', unsafe_allow_html=True)
-                    else:
-                        pass;
-
-            # Plots Figure 1(b) from page 4, 3.1.2
-            st.markdown("<a name='drt_chart_section'></a>", unsafe_allow_html=True)
-            
-            def plot_detailed_run_time_distribution(data, bins, xlabel, ylabel="Frequency (%)", color="", linestyle="--"):
-                plt.xticks(fontsize=16)
-                plt.yticks(fontsize=16)
-
-                counts, bin_edges = np.histogram(data, bins=bins)
-                counts = counts / float(sum(counts))
-                bin_width = bin_edges[1] - bin_edges[0]
-                bin_centers = bin_edges[:-1] + bin_width / 2
-
-                if color:
-                    plt.bar(bin_centers, counts * 100, width=bin_width, color=color)
-                else:
-                    plt.bar(bin_centers, counts * 100, width=bin_width)
-
-                plt.xlabel(xlabel, fontsize=14)
-                plt.ylabel(ylabel, fontsize=14)
-                plt.margins(0)
-                plt.ylim(0, drt_frequency_slider_jrt * 100)
-                plt.xlim(0, drt_selected_system_models_jrt)
-
-                plt.grid(True)
-
-            plt.style.use("default")
-
-            def lt_xs(data, t1, t2):
-                lt10min_jobs_num = len(data[data < t2][data >= t1])
-                all_jobs_num = len(data)
-                return lt10min_jobs_num / all_jobs_num
-
-            def lt_xs_all(t1, t2):
-                res = []
-                res.append(lt_xs(bw_df["run_time"], t1, t2))
-                res.append(lt_xs(mira_df_2["run_time"], t1, t2))
-                res.append(lt_xs(philly_df["run_time"], t1, t2))
-                res.append(lt_xs(hl_df["run_time"], t1, t2))
-                return res
-
-            x = [0, 30, 600, 3600, 12 * 3600, 100000]
-            x_value = np.array([1, 2, 3, 4, 5])
-            labels = ['0~30s', '30s~10min', '10min~1h', '1h~12h', "more than 12h"]
-            bw = []
-            mr = []
-            ply = []
-            hl = []
-            width = 0.2
-
-            for i in range(1, len(x)):
-                if labels[i-1] in drt_selected_time_range_jrt:
-                    res = lt_xs_all(x[i-1], x[i])
-                    bw.append(res[0])
-                    mr.append(res[1])
-                    ply.append(res[2])
-                    hl.append(res[3])
-
-            x_value_selected = np.arange(1, len(drt_selected_time_range_jrt) + 1)
-
-            if len(drt_selected_system_models_jrt) >= 1 and len(drt_selected_time_range_jrt) >= 1:
+            st.markdown("<h2 style='text-align: center; color: black;'>Detailed Run Time Distribution Chart</h2>", unsafe_allow_html=True)
+            # drt = detailed run time
+            drt_time_ranges = ['0~30s', '30s~10min', '10min~1h', '1h~12h', "more than 12h"]
+            drt_selected_system_models_jrt = system_models_jrt.copy()
+            drt_selected_time_range_jrt = drt_time_ranges.copy()
+            with st.spinner("In progress...., Please do not change any settings now"): 
+                with st.sidebar.form("detailed_run_time_form_jrt"):
+                    st.write("## Alter the following settings to customize the detailed run time chart:")
+                    with st.expander("**Select System Model(s)**", expanded=True):
+                        for item in system_models_jrt:
+                            drt_model_checkbox_jrt = st.checkbox(item, True)
+                            if not drt_model_checkbox_jrt:
+                                drt_selected_system_models_jrt.remove(item)
+                    drt_frequency_slider_jrt = st.slider("**Adjust frequency range (y-axis)**", min_value=0.0, max_value=0.6, step=0.1, value=0.6)
+                    with st.expander("**Select Run Time Range (x-axis)**", expanded=True):
+                        for item in drt_time_ranges:
+                            drt_time_range_checkbox_jrt = st.checkbox(item, True)
+                            if not drt_time_range_checkbox_jrt:
+                                drt_selected_time_range_jrt.remove(item)
+                    submit_drt_sidebar_button = st.form_submit_button("Apply")
+                    if submit_drt_sidebar_button:
+                        if len(drt_selected_system_models_jrt) < 1:
+                            text_color = "red"
+                            st.markdown(f'<span style="color:{text_color}">Please select one or more system model(s) in the sidebar to plot the CDF chart.</span>', unsafe_allow_html=True)
+                        else:
+                            pass;
+                # Plots Figure 1(b) from page 4, 3.1.2
+                st.markdown("<a name='drt_chart_section'></a>", unsafe_allow_html=True)
                 
-                for model in system_models_jrt:
-                        if "Blue Waters" in drt_selected_system_models_jrt:
-                            plt.bar(x_value_selected - 3 * width / 2, bw, width, edgecolor='black', hatch="x", color="blue")
-                        if "Mira" in drt_selected_system_models_jrt:
-                            plt.bar(x_value_selected - width / 2, mr, width, edgecolor='black', hatch="\\", color="red")
-                        if "Philly" in drt_selected_system_models_jrt:
-                            plt.bar(x_value_selected + width / 2, ply, width, edgecolor='black', hatch=".", color="green")
-                        if "Helios" in drt_selected_system_models_jrt:
-                            plt.bar(x_value_selected + 3 * width / 2, hl, width, edgecolor='black', hatch="-", color="violet")
+                def plot_detailed_run_time_distribution(data, bins, xlabel, ylabel="Frequency (%)", color="", linestyle="--"):
+                    plt.xticks(fontsize=16)
+                    plt.yticks(fontsize=16)
+                    counts, bin_edges = np.histogram(data, bins=bins)
+                    counts = counts / float(sum(counts))
+                    bin_width = bin_edges[1] - bin_edges[0]
+                    bin_centers = bin_edges[:-1] + bin_width / 2
+                    if color:
+                        plt.bar(bin_centers, counts * 100, width=bin_width, color=color)
+                    else:
+                        plt.bar(bin_centers, counts * 100, width=bin_width)
+                    plt.xlabel(xlabel, fontsize=14)
+                    plt.ylabel(ylabel, fontsize=14)
+                    plt.margins(0)
+                    plt.ylim(0, drt_frequency_slider_jrt * 100)
+                    plt.xlim(0, drt_selected_system_models_jrt)
+                    plt.grid(True)
+                plt.style.use("default")
+                def lt_xs(data, t1, t2):
+                    lt10min_jobs_num = len(data[data < t2][data >= t1])
+                    all_jobs_num = len(data)
+                    return lt10min_jobs_num / all_jobs_num
+                def lt_xs_all(t1, t2):
+                    res = []
+                    res.append(lt_xs(bw_df["run_time"], t1, t2))
+                    res.append(lt_xs(mira_df_2["run_time"], t1, t2))
+                    res.append(lt_xs(philly_df["run_time"], t1, t2))
+                    res.append(lt_xs(hl_df["run_time"], t1, t2))
+                    return res
+                x = [0, 30, 600, 3600, 12 * 3600, 100000]
+                x_value = np.array([1, 2, 3, 4, 5])
+                labels = ['0~30s', '30s~10min', '10min~1h', '1h~12h', "more than 12h"]
+                bw = []
+                mr = []
+                ply = []
+                hl = []
+                width = 0.2
+                for i in range(1, len(x)):
+                    if labels[i-1] in drt_selected_time_range_jrt:
+                        res = lt_xs_all(x[i-1], x[i])
+                        bw.append(res[0])
+                        mr.append(res[1])
+                        ply.append(res[2])
+                        hl.append(res[3])
+                x_value_selected = np.arange(1, len(drt_selected_time_range_jrt) + 1)
 
-                plt.ylim(0.00, drt_frequency_slider_jrt)
-                plt.xticks(x_value_selected, drt_selected_time_range_jrt)
-                plt.legend(drt_selected_system_models_jrt, prop={'size': 12}, loc="upper right")
-                plt.ylabel("Frequency (%)", fontsize=14)
-                plt.xlabel("Job Run Time (s)", fontsize=14)
-                st.set_option('deprecation.showPyplotGlobalUse', False)
-                st.pyplot()
-                with st.expander("**Detailed Run Time Distribution Chart Description:**", expanded=True):
+                if len(drt_selected_system_models_jrt) >= 1 and len(drt_selected_time_range_jrt) >= 1:
+                    for model in system_models_jrt:
+                            if "Blue Waters" in drt_selected_system_models_jrt:
+                                plt.bar(x_value_selected - 3 * width / 2, bw, width, edgecolor='black', hatch="x", color="blue")
+                            if "Mira" in drt_selected_system_models_jrt:
+                                plt.bar(x_value_selected - width / 2, mr, width, edgecolor='black', hatch="\\", color="red")
+                            if "Philly" in drt_selected_system_models_jrt:
+                                plt.bar(x_value_selected + width / 2, ply, width, edgecolor='black', hatch=".", color="green")
+                            if "Helios" in drt_selected_system_models_jrt:
+                                plt.bar(x_value_selected + 3 * width / 2, hl, width, edgecolor='black', hatch="-", color="violet")
+                    plt.ylim(0.00, drt_frequency_slider_jrt)
+                    plt.xticks(x_value_selected, drt_selected_time_range_jrt)
+                    plt.legend(drt_selected_system_models_jrt, prop={'size': 12}, loc="upper right")
+                    plt.ylabel("Frequency (%)", fontsize=14)
+                    plt.xlabel("Job Run Time (s)", fontsize=14)
+                    st.set_option('deprecation.showPyplotGlobalUse', False)
+                    st.pyplot()
+                    with st.expander("**Detailed Run Time Distribution Chart Description:**", expanded=True):
                         st.write("Displays a bar chart of the four job traces categorized by run times (30 sec, 1 min, 10 mins, 1h, and 12+hrs) alongside the frequency in which they occur.")
 
             
-            elif len(drt_selected_system_models_jrt) >= 1 and len(drt_selected_time_range_jrt) < 1:
-                st.write("## Please select one or more time ranges in the sidebar to plot the chart.")
-            elif len(drt_selected_system_models_jrt) < 1 and len(drt_selected_time_range_jrt) >= 1:
-                st.write("## Please select one or more system models in the sidebar to plot the chart.")
-            else:
-                st.write("## Please select one or more system models and time ranges in the sidebar to plot the chart.")
+                elif len(drt_selected_system_models_jrt) >= 1 and len(drt_selected_time_range_jrt) < 1:
+                    st.write("## Please select one or more time ranges in the sidebar to plot the chart.")
+                elif len(drt_selected_system_models_jrt) < 1 and len(drt_selected_time_range_jrt) >= 1:
+                    st.write("## Please select one or more system models in the sidebar to plot the chart.")
+                else:
+                    st.write("## Please select one or more system models and time ranges in the sidebar to plot the chart.")
 
 # Job Arrival pattern page code
 elif nav_bar_horizontal == "Job Arrival Pattern":
@@ -433,6 +406,25 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
                         pass;
                     
             # Alex your code here
+<<<<<<< HEAD
+=======
+            # define function for plotting CDF 
+            def plot_cdf(x,bins ,xlabel, ylabel="Frequency (%)",color="", linestyle="--"):
+                plt.xticks(fontsize=16)
+                plt.yticks(fontsize=16) 
+                x = np.sort(x)
+                cdf = 100*np.arange(len(x)) / float(len(x))
+                if color:
+                    plt.plot(x, cdf, linestyle=linestyle, linewidth=5, color=color)
+                else:
+                    plt.plot(x, cdf, linestyle=linestyle, linewidth=5)
+                plt.xlabel(xlabel, fontsize=20)
+                plt.ylabel(ylabel, fontsize=20)
+                plt.margins(0)
+                plt.ylim(0, 100)
+                plt.grid(True)
+
+>>>>>>> 1c86165dba4451c60db1dbf2d55acfbf09cb868d
 
             # Job Arrival Interval (s) Fig 2c
             def get_interval(a, peak=False):
