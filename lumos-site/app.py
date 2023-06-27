@@ -14,7 +14,7 @@ import matplotlib
 banner_image = Image.open('JOB TRACE VISULAZATION.png')
 st.image(banner_image)
 
-nav_bar_horizontal = option_menu(None, ["Job Run Time", "Job Arrival Pattern", "Model 3"], default_index=0, orientation="horizontal")
+nav_bar_horizontal = option_menu(None, ["Job Run Time", "Job Arrival Pattern", "Model 3", "Job Waiting Time"], default_index=0, orientation="horizontal")
 
 system_models_jrt = ["Mira", "Blue Waters", "Philly", "Helios"]
 
@@ -453,12 +453,112 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
                          st.write("Displays a Cumulative Distribution Functions (CDF) of job arrival interval(s) comparison of the four job traces (Blue Waters, Mira, Philly, and Helios).")
 
 elif nav_bar_horizontal == "Model 3":
-    st.write("Model 3")
+    select_cpu_gpu_radio_suaro = None
+    select_cpu_radio_suaro = None
+    select_gpu_radio_suaro = None
+    chart_options = ["Blue Waters CPU", "Mira CPU", "Blue Waters GPU", 
+                "Philly GPU", "Helios GPU", "Philly GPU-SchedGym"]
+    selected_charts_list_suaro = chart_options.copy()
+
+    with st.spinner("In Progess... Please do not change any settings now"):
+        # with st.form("select_cpu_gpu_radio_suaro"):
+        #     st.write("#### Select either CPU or GPU chart option below to view the respective available chart options")
+        #     select_cpu_gpu_radio_suaro = st.radio("Select CPU or GPU:", [None, "CPU Chart Options", "GPU Chart Options"], horizontal=True)
+        #     select_cpu_gpu_radio_suaro_form_button = st.form_submit_button("View Options")
+        
+        # if select_cpu_gpu_radio_suaro == "CPU Chart Options":
+        #     with st.form("cpu_chart_selection_form"):
+        #         st.write("#### Select a CPU chart you want to view")
+        #         select_cpu_radio_suaro = st.radio("Chart Selection", [None, "Blue Waters CPU", "Mira CPU"], horizontal=True)
+        #         select_cpu_radio_form_button_suaro = st.form_submit_button("Select")
+        
+        # elif select_cpu_gpu_radio_suaro == "GPU Chart Options":
+        #      with st.form("gpu_chart_selection_form"):
+        #         st.write("#### Select a GPU chart you want to view")
+        #         select_gpu_radio_suaro = st.radio("Chart Selection", [None, "Blue Waters GPU", 
+        #         "Philly GPU", "Helios GPU", "Philly GPU-SchedGym"], horizontal=True)
+        #         select_gpu_radio_form_button_suaro = st.form_submit_button("Select")
+        # else:
+        #     pass;
+
+        with st.form("select_charts_checkbox_main_form_suaro"): 
+            st.write("## Please select one or more chart(s) you want to view")
+            for item in chart_options:
+                chart_selected_suaro = st.checkbox(item, True)
+                if not chart_selected_suaro:
+                    selected_charts_list_suaro.remove(item)
+
+            select_charts_checkbox_main_form_button_suaro = st.form_submit_button("View Charts")
+        
+        st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
+        with st.sidebar.form("sidebar_form"):
+            sys_utilization_slider_suaro = st.slider("**Adjust System Utilization Range (Y-axis)**", min_value = 0, max_value=100, value=100, step=20)
+            time_slider_suaro = st.slider("**Adjust Time Range (X-axis)**", min_value=0, max_value=120, value=120, step=20)
+            submit_button_sidebar_suaro = st.form_submit_button("Apply")
+        
+        def plot_util(data, total_nodes, key="node_num", color='b'):
+            data = data.copy()
+            start_time = list(data["submit_time"])[0]
+            end_time = list(data["submit_time"])[-1]
+            duration = end_time - start_time
+            days = int(duration/(24*3600))
+            days_usage = [0]*days
+            data["start_time"] = data.apply(lambda row: row["submit_time"] + row["wait_time"]-start_time, axis=1)
+            data["end_time"] = data.apply(lambda row: row["start_time"] + row["run_time"], axis=1)
+            data["start_day"] = data.apply(lambda row: int(row["start_time"]/(24*3600)), axis=1)
+            data["end_day"] = data.apply(lambda row: int(row["end_time"]/(24*3600))+1, axis=1)
+        #     print(data[data["start_day"]==60])
+        #     print(data[data["start_day"]==90])
+            for index, row in data.iterrows():
+                for i in range(int(row["start_day"]), int(row["end_day"])):
+                    if i <len(days_usage):
+                        days_usage[i] += row[key]*(min(row["end_time"], (i+1)*24*3600)-max(row["start_time"], i*24*3600))
+        #     for i in range(len(days_usage)):
+        #         days_usage[i] = min((total_nodes*24*3600), days_usage[i])
+        #     days_usage = days_usage[10:130]
+            # print(np.mean(np.array(days_usage)/(total_nodes*24*3600)))
+            plt.bar(range(len(days_usage)), 100*np.array(days_usage)/(total_nodes*24*3600), color=color)
+            plt.plot([-10, 150], [80]*2, color="black", linestyle="--")
+            plt.ylim(0, sys_utilization_slider_suaro)
+            plt.xlim(0, time_slider_suaro)
+            plt.xticks(fontsize=20)
+            plt.yticks(fontsize=20)
+
+            plt.xlabel("Time (Days)", fontsize=26)
+            plt.ylabel("System Utilization(%)", fontsize=26)
+            st.pyplot()
+
+        col1, col2 = st.columns(2)
+
+        for item in selected_charts_list_suaro:
+            if item == "Blue Waters CPU":
+                with col1:
+                    st.markdown("<h4 style='text-align: center;'>Blue Waters CPU Chart</h4>", unsafe_allow_html=True)
+                    plot_util(bw_df[1000:], 22636*32, "cpu_num", color="#1f77b4")  
+            elif item == "Mira CPU":
+                with col2:
+                    st.markdown("<h4 style='text-align: center;'>Mira CPU Chart</h4>", unsafe_allow_html=True)
+                    plot_util(mira_df_2, 49152, color='#ff7f0e')
+            elif item == "Blue Waters GPU":
+                with col1:
+                    st.markdown("<h4 style='text-align: center;'>Blue Waters GPU Chart</h4>", unsafe_allow_html=True)
+                    plot_util(bw_df[1000:], 4228, "gpu_num", color="#1f77b4")
+            elif item == "Philly GPU":
+                with col2:
+                    st.markdown("<h4 style='text-align: center;'>Philly GPU Chart</h4>", unsafe_allow_html=True)
+                    plot_util(philly_df, 2490, "gpu_num", color='#2ca02c')
+            elif item == "Helios GPU":
+                with col1:
+                    st.markdown("<h4 style='text-align: center;'>Helios GPU Chart</h4>", unsafe_allow_html=True)
+                    plot_util(hl_df, 1080, "gpu_num")
+            elif item == "Philly GPU-SchedGym":
+                with col2:
+                    st.markdown("<h4 style='text-align: center;'>Philly GPU-SchedGym Chart</h4>", unsafe_allow_html=True)
+                    ppppp = pd.read_csv("../philly_df_schedule.csv")
+                    plot_util(ppppp, 2490, "gpu_num", color='#9467bd')
 
 
-    
-    
-   
+            # Add more elif statements for additional options
 
     # Time - 3.08 - Mira CPU
     
@@ -471,7 +571,6 @@ elif nav_bar_horizontal == "Model 3":
     # Time - 11.93 - Helios GPU 
    
     # Time - 11.34 - Philly GPU - SchedGym 
-
 
 elif nav_bar_horizontal == "Job Waiting Time":
     # Code for "Model 3" section goes here
