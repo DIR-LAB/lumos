@@ -406,8 +406,6 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
                         pass;
                     
             # Alex your code here
-<<<<<<< HEAD
-=======
             # define function for plotting CDF 
             def plot_cdf(x,bins ,xlabel, ylabel="Frequency (%)",color="", linestyle="--"):
                 plt.xticks(fontsize=16)
@@ -424,7 +422,6 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
                 plt.ylim(0, 100)
                 plt.grid(True)
 
->>>>>>> 1c86165dba4451c60db1dbf2d55acfbf09cb868d
 
             # Job Arrival Interval (s) Fig 2c
             def get_interval(a, peak=False):
@@ -463,8 +460,8 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
 
             plt.figure(figsize=[6,5])
 
-            if len in (jai_selected_system_models_jap) >= 1:
-                for item in system_models_jap:
+            if len(jai_selected_system_models_jap) >= 1:
+                for item in jai_selected_system_models_jap:
                     if "Blue Waters" in jai_selected_system_models_jap:
                         plot_cdf(get_interval(bw_df["submit_time"]), 1000,"Time (s)", linestyle=":")
                     if "Mira" in jai_selected_system_models_jap:
@@ -475,10 +472,10 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
                         plot_cdf(get_interval(hl_df["submit_time"]), 10009999,"Job Arrival Interval (s)", linestyle="--")
                 
             plt.rc('legend',fontsize=22)
-            plt.legend(["bw", "mira", "philly","helios"], loc = "upper right")
+            plt.legend(jai_selected_system_models_jap, loc = "upper right", prop={'size': 14})
             st.set_option('deprecation.showPyplotGlobalUse', False)
             plt.xscale("log")
-            st.pyplot(plt.gcf())
+            st.pyplot()
 
 
             with st.expander("**Job Arrival Interval:**", expanded=True):
