@@ -480,14 +480,7 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
                          st.write("Displays a Cumulative Distribution Functions (CDF) of job arrival interval(s) comparison of the four job traces (Blue Waters, Mira, Philly, and Helios).")
 
 elif nav_bar_horizontal == "Model 3":
-    
-  
-  
-
-        
-
-
-
+    st.write("Model 3")
 
 
     
