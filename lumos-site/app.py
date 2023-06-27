@@ -124,7 +124,7 @@ if nav_bar_horizontal == "Job Run Time":
                 # Avoiding this user warning for now
                 # warnings.filterwarnings("ignore", message="Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.")
                 plt.xscale("log")
-                st.pyplot(plt.gcf())
+                
                 with st.expander("**CDF Run Time Chart Description:**", expanded=True):
                          st.write("Displays a Cumulative Distribution Functions (CDFs) of the runtime comparisons of the four job traces (Blue Waters, Mira, Philly, and Helios).")
 
@@ -433,22 +433,6 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
                         pass;
                     
             # Alex your code here
-            # define function for plotting CDF
-            def plot_cdf(x,bins ,xlabel, ylabel="Frequency (%)",color="", linestyle="--"):
-                plt.xticks(fontsize=16)
-                plt.yticks(fontsize=16) 
-                x = np.sort(x)
-                cdf = 100*np.arange(len(x)) / float(len(x))
-                if color:
-                    plt.plot(x, cdf, linestyle=linestyle, linewidth=5, color=color)
-                else:
-                    plt.plot(x, cdf, linestyle=linestyle, linewidth=5)
-                plt.xlabel(xlabel, fontsize=20)
-                plt.ylabel(ylabel, fontsize=20)
-                plt.margins(0)
-                plt.ylim(0, 100)
-                plt.grid(True)
-
 
             # Job Arrival Interval (s) Fig 2c
             def get_interval(a, peak=False):
@@ -462,18 +446,47 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
                     return c
                 return a-a.shift(1)
             
+            # define function for plotting CDF
+            def plot_cdf(x,bins ,xlabel, ylabel="Frequency (%)",color="", linestyle="--"):
+                plt.xticks(fontsize=16)
+                plt.yticks(fontsize=16) 
+                
+                x = np.sort(x)
+                cdf = 100*np.arange(len(x)) / float(len(x))
 
+                if color:
+                    plt.plot(x, cdf, linestyle=linestyle, linewidth=5, color=color)
+                else:
+                    plt.plot(x, cdf, linestyle=linestyle, linewidth=5)
+
+                plt.xlabel(xlabel, fontsize=20)
+                plt.ylabel(ylabel, fontsize=20)
+                plt.margins(0)
+                plt.ylim(0, jai_job_count_slider_jap)
+                plt.xlim(1, jai_hour_of_the_day_slider_value_jap)
+
+                plt.grid(True)
+            
             plt.style.use("default")
+
             plt.figure(figsize=[6,5])
-            plot_cdf(get_interval(bw_df["submit_time"]), 1000,"Time (s)", linestyle=":")
-            plot_cdf(get_interval(mira_df_2["submit_time"]), 1000,"Time (s)", linestyle="--")
-            plot_cdf(get_interval(philly_df["submit_time"]), 1000,"Time (s)", linestyle="-.")
-            plot_cdf(get_interval(hl_df["submit_time"]), 10009999,"Job Arrival Interval (s)", linestyle="--")
+
+            if len in (jai_selected_system_models_jap) >= 1:
+                for item in system_models_jap:
+                    if "Blue Waters" in jai_selected_system_models_jap:
+                        plot_cdf(get_interval(bw_df["submit_time"]), 1000,"Time (s)", linestyle=":")
+                    if "Mira" in jai_selected_system_models_jap:
+                        plot_cdf(get_interval(mira_df_2["submit_time"]), 1000,"Time (s)", linestyle="--")
+                    if "Philly" in jai_selected_system_models_jap:
+                        plot_cdf(get_interval(philly_df["submit_time"]), 1000,"Time (s)", linestyle="-.")
+                    if "Helios" in jai_selected_system_models_jap:
+                        plot_cdf(get_interval(hl_df["submit_time"]), 10009999,"Job Arrival Interval (s)", linestyle="--")
+                
             plt.rc('legend',fontsize=22)
             plt.legend(["bw", "mira", "philly","helios"], loc = "upper right")
             st.set_option('deprecation.showPyplotGlobalUse', False)
             plt.xscale("log")
-            st.pyplot()
+            st.pyplot(plt.gcf())
 
 
             with st.expander("**Job Arrival Interval:**", expanded=True):
