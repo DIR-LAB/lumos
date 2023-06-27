@@ -411,7 +411,7 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
 
 
         with st.expander("**Weekly Submit Pattern Chart Description:**", expanded=True):
-                         st.write("Description for this chart goes here.")
+                         st.write("Displays a chart presenting the job arrival counts of each job trace for each day of the week")
 
 
 
@@ -445,7 +445,7 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
             # Alex your code here
 
             with st.expander("**Job Arrival Interval:**", expanded=True):
-                         st.write("Description for this chart goes here.")
+                         st.write("Displays a Cumulative Distribution Functions (CDF) of job arrival interval(s) comparison of the four job traces (Blue Waters, Mira, Philly, and Helios).")
 
 
 
