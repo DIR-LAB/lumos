@@ -333,28 +333,28 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
             plt.yticks(fontsize=16)
 
 
-        for item in dsp_selected_system_models_jap:
-            if "Blue Waters" in dsp_selected_system_models_jap:
-                 plot_time_submit(bw_df["submit_time"], xlabel="Hour of the Day", week=True,marker="^", color="blue")
-            if "Mira" in dsp_selected_system_models_jap:
-                 plot_time_submit(mira_df_2["submit_time"], xlabel="Hour of the Day", week=True,marker="o", color="red")
-            if "Philly" in dsp_selected_system_models_jap:
-                plot_time_submit(philly_df["submit_time"], xlabel="Hour of the Day", week=True,marker="s", color="green")
-            if "Helios" in dsp_selected_system_models_jap:
-                plot_time_submit(hl_df["submit_time"], xlabel="Hour of the Day", week=True,marker="d", color="violet") 
- 
-        plt.xlabel("Hour of the Day", fontsize=18)
-        plt.ylabel("Job Submit Count", fontsize=18)
-        st.set_option('deprecation.showPyplotGlobalUse', False)
-        plt.ylim(0, dsp_job_count_slider_jap)
-        plt.xlim(-1, dsp_hour_of_the_day_slider_jap)
-        plt.tight_layout()
-        plt.grid(True)
-        plt.legend(dsp_selected_system_models_jap,  prop={'size': 14}, loc="upper right")
-        plt.rc('legend',fontsize=20)
-        st.pyplot()
-        with st.expander("**Daily Submit Pattern Chart Description:**", expanded=True):
-            st.write("Displays a chart presenting the job arrival counts of each job trace for each hour of the day")
+            for item in dsp_selected_system_models_jap:
+                if "Blue Waters" in dsp_selected_system_models_jap:
+                    plot_time_submit(bw_df["submit_time"], xlabel="Hour of the Day", week=True,marker="^", color="blue")
+                if "Mira" in dsp_selected_system_models_jap:
+                    plot_time_submit(mira_df_2["submit_time"], xlabel="Hour of the Day", week=True,marker="o", color="red")
+                if "Philly" in dsp_selected_system_models_jap:
+                    plot_time_submit(philly_df["submit_time"], xlabel="Hour of the Day", week=True,marker="s", color="green")
+                if "Helios" in dsp_selected_system_models_jap:
+                    plot_time_submit(hl_df["submit_time"], xlabel="Hour of the Day", week=True,marker="d", color="violet") 
+    
+            plt.xlabel("Hour of the Day", fontsize=18)
+            plt.ylabel("Job Submit Count", fontsize=18)
+            st.set_option('deprecation.showPyplotGlobalUse', False)
+            plt.ylim(0, dsp_job_count_slider_jap)
+            plt.xlim(-1, dsp_hour_of_the_day_slider_jap)
+            plt.tight_layout()
+            plt.grid(True)
+            plt.legend(dsp_selected_system_models_jap,  prop={'size': 14}, loc="upper right")
+            plt.rc('legend',fontsize=20)
+            st.pyplot()
+            with st.expander("**Daily Submit Pattern Chart Description:**", expanded=True):
+                st.write("Displays a chart presenting the job arrival counts of each job trace for each hour of the day")
 
     elif chart_select_radio_jap == "Weekly Submit Pattern":
         st.markdown("<h2 style='text-align: center; color: black;'>Weekly Submit Pattern Chart</h2>", unsafe_allow_html=True)
@@ -378,33 +378,32 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
                     else:
                         pass;
 
+            plt.figure(figsize=(12,7))
+            plt.xticks(fontsize=16)
+            plt.yticks(fontsize=16) 
+            for item in wsp_selected_system_models_jap:
+                if "Blue Waters" in wsp_selected_system_models_jap:
+                    plot_time_submit(bw_df["submit_time"], xlabel="Day of the Week", week=False,marker="^", color="blue")
+                if "Mira" in wsp_selected_system_models_jap:
+                    plot_time_submit(mira_df_2["submit_time"], xlabel="Day of the Week", week=False,marker="o", color="red")
+                if "Philly" in wsp_selected_system_models_jap:
+                    plot_time_submit(philly_df["submit_time"], xlabel="Day of the Week", week=False,marker="s", color="green")
+                if "Helios" in wsp_selected_system_models_jap:
+                    plot_time_submit(hl_df["submit_time"], xlabel="Day of the Week", week=False,marker="d", color="violet")
+            plt.xlabel("Day of the Week", fontsize=20)
+            plt.ylabel("Job Submit Count", fontsize=20)
+            plt.ylim(0, wsp_job_count_slider_jap)
+            plt.tight_layout()
+            plt.xlim(0, wsp_hour_of_the_day_slider_jap)
+            plt.grid(True)
+            plt.legend(wsp_selected_system_models_jap,  prop={'size': 14}, loc="upper right")
+            st.set_option('deprecation.showPyplotGlobalUse', False)
+            plt.rc('legend',fontsize=20)
+            st.pyplot()
 
-        plt.figure(figsize=(12,7))
-        plt.xticks(fontsize=16)
-        plt.yticks(fontsize=16) 
-        for item in wsp_selected_system_models_jap:
-            if "Blue Waters" in wsp_selected_system_models_jap:
-                plot_time_submit(bw_df["submit_time"], xlabel="Day of the Week", week=False,marker="^", color="blue")
-            if "Mira" in wsp_selected_system_models_jap:
-                plot_time_submit(mira_df_2["submit_time"], xlabel="Day of the Week", week=False,marker="o", color="red")
-            if "Philly" in wsp_selected_system_models_jap:
-                plot_time_submit(philly_df["submit_time"], xlabel="Day of the Week", week=False,marker="s", color="green")
-            if "Helios" in wsp_selected_system_models_jap:
-                 plot_time_submit(hl_df["submit_time"], xlabel="Day of the Week", week=False,marker="d", color="violet")
-        plt.xlabel("Day of the Week", fontsize=20)
-        plt.ylabel("Job Submit Count", fontsize=20)
-        plt.ylim(0, wsp_job_count_slider_jap)
-        plt.tight_layout()
-        plt.xlim(0, wsp_hour_of_the_day_slider_jap)
-        plt.grid(True)
-        plt.legend(wsp_selected_system_models_jap,  prop={'size': 14}, loc="upper right")
-        st.set_option('deprecation.showPyplotGlobalUse', False)
-        plt.rc('legend',fontsize=20)
-        st.pyplot()
 
-
-        with st.expander("**Weekly Submit Pattern Chart Description:**", expanded=True):
-                         st.write("Displays a chart presenting the job arrival counts of each job trace for each day of the week")
+            with st.expander("**Weekly Submit Pattern Chart Description:**", expanded=True):
+                            st.write("Displays a chart presenting the job arrival counts of each job trace for each day of the week")
 
 
 
@@ -433,65 +432,57 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
                     else:
                         pass;
                     
+            # Alex your code here
+            # define function for plotting CDF
+            def plot_cdf(x,bins ,xlabel, ylabel="Frequency (%)",color="", linestyle="--"):
+                plt.xticks(fontsize=16)
+                plt.yticks(fontsize=16) 
+                x = np.sort(x)
+                cdf = 100*np.arange(len(x)) / float(len(x))
+                if color:
+                    plt.plot(x, cdf, linestyle=linestyle, linewidth=5, color=color)
+                else:
+                    plt.plot(x, cdf, linestyle=linestyle, linewidth=5)
+                plt.xlabel(xlabel, fontsize=20)
+                plt.ylabel(ylabel, fontsize=20)
+                plt.margins(0)
+                plt.ylim(0, 100)
+                plt.grid(True)
 
+
+            # Job Arrival Interval (s) Fig 2c
+            def get_interval(a, peak=False):
+                def get_time_of_day2(time):
+                    time = datetime.fromtimestamp(time)
+                    return (time.hour + (time.minute>30))%24
+                if peak:
+                    z = a.apply(get_time_of_day2)
+                    b = a-a.shift(1)
+                    c = b[(z>=8) & (z<=17)]
+                    return c
+                return a-a.shift(1)
             
-                # Alex your code here
-                # define function for plotting CDF
-                def plot_cdf(x,bins ,xlabel, ylabel="Frequency (%)",color="", linestyle="--"):
-                    plt.xticks(fontsize=16)
-                    plt.yticks(fontsize=16) 
-                    x = np.sort(x)
-                    cdf = 100*np.arange(len(x)) / float(len(x))
-                    if color:
-                        plt.plot(x, cdf, linestyle=linestyle, linewidth=5, color=color)
-                    else:
-                        plt.plot(x, cdf, linestyle=linestyle, linewidth=5)
-                    plt.xlabel(xlabel, fontsize=20)
-                    plt.ylabel(ylabel, fontsize=20)
-                    plt.margins(0)
-                    plt.ylim(0, 100)
-                    plt.grid(True)
 
-
-                # Job Arrival Interval (s) Fig 2c
-                def get_interval(a, peak=False):
-                    def get_time_of_day2(time):
-                        time = datetime.fromtimestamp(time)
-                        return (time.hour + (time.minute>30))%24
-                    if peak:
-                        z = a.apply(get_time_of_day2)
-                        b = a-a.shift(1)
-                        c = b[(z>=8) & (z<=17)]
-                        return c
-                    return a-a.shift(1)
-                plt.style.use("default")
-                plt.figure(figsize=[6.,5])
-                plot_cdf(get_interval(bw_df["submit_time"]), 1000,"Time (s)", linestyle=":")
-                plot_cdf(get_interval(mira_df_2["submit_time"]), 1000,"Time (s)", linestyle="--")
-                plot_cdf(get_interval(philly_df["submit_time"]), 1000,"Time (s)", linestyle="-.")
-                plot_cdf(get_interval(hl_df["submit_time"]), 10009999,"Job Arrival Interval (s)", linestyle="--")
-                plt.rc('legend',fontsize=22)
-                plt.legend(["bw", "mira", "philly","helios"])
-                plt.xscale("log")
-                st.pyplot()
+            plt.style.use("default")
+            plt.figure(figsize=[6,5])
+            plot_cdf(get_interval(bw_df["submit_time"]), 1000,"Time (s)", linestyle=":")
+            plot_cdf(get_interval(mira_df_2["submit_time"]), 1000,"Time (s)", linestyle="--")
+            plot_cdf(get_interval(philly_df["submit_time"]), 1000,"Time (s)", linestyle="-.")
+            plot_cdf(get_interval(hl_df["submit_time"]), 10009999,"Job Arrival Interval (s)", linestyle="--")
+            plt.rc('legend',fontsize=22)
+            plt.legend(["bw", "mira", "philly","helios"], loc = "upper right")
+            st.set_option('deprecation.showPyplotGlobalUse', False)
+            plt.xscale("log")
+            st.pyplot()
 
 
             with st.expander("**Job Arrival Interval:**", expanded=True):
                          st.write("Displays a Cumulative Distribution Functions (CDF) of job arrival interval(s) comparison of the four job traces (Blue Waters, Mira, Philly, and Helios).")
 
 elif nav_bar_horizontal == "Model 3":
-    cpu_gpu_chart_select_radio_suaro = None;
-    with st.form("select_cpu_gpu_charts_suaro"):
-        st.write("*Select CPU or GPU to see the available charts*")
-        cpu_gpu_chart_select_radio_suaro = st.radio("Select CPU or GPU to see the available charts")
-        
-
-
-
-        chart_select_radio_suaro = st.radio("Chart Selection"
-            , [None, "Blue Waters GPU", "Blue Waters CPU", "Philly GPU", "Mira CPU", "Helios GPU", "Philly GPU-schedGym"], horizontal=True)
     
-        st.form_submit_button("Select")
+  
+  
 
         
 
