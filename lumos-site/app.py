@@ -16,7 +16,7 @@ banner_image = Image.open('JOB TRACE VISULAZATION.png')
 
 st.image(banner_image)
 
-nav_bar_horizontal = option_menu(None, ["Job Run Time", "Job Arrival Pattern", "Model 3"], default_index=0, orientation="horizontal")
+nav_bar_horizontal = option_menu(None, ["Job Run Time", "Job Arrival Pattern", "Model 3", "Job Waiting Time"], default_index=0, orientation="horizontal")
 
 bw_df = pd.read_csv("../data_blue_waters.csv")
 mira_df_2 = pd.read_csv("../data_mira.csv")
@@ -31,7 +31,7 @@ if nav_bar_horizontal == "Job Run Time":
     with st.form("select_chart_model_jrt"):
         #cdf
         st.write("### Select the chart you want to view")
-        chart_select_radio_jrt = st.radio("Chart Selection", [None, "CDF Run Time Chart", "Detailed Run Time Distribution Chart"], horizontal=True)
+        chart_select_radio_jrt = st.radio("Chart Selection", [None, "CDF Run Time", "Detailed Run Time Distribution"], horizontal=True)
         submit = st.form_submit_button("Select")
         if submit:
             st.write(f"**You have selected**: {chart_select_radio_jrt}")
@@ -306,113 +306,112 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
             
     #  Code for individual charts             
     if chart_select_radio_jap == "Daily Submit Pattern":
-       st.markdown("<h2 style='text-align: center; color: black;'>Daily Submit Pattern Chart</h2>", unsafe_allow_html=True)
-       dsp_selected_system_models_jap = system_models_jap.copy()
-       with st.spinner("In progress...., Please do not change any settings now"): 
-        st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)  
-        with st.sidebar.form("dsp_personal_parameters_update_form"):
-            st.write("## Alter the following settings to customize the Daily Submit Pattern chart:")
-            with st.expander("**Select System Model(s)**", expanded=True):
-                for item in system_models_jap:
-                    dsp_model_checkbox_jap = st.checkbox(item, True)
-                    if not dsp_model_checkbox_jap:
-                        dsp_selected_system_models_jap.remove(item)
-            dsp_job_count_slider_jap = st.slider("**Adjust Job Submit Count Range (y-axis)**", min_value=0, max_value=180, step=20, value=180)
-            dsp_hour_of_the_day_slider_jap = st.slider("**Adjust Hour of the Day Range (x-axis)**", min_value=-1, max_value=24, step=1, value=24)
-            dap_submit_parameters_button_jap = st.form_submit_button("Apply Changes")
-            if dap_submit_parameters_button_jap:
-                if len(dsp_selected_system_models_jap) < 1:
-                     text_color = "red"
-                     st.markdown(f'<span style = "color: {text_color}">Please set system model(s) above first and then adjust the parameters here.</span>', unsafe_allow_html=True)
-                else:
-                    pass;
-                    
+        st.markdown("<h2 style='text-align: center; color: black;'>Daily Submit Pattern Chart</h2>", unsafe_allow_html=True)
+        dsp_selected_system_models_jap = system_models_jap.copy()
+        with st.spinner("In progress...., Please do not change any settings now"): 
+            st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)  
+            with st.sidebar.form("dsp_personal_parameters_update_form"):
+                st.write("## Alter the following settings to customize the Daily Submit Pattern chart:")
+                with st.expander("**Select System Model(s)**", expanded=True):
+                    for item in system_models_jap:
+                        dsp_model_checkbox_jap = st.checkbox(item, True)
+                        if not dsp_model_checkbox_jap:
+                            dsp_selected_system_models_jap.remove(item)
+                dsp_job_count_slider_jap = st.slider("**Adjust Job Submit Count Range (y-axis)**", min_value=0, max_value=180, step=20, value=180)
+                dsp_hour_of_the_day_slider_jap = st.slider("**Adjust Hour of the Day Range (x-axis)**", min_value=-1, max_value=24, step=1, value=24)
+                dap_submit_parameters_button_jap = st.form_submit_button("Apply Changes")
+                if dap_submit_parameters_button_jap:
+                    if len(dsp_selected_system_models_jap) < 1:
+                        text_color = "red"
+                        st.markdown(f'<span style = "color: {text_color}">Please set system model(s) above first and then adjust the parameters here.</span>', unsafe_allow_html=True)
+                    else:
+                        pass;
+                        
 
-        plt.figure(figsize=(12,7))
-        plt.xticks(fontsize=16)
-        plt.yticks(fontsize=16)
+            plt.figure(figsize=(12,7))
+            plt.xticks(fontsize=16)
+            plt.yticks(fontsize=16)
 
 
-        for item in dsp_selected_system_models_jap:
-            if "Blue Waters" in dsp_selected_system_models_jap:
-                 plot_time_submit(bw_df["submit_time"], xlabel="Hour of the Day", week=True,marker="^", color="blue")
-            if "Mira" in dsp_selected_system_models_jap:
-                 plot_time_submit(mira_df_2["submit_time"], xlabel="Hour of the Day", week=True,marker="o", color="red")
-            if "Philly" in dsp_selected_system_models_jap:
-                plot_time_submit(philly_df["submit_time"], xlabel="Hour of the Day", week=True,marker="s", color="green")
-            if "Helios" in dsp_selected_system_models_jap:
-                plot_time_submit(hl_df["submit_time"], xlabel="Hour of the Day", week=True,marker="d", color="violet") 
- 
-        plt.xlabel("Hour of the Day", fontsize=18)
-        plt.ylabel("Job Submit Count", fontsize=18)
-        # plt.margins(1)
-        st.set_option('deprecation.showPyplotGlobalUse', False)
-        plt.ylim(0, dsp_job_count_slider_jap)
-        plt.xlim(-1, dsp_hour_of_the_day_slider_jap)
-        # plt.ylim(bottom=0)
-        # plt.xlim(-0.2, 23.2)
-        plt.tight_layout()
-        plt.grid(True)
-        plt.legend(dsp_selected_system_models_jap,  prop={'size': 14}, loc="upper right")
-        plt.rc('legend',fontsize=20)
-        st.pyplot()
-        with st.expander("**Daily Submit Pattern Chart Description:**", expanded=True):
-            st.write("Displays a chart presenting the job arrival counts of each job trace for each hour of the day")
+            for item in dsp_selected_system_models_jap:
+                if "Blue Waters" in dsp_selected_system_models_jap:
+                    plot_time_submit(bw_df["submit_time"], xlabel="Hour of the Day", week=True,marker="^", color="blue")
+                if "Mira" in dsp_selected_system_models_jap:
+                    plot_time_submit(mira_df_2["submit_time"], xlabel="Hour of the Day", week=True,marker="o", color="red")
+                if "Philly" in dsp_selected_system_models_jap:
+                    plot_time_submit(philly_df["submit_time"], xlabel="Hour of the Day", week=True,marker="s", color="green")
+                if "Helios" in dsp_selected_system_models_jap:
+                    plot_time_submit(hl_df["submit_time"], xlabel="Hour of the Day", week=True,marker="d", color="violet") 
+    
+            plt.xlabel("Hour of the Day", fontsize=18)
+            plt.ylabel("Job Submit Count", fontsize=18)
+            # plt.margins(1)
+            st.set_option('deprecation.showPyplotGlobalUse', False)
+            plt.ylim(0, dsp_job_count_slider_jap)
+            plt.xlim(-1, dsp_hour_of_the_day_slider_jap)
+            # plt.ylim(bottom=0)
+            # plt.xlim(-0.2, 23.2)
+            plt.tight_layout()
+            plt.grid(True)
+            plt.legend(dsp_selected_system_models_jap,  prop={'size': 14}, loc="upper right")
+            plt.rc('legend',fontsize=20)
+            st.pyplot()
+            with st.expander("**Daily Submit Pattern Chart Description:**", expanded=True):
+                st.write("Displays a chart presenting the job arrival counts of each job trace for each hour of the day")
 
     elif chart_select_radio_jap == "Weekly Submit Pattern":
         st.markdown("<h2 style='text-align: center; color: black;'>Weekly Submit Pattern Chart</h2>", unsafe_allow_html=True)
         wsp_selected_system_models_jap = system_models_jap.copy()
         with st.spinner("In progress...., Please do not change any settings now"): 
-         st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)  
-         with st.sidebar.form("wsp_personal_parameters_update_form"):
-            st.write("## Alter the following settings to customize the Weekly Submit Pattern chart:")
-            with st.expander("**Select System Model(s)**", expanded=True):
-                for item in system_models_jap:
-                    wsp_model_checkbox_jap = st.checkbox(item, True)
-                    if not wsp_model_checkbox_jap:
-                        wsp_selected_system_models_jap.remove(item)
-            wsp_job_count_slider_jap = st.slider("Adjust Job Submit Count Range (y-axis):", min_value=0, max_value=3000, step=500, value=3000)
-            wsp_hour_of_the_day_slider_jap = st.slider("Adjust Day of the Week Range (x-axis):", min_value=0, max_value=8, step=1, value=8)
-            wsp_submit_parameters_button_jap = st.form_submit_button("Apply Changes")
-            if wsp_submit_parameters_button_jap:
-                if len(wsp_selected_system_models_jap) < 1:
-                     text_color = "red"
-                     st.markdown(f'<span style = "color: {text_color}">Please select one or more system model(s) and click "Apply Changes".</span>', unsafe_allow_html=True)
-                else:
-                     pass;
+            st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)  
+            with st.sidebar.form("wsp_personal_parameters_update_form"):
+                st.write("## Alter the following settings to customize the Weekly Submit Pattern chart:")
+                with st.expander("**Select System Model(s)**", expanded=True):
+                    for item in system_models_jap:
+                        wsp_model_checkbox_jap = st.checkbox(item, True)
+                        if not wsp_model_checkbox_jap:
+                            wsp_selected_system_models_jap.remove(item)
+                wsp_job_count_slider_jap = st.slider("Adjust Job Submit Count Range (y-axis):", min_value=0, max_value=3000, step=500, value=3000)
+                wsp_hour_of_the_day_slider_jap = st.slider("Adjust Day of the Week Range (x-axis):", min_value=0, max_value=8, step=1, value=8)
+                wsp_submit_parameters_button_jap = st.form_submit_button("Apply Changes")
+                if wsp_submit_parameters_button_jap:
+                    if len(wsp_selected_system_models_jap) < 1:
+                        text_color = "red"
+                        st.markdown(f'<span style = "color: {text_color}">Please select one or more system model(s) and click "Apply Changes".</span>', unsafe_allow_html=True)
+                    else:
+                        pass;
 
 
-        plt.figure(figsize=(12,7))
-        plt.xticks(fontsize=16)
-        plt.yticks(fontsize=16) 
-        for item in wsp_selected_system_models_jap:
-            if "Blue Waters" in wsp_selected_system_models_jap:
-                plot_time_submit(bw_df["submit_time"], xlabel="Day of the Week", week=False,marker="^", color="blue")
-            if "Mira" in wsp_selected_system_models_jap:
-                plot_time_submit(mira_df_2["submit_time"], xlabel="Day of the Week", week=False,marker="o", color="red")
-            if "Philly" in wsp_selected_system_models_jap:
-                plot_time_submit(philly_df["submit_time"], xlabel="Day of the Week", week=False,marker="s", color="green")
-            if "Helios" in wsp_selected_system_models_jap:
-                 plot_time_submit(hl_df["submit_time"], xlabel="Day of the Week", week=False,marker="d", color="violet")
-        plt.xlabel("Day of the Week", fontsize=20)
-        plt.ylabel("Job Submit Count", fontsize=20)
-        # plt.margins(1)
-        # plt.ylim(bottom=0)
-        # plt.yticks(range(0, 3000, 500))
-        plt.ylim(0, wsp_job_count_slider_jap)
-        plt.tight_layout()
-        plt.xlim(0, wsp_hour_of_the_day_slider_jap)
-        plt.grid(True)
-        plt.legend(wsp_selected_system_models_jap,  prop={'size': 14}, loc="upper right")
-        # plt.xticks(range(1, 8, 1))
-        st.set_option('deprecation.showPyplotGlobalUse', False)
-        plt.rc('legend',fontsize=20)
-        st.pyplot()
+            plt.figure(figsize=(12,7))
+            plt.xticks(fontsize=16)
+            plt.yticks(fontsize=16) 
+            for item in wsp_selected_system_models_jap:
+                if "Blue Waters" in wsp_selected_system_models_jap:
+                    plot_time_submit(bw_df["submit_time"], xlabel="Day of the Week", week=False,marker="^", color="blue")
+                if "Mira" in wsp_selected_system_models_jap:
+                    plot_time_submit(mira_df_2["submit_time"], xlabel="Day of the Week", week=False,marker="o", color="red")
+                if "Philly" in wsp_selected_system_models_jap:
+                    plot_time_submit(philly_df["submit_time"], xlabel="Day of the Week", week=False,marker="s", color="green")
+                if "Helios" in wsp_selected_system_models_jap:
+                    plot_time_submit(hl_df["submit_time"], xlabel="Day of the Week", week=False,marker="d", color="violet")
+            plt.xlabel("Day of the Week", fontsize=20)
+            plt.ylabel("Job Submit Count", fontsize=20)
+            # plt.margins(1)
+            # plt.ylim(bottom=0)
+            # plt.yticks(range(0, 3000, 500))
+            plt.ylim(0, wsp_job_count_slider_jap)
+            plt.tight_layout()
+            plt.xlim(0, wsp_hour_of_the_day_slider_jap)
+            plt.grid(True)
+            plt.legend(wsp_selected_system_models_jap,  prop={'size': 14}, loc="upper right")
+            # plt.xticks(range(1, 8, 1))
+            st.set_option('deprecation.showPyplotGlobalUse', False)
+            plt.rc('legend',fontsize=20)
+            st.pyplot()
 
 
-        with st.expander("**Weekly Submit Pattern Chart Description:**", expanded=True):
-                         st.write("Description for this chart goes here.")
-
+            with st.expander("**Weekly Submit Pattern Chart Description:**", expanded=True):
+                            st.write("Description for this chart goes here.")
 
 
     elif chart_select_radio_jap == "Job Arrival Interval":
@@ -444,15 +443,50 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
             
             # Alex your code here
 
+
             with st.expander("**Job Arrival Interval:**", expanded=True):
                          st.write("Description for this chart goes here.")
 
-
-
-
 elif nav_bar_horizontal == "Model 3":
+    cpu_gpu_chart_select_radio_suaro = None;
+    with st.form("select_cpu_gpu_charts_suaro"):
+        st.write("*Select CPU or GPU to see the available charts*")
+        cpu_gpu_chart_select_radio_suaro = st.radio("Select CPU or GPU to see the available charts")
+        
+
+
+
+        chart_select_radio_suaro = st.radio("Chart Selection"
+            , [None, "Blue Waters GPU", "Blue Waters CPU", "Philly GPU", "Mira CPU", "Helios GPU", "Philly GPU-schedGym"], horizontal=True)
+    
+        st.form_submit_button("Select")
+
+        
+
+
+
+
+
+    
+    
+   
+
+    # Time - 3.08 - Mira CPU
+    
+    # Time - 32.5 S - blue waters CPU
+   
+    # Time - 24.71 - blue waters GPU
+
+    # Time - 11.39 - Philly GPU
+    
+    # Time - 11.93 - Helios GPU 
+   
+    # Time - 11.34 - Philly GPU - SchedGym 
+
+
+elif nav_bar_horizontal == "Job Waiting Time":
     # Code for "Model 3" section goes here
-    st.write("This is the 'Model 3' section.")
+    st.write("This is the 'Model 4' section.")
 
 else:
     st.write("Please select a section from the navigation bar.")
