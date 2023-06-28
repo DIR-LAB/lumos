@@ -14,7 +14,7 @@ import matplotlib
 banner_image = Image.open('JOB TRACE VISULAZATION.png')
 st.image(banner_image)
 
-nav_bar_horizontal = option_menu(None, ["Job Run Time", "Job Arrival Pattern", "Model 3", "Job Waiting Time"], default_index=0, orientation="horizontal")
+nav_bar_horizontal = option_menu(None, ["Job Run Time", "Job Arrival Pattern", "Sys Util & Res Occu", "Job Waiting Time"], default_index=0, orientation="horizontal")
 
 system_models_jrt = ["Mira", "Blue Waters", "Philly", "Helios"]
 
@@ -486,7 +486,7 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
             with st.expander("**Job Arrival Interval:**", expanded=True):
                          st.write("Displays a Cumulative Distribution Functions (CDF) of job arrival interval(s) comparison of the four job traces (Blue Waters, Mira, Philly, and Helios).")
 
-elif nav_bar_horizontal == "Model 3":
+elif nav_bar_horizontal == "Sys Util & Res Occu":
     select_cpu_gpu_radio_suaro = None
     select_cpu_radio_suaro = None
     select_gpu_radio_suaro = None
@@ -512,13 +512,20 @@ elif nav_bar_horizontal == "Model 3":
                 chart_selected_suaro = st.checkbox(item)
                 if chart_selected_suaro:
                     selected_charts_list_suaro.append(item)
-        select_charts_checkbox_main_form_button_suaro = st.form_submit_button("View Charts")
-    
+        select_charts_checkbox_main_form_button_suaro = st.form_submit_button("Load Charts")
+        if select_charts_checkbox_main_form_button_suaro:
+            if len(selected_charts_list_suaro) >= 1:
+                st.write(f'**You have selected:** {selected_charts_list_suaro}')
+            else:
+                st.markdown("<h5 style='color: red;'>You have not selected any chart options above, please select one or more chart option(s) to load the charts</h5>", unsafe_allow_html=True)
+        else: 
+            pass
+
     st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
     with st.sidebar.form("sidebar_form_suaro"):
         sys_utilization_slider_suaro = st.slider("**Adjust System Utilization Range (Y-axis)**", min_value = 0, max_value=100, value=100, step=20)
         time_slider_suaro = st.slider("**Adjust Time Range (X-axis)**", min_value=0, max_value=120, value=120, step=20)
-        submit_button_sidebar_suaro = st.form_submit_button("Apply")
+        submit_button_sidebar_suaro = st.form_submit_button("Apply Changes")
     
     def plot_util(data, total_nodes, key="node_num", color='b'):
         data = data.copy()
@@ -585,8 +592,9 @@ elif nav_bar_horizontal == "Model 3":
                         plot_util(ppppp, 2490, "gpu_num", color='#9467bd')
 
 elif nav_bar_horizontal == "Job Waiting Time":
-    # Code for "Model 3" section goes here
-    st.write("This is the 'Model 4' section.")
+    st.write("Hello")
+    
+    
 
 else:
     st.write("Please select a section from the navigation bar.")
