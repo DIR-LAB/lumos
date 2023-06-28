@@ -486,6 +486,8 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
             with st.expander("**Job Arrival Interval:**", expanded=True):
                          st.write("Displays a Cumulative Distribution Functions (CDF) of job arrival interval(s) comparison of the four job traces (Blue Waters, Mira, Philly, and Helios).")
 
+
+# System Utilization and Resource Occupation page
 elif nav_bar_horizontal == "Sys Util & Res Occu":
     select_cpu_gpu_radio_suaro = None
     select_cpu_radio_suaro = None
@@ -591,6 +593,8 @@ elif nav_bar_horizontal == "Sys Util & Res Occu":
                         ppppp = pd.read_csv("../philly_df_schedule.csv")
                         plot_util(ppppp, 2490, "gpu_num", color='#9467bd')
 
+
+# Job Waiting Time Page
 elif nav_bar_horizontal == "Job Waiting Time":
     st.write("Hello")
     
