@@ -556,7 +556,7 @@ elif nav_bar_horizontal == "Sys Util & Res Occu":
         plt.xlim(0, time_slider_suaro)
         plt.xticks(fontsize=20)
         plt.yticks(fontsize=20)
-
+        st.set_option('deprecation.showPyplotGlobalUse', False)
         plt.xlabel("Time (Days)", fontsize=26)
         plt.ylabel("System Utilization(%)", fontsize=26)
         st.pyplot()
