@@ -491,6 +491,8 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
                          st.write("Displays a Cumulative Distribution Functions (CDF) of job arrival interval(s) comparison of the four job traces (Blue Waters, Mira, Philly, and Helios).")
 
 # System Utilization and Resource Occupation page
+
+# System Utilization and Resource Occupation page
 elif nav_bar_horizontal == "Sys Util & Res Occu":
     select_cpu_gpu_radio_suaro = None
     select_cpu_radio_suaro = None
