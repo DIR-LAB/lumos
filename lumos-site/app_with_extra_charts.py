@@ -606,7 +606,8 @@ elif nav_bar_horizontal == "Job Waiting Time":
 
     with st.form("select_chart_model_jwt"):
         st.write("### Select a chart you want to view")
-        chart_select_radio_jwt = st.radio("Chart Selection", [None, "CDF of Wait Time", "CDF of Turnaround Time", "Avg waiting Time w.r.t Job Size", "Average Waiting Time w.r.t Job Run Time",])
+        chart_select_radio_jwt = st.radio("Chart Selection", [None, "Avg waiting Time w.r.t Job Size", "Average Waiting Time w.r.t Job Run Time",
+        "Job Count w.r.t Job Status", "Core Hours w.r.t Job Status"])
         chart_selection_submit_button = st.form_submit_button("Select")
         if chart_selection_submit_button:
             if not chart_select_radio_jwt is None:
@@ -616,62 +617,7 @@ elif nav_bar_horizontal == "Job Waiting Time":
         else:
             pass
     
-    if chart_select_radio_jwt == "CDF of Wait Time":
-        #cdfowt - CDF of Wait Time
-        cdfowt_selected_system_models_jwt = system_models_jwt.copy()
-        cdfowt_min_value_exp_arrival_interval_slider = 0
-        cdfowt_max_value_exp_arrival_interval_slider = 8 
-
-        st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
-
-        with st.sidebar.form("cdfowt_personal_parameters_update_form"):
-            st.write("### Alter the following settings to customize the CDF of Wait Time Chart:")
-
-            with st.expander("**Select System Model(s)**", expanded=True):
-                for item in system_models_jwt:
-                    cdfowt_model_checkbox_jwt = st.checkbox(item, True)
-                    if not cdfowt_model_checkbox_jwt:
-                        cdfowt_selected_system_models_jwt.remove(item)
-                    else:
-                        pass
-            
-            cdfowt_frequency_slider_jwt = st.slider("**Adjust Frequency(%) Range (Y-axis):**", min_value=0, max_value=100, value=100, step=20)
-            cdfowt_job_wait_time_slider_jwt = st.slider("**Adjust Job Wait Time Range (in powers of 10) (X-axis):**", cdfowt_min_value_exp_arrival_interval_slider, cdfowt_max_value_exp_arrival_interval_slider, value=cdfowt_max_value_exp_arrival_interval_slider, step=1)
-            cdfowt_job_wait_time_slider_value_jwt = int(10**cdfowt_job_wait_time_slider_jwt)         
-            cdfowt_submit_parameters_button_jwt = st.form_submit_button("Apply Changes")
-
-            #Graph Code
-
-
-
-    
-    elif chart_select_radio_jwt == "CDF of Turnaround Time":
-        cdfott_selected_system_models_jwt = system_models_jwt.copy()
-        cdfott_min_value_exp_arrival_interval_slider = 0
-        cdfott_max_value_exp_arrival_interval_slider = 8 
-
-        st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
-
-        with st.sidebar.form("cdfott_personal_parameters_update_form"):
-            st.write("### Alter the following settings to customize the CDF of Turnaround Time Chart:")
-
-            with st.expander("**Select System Model(s)**", expanded=True):
-                for item in system_models_jwt:
-                    cdfott_model_checkbox_jwt = st.checkbox(item, True)
-                    if not cdfott_model_checkbox_jwt:
-                        cdfott_selected_system_models_jwt.remove(item)
-                    else:
-                        pass
-
-            cdfott_frequency_slider_jwt = st.slider("**Adjust Frequency(%) Range (Y-axis):**", min_value=0, max_value=100, value=100, step=20)
-            cdfott_turnaround_time_slider_jwt = st.slider("**Adjust Turnaround Time Range (in powers of 10) (X-axis):**", cdfott_min_value_exp_arrival_interval_slider, cdfott_max_value_exp_arrival_interval_slider, value=cdfott_max_value_exp_arrival_interval_slider, step=1)
-            cdfott_turnaround_time_slider_value_jwt = int(10**cdfott_turnaround_time_slider_jwt)         
-            cdfott_submit_parameters_button_jwt = st.form_submit_button("Apply Changes")
-
-            #Graph Code
-
-
-    elif chart_select_radio_jwt == "Avg waiting Time w.r.t Job Size":
+    if chart_select_radio_jwt == "Avg waiting Time w.r.t Job Size":
         # AWTJS: Avg waiting Time w.r.t Job Size
         awtjs_selected_system_models_jwt = system_models_jwt.copy()
         awtjs_job_sizes_list_jwt = ["Small", "Middle", "Large"]
@@ -734,7 +680,73 @@ elif nav_bar_horizontal == "Job Waiting Time":
             awtjrt_submit_parameters_button_jwt = st.form_submit_button("Apply Changes")
 
             # Graph code here
+
+    elif chart_select_radio_jwt == "Job Count w.r.t Job Status":
+        # JCJS: Job Count w.r.t Job Status
+        jcjs_selected_system_models_jwt = system_models_jwt.copy()
+        jcjs_job_status_list_jwt = ["Pass", "Failed", "Killed"]
+        jcjs_job_status_selected_list_jwt = jcjs_job_status_list_jwt.copy()
+
+        st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
+
+
+        with st.sidebar.form("awtjrt_personal_parameters_update_form"):
+            st.write("### Alter the following settings to customize the Job Counts w.r.t Job Status chart:")
+            with st.expander("**Select Job Status(es)**", expanded = True):
+                for item in jcjs_job_status_list_jwt:
+                    jcjs_job_status_checkbox_jwt = st.checkbox(item, True)
+                    if not jcjs_job_status_checkbox_jwt:
+                        jcjs_job_status_selected_list_jwt.remove(item)
+                    else:
+                        pass
+
+            jcjs_percentage_slider_jwt = st.slider("**Adjust Percentage Range (Y-axis):**", min_value=0, max_value=100, value=100, step=20) 
+            with st.expander("**Select System Model(s)**", expanded=True):
+                for item in system_models_jwt:
+                    jcjs_model_checkbox_jwt = st.checkbox(item, True)
+                    if not jcjs_model_checkbox_jwt:
+                        jcjs_selected_system_models_jwt.remove(item)
+                    else:
+                        pass
+            
+            jcjs_submit_parameters_button_jwt = st.form_submit_button("Apply Changes")
+
+            #Graph code here
+
+
     
+    elif chart_select_radio_jwt == "Core Hours w.r.t Job Status":
+        # CHJS: Core Hours w.r.t Job Status
+        chjs_selected_system_models_jwt = system_models_jwt.copy()
+        chjs_job_status_list_jwt = ["Pass", "Failed", "Killed"]
+        chjs_job_status_selected_list_jwt = chjs_job_status_list_jwt.copy()
+
+        st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
+        
+        with st.sidebar.form("chjs_personal_parameters_update_form"):
+            st.write("### Alter the following settings to customize the Core Hours w.r.t Job Status chart:")
+            
+            with st.expander("**Select Job Status(es)**", expanded=True):
+                for item in chjs_job_status_list_jwt:
+                    chjs_job_status_checkbox_jwt = st.checkbox(item, True)
+                    if not chjs_job_status_checkbox_jwt:
+                        chjs_job_status_selected_list_jwt.remove(item)
+                    else:
+                        pass
+
+            chjs_percentage_slider_jwt = st.slider("**Adjust Percentage Range (Y-axis):**", min_value=0, max_value=100, value=100, step=20)
+             
+            with st.expander("**Select System Model(s)**", expanded=True):
+                for item in system_models_jwt:
+                    chjs_model_checkbox_jwt = st.checkbox(item, True)
+                    if not chjs_model_checkbox_jwt:
+                        chjs_selected_system_models_jwt.remove(item)
+                    else:
+                        pass
+                
+            chjs_submit_parameters_button_jwt = st.form_submit_button("Apply Changes")
+
+            # Graph code here
 
     else:
         pass
