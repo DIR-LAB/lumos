@@ -604,9 +604,47 @@ elif nav_bar_horizontal == "Job Waiting Time":
     chart_select_radio_jwt = None
     system_models_jwt = ["Blue Waters", "Mira", "Philly", "Helios"]
 
+    #Function to calculate Average Wait Time charts
+    def plot_percentage_corehour(frequency_value, selected_models, run_time=False):
+            plt.style.use("default")
+            traces = selected_models
+            if run_time:
+                status = {
+                    'Short': (1.74, 4.70, 1.17, 1.97),
+                    'Middle': (62.07, 81.24, 14.32, 22.28),
+                    'Long': (36.18, 14.05, 84.51, 75.75),
+                }
+            else:
+                status = {
+                    'Small': (86.21, 34.12, 18.48, 4.57),
+                    'Middle': (4.48, 46.63, 68.87, 37.93),
+                    'Large': (9.31, 19.25, 12.65, 57.50),
+                }
+
+            x = np.arange(len(traces))  # the label locations
+            width = 0.25  # the width of the bars
+            multiplier = 0
+
+            fig, ax = plt.subplots()
+            hatches= ["-", ".", "x", "-"]
+            for i, (attribute, measurement) in enumerate(status.items()):
+                offset = width * multiplier
+                rects = ax.bar(x + offset, measurement, width, label=attribute, hatch=hatches[i], edgecolor='black')
+                ax.bar_label(rects, padding=3)
+                multiplier += 1
+
+            # Add some text for labels, title and custom x-axis tick labels, etc.
+            ax.set_ylabel('Percentage (%)', fontsize=20)
+            ax.set_xlabel('Traces', fontsize=20)
+            ax.set_xticks(x + width, traces, fontsize=15)
+            ax.legend(fontsize=15, loc="upper right")
+            ax.set_ylim(0, frequency_value)
+            plt.grid(axis="y")
+            st.pyplot(fig)
+
     with st.form("select_chart_model_jwt"):
         st.write("### Select a chart you want to view")
-        chart_select_radio_jwt = st.radio("Chart Selection", [None, "CDF of Wait Time", "CDF of Turnaround Time", "Avg waiting Time w.r.t Job Size", "Average Waiting Time w.r.t Job Run Time",])
+        chart_select_radio_jwt = st.radio("Chart Selection", [None, "CDF of Wait Time", "CDF of Turnaround Time", "Avg waiting Time w.r.t Job Size", "Average Waiting Time w.r.t Job Run Time"])
         chart_selection_submit_button = st.form_submit_button("Select")
         if chart_selection_submit_button:
             if not chart_select_radio_jwt is None:
@@ -640,7 +678,7 @@ elif nav_bar_horizontal == "Job Waiting Time":
             cdfowt_job_wait_time_slider_value_jwt = int(10**cdfowt_job_wait_time_slider_jwt)         
             cdfowt_submit_parameters_button_jwt = st.form_submit_button("Apply Changes")
 
-            #Graph Code
+        #Graph Code 
 
 
 
@@ -668,7 +706,7 @@ elif nav_bar_horizontal == "Job Waiting Time":
             cdfott_turnaround_time_slider_value_jwt = int(10**cdfott_turnaround_time_slider_jwt)         
             cdfott_submit_parameters_button_jwt = st.form_submit_button("Apply Changes")
 
-            #Graph Code
+        #Graph Code
 
 
     elif chart_select_radio_jwt == "Avg waiting Time w.r.t Job Size":
@@ -689,7 +727,7 @@ elif nav_bar_horizontal == "Job Waiting Time":
                     else:
                         pass
             
-            awtjs_avg_wait_time_slider_jwt = st.slider("**Adjust Average Wait Time (hours) Range (Y-axis):**", min_value=0, max_value=140, value=140, step=20)
+            awtjs_avg_wait_time_slider_jwt = st.slider("**Adjust Average Wait Time (hours) Range (Y-axis):**", min_value=0, max_value=100, value=100, step=10)
            
             with st.expander("**Select System Model(s) (x-axis)**", expanded=True):
                 for item in system_models_jwt:
@@ -700,7 +738,8 @@ elif nav_bar_horizontal == "Job Waiting Time":
                         pass
             awtjs_submit_parameters_button_jwt = st.form_submit_button("Apply Changes")
             
-            #Graph code here
+
+        plot_percentage_corehour(awtjs_avg_wait_time_slider_jwt, awtjs_selected_system_models_jwt)
 
 
     elif chart_select_radio_jwt == "Average Waiting Time w.r.t Job Run Time":
@@ -722,7 +761,7 @@ elif nav_bar_horizontal == "Job Waiting Time":
                     else:
                         pass
 
-            awtjrt_avg_wait_time_slider_jwt = st.slider("**Adjust Average Wait Time (hours) Range (Y-axis):**", min_value=0, max_value=80, value=80, step=10)
+            awtjrt_avg_wait_time_slider_jwt = st.slider("**Adjust Average Wait Time (hours) Range (Y-axis):**", min_value=0, max_value=100, value=100, step=10)
 
             with st.expander("**Select System Model(s) (x-axis)**", expanded=True):
                 for item in system_models_jwt:
@@ -733,9 +772,9 @@ elif nav_bar_horizontal == "Job Waiting Time":
                         pass
             awtjrt_submit_parameters_button_jwt = st.form_submit_button("Apply Changes")
 
-            # Graph code here
+       
+        plot_percentage_corehour(awtjrt_avg_wait_time_slider_jwt, awtjrt_selected_system_models_jwt, True)
     
-
     else:
         pass
 
