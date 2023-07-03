@@ -313,29 +313,33 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
             plt.xticks(fontsize=16)
             plt.yticks(fontsize=16)
 
+            if len(dsp_selected_system_models_jap) >=1 :
 
-            for item in dsp_selected_system_models_jap:
-                if "Blue Waters" in dsp_selected_system_models_jap:
-                    plot_time_submit(bw_df["submit_time"], xlabel="Hour of the Day", week=True,marker="^", color="blue")
-                if "Mira" in dsp_selected_system_models_jap:
-                    plot_time_submit(mira_df_2["submit_time"], xlabel="Hour of the Day", week=True,marker="o", color="red")
-                if "Philly" in dsp_selected_system_models_jap:
-                    plot_time_submit(philly_df["submit_time"], xlabel="Hour of the Day", week=True,marker="s", color="green")
-                if "Helios" in dsp_selected_system_models_jap:
-                    plot_time_submit(hl_df["submit_time"], xlabel="Hour of the Day", week=True,marker="d", color="violet") 
-    
-            plt.xlabel("Hour of the Day", fontsize=18)
-            plt.ylabel("Job Submit Count", fontsize=18)
-            st.set_option('deprecation.showPyplotGlobalUse', False)
-            plt.ylim(0, dsp_job_count_slider_jap)
-            plt.xlim(-1, dsp_hour_of_the_day_slider_jap)
-            plt.tight_layout()
-            plt.grid(True)
-            plt.legend(dsp_selected_system_models_jap,  prop={'size': 14}, loc="upper right")
-            plt.rc('legend',fontsize=20)
-            st.pyplot()
-            with st.expander("**Daily Submit Pattern Chart Description:**", expanded=True):
-                st.write("Displays a chart presenting the job arrival counts of each job trace for each hour of the day")
+                for item in dsp_selected_system_models_jap:
+                    if "Blue Waters" in dsp_selected_system_models_jap:
+                        plot_time_submit(bw_df["submit_time"], xlabel="Hour of the Day", week=True,marker="^", color="blue")
+                    if "Mira" in dsp_selected_system_models_jap:
+                        plot_time_submit(mira_df_2["submit_time"], xlabel="Hour of the Day", week=True,marker="o", color="red")
+                    if "Philly" in dsp_selected_system_models_jap:
+                        plot_time_submit(philly_df["submit_time"], xlabel="Hour of the Day", week=True,marker="s", color="green")
+                    if "Helios" in dsp_selected_system_models_jap:
+                        plot_time_submit(hl_df["submit_time"], xlabel="Hour of the Day", week=True,marker="d", color="violet") 
+        
+                plt.xlabel("Hour of the Day", fontsize=18)
+                plt.ylabel("Job Submit Count", fontsize=18)
+                st.set_option('deprecation.showPyplotGlobalUse', False)
+                plt.ylim(0, dsp_job_count_slider_jap)
+                plt.xlim(-1, dsp_hour_of_the_day_slider_jap)
+                plt.tight_layout()
+                plt.grid(True)
+                plt.legend(dsp_selected_system_models_jap,  prop={'size': 14}, loc="upper right")
+                plt.rc('legend',fontsize=20)
+                st.pyplot()
+
+                with st.expander("**Daily Submit Pattern Chart Description:**", expanded=True):
+                    st.write("Displays a chart presenting the job arrival counts of each job trace for each hour of the day")
+            else:
+                st.write("## Please select one or more system model(s) from sidebar to plot the chart")
 
     elif chart_select_radio_jap == "Weekly Submit Pattern":
         st.markdown("<h2 style='text-align: center; color: black;'>Weekly Submit Pattern Chart</h2>", unsafe_allow_html=True)
@@ -363,29 +367,32 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
             plt.figure(figsize=(12,7))
             plt.xticks(fontsize=16)
             plt.yticks(fontsize=16) 
-            for item in wsp_selected_system_models_jap:
-                if "Blue Waters" in wsp_selected_system_models_jap:
-                    plot_time_submit(bw_df["submit_time"], xlabel="Day of the Week", week=False,marker="^", color="blue")
-                if "Mira" in wsp_selected_system_models_jap:
-                    plot_time_submit(mira_df_2["submit_time"], xlabel="Day of the Week", week=False,marker="o", color="red")
-                if "Philly" in wsp_selected_system_models_jap:
-                    plot_time_submit(philly_df["submit_time"], xlabel="Day of the Week", week=False,marker="s", color="green")
-                if "Helios" in wsp_selected_system_models_jap:
-                    plot_time_submit(hl_df["submit_time"], xlabel="Day of the Week", week=False,marker="d", color="violet")
-            plt.xlabel("Day of the Week", fontsize=20)
-            plt.ylabel("Job Submit Count", fontsize=20)
-            plt.ylim(0, wsp_job_count_slider_jap)
-            plt.tight_layout()
-            plt.xlim(0, wsp_hour_of_the_day_slider_jap)
-            plt.grid(True)
-            plt.legend(wsp_selected_system_models_jap,  prop={'size': 14}, loc="upper right")
-            st.set_option('deprecation.showPyplotGlobalUse', False)
-            plt.rc('legend',fontsize=20)
-            st.pyplot()
 
+            if len(wsp_selected_system_models_jap) >= 1:
+                for item in wsp_selected_system_models_jap:
+                    if "Blue Waters" in wsp_selected_system_models_jap:
+                        plot_time_submit(bw_df["submit_time"], xlabel="Day of the Week", week=False,marker="^", color="blue")
+                    if "Mira" in wsp_selected_system_models_jap:
+                        plot_time_submit(mira_df_2["submit_time"], xlabel="Day of the Week", week=False,marker="o", color="red")
+                    if "Philly" in wsp_selected_system_models_jap:
+                        plot_time_submit(philly_df["submit_time"], xlabel="Day of the Week", week=False,marker="s", color="green")
+                    if "Helios" in wsp_selected_system_models_jap:
+                        plot_time_submit(hl_df["submit_time"], xlabel="Day of the Week", week=False,marker="d", color="violet")
+                plt.xlabel("Day of the Week", fontsize=20)
+                plt.ylabel("Job Submit Count", fontsize=20)
+                plt.ylim(0, wsp_job_count_slider_jap)
+                plt.tight_layout()
+                plt.xlim(0, wsp_hour_of_the_day_slider_jap)
+                plt.grid(True)
+                plt.legend(wsp_selected_system_models_jap,  prop={'size': 14}, loc="upper right")
+                st.set_option('deprecation.showPyplotGlobalUse', False)
+                plt.rc('legend',fontsize=20)
+                st.pyplot()
 
-            with st.expander("**Weekly Submit Pattern Chart Description:**", expanded=True):
-                            st.write("Displays a chart presenting the job arrival counts of each job trace for each day of the week")
+                with st.expander("**Weekly Submit Pattern Chart Description:**", expanded=True):
+                                st.write("Displays a chart presenting the job arrival counts of each job trace for each day of the week")
+            else:
+                st.write("## Please select one or more system model(s) from sidebar to plot the chart")
 
     elif chart_select_radio_jap == "Job Arrival Interval":
         st.markdown("<h2 style='text-align: center; color: black;'>Job Arrival Interval Chart</h2>", unsafe_allow_html=True)
@@ -479,17 +486,17 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
                         plot_cdf(get_interval(philly_df["submit_time"]), 1000,"Time (s)", linestyle="-.")
                     if "Helios" in jai_selected_system_models_jap:
                         plot_cdf(get_interval(hl_df["submit_time"]), 10009999,"Job Arrival Interval (s)", linestyle="--")
-                
-            plt.rc('legend',fontsize=22)
-            plt.legend(jai_selected_system_models_jap, loc = "upper right", prop={'size': 14})
-            st.set_option('deprecation.showPyplotGlobalUse', False)
-            plt.xscale("log")
-            st.pyplot()
+                    
+                plt.rc('legend',fontsize=22)
+                plt.legend(jai_selected_system_models_jap, loc = "upper right", prop={'size': 14})
+                st.set_option('deprecation.showPyplotGlobalUse', False)
+                plt.xscale("log")
+                st.pyplot()
 
-
-            with st.expander("**Job Arrival Interval:**", expanded=True):
-                         st.write("Displays a Cumulative Distribution Functions (CDF) of job arrival interval(s) comparison of the four job traces (Blue Waters, Mira, Philly, and Helios).")
-
+                with st.expander("**Job Arrival Interval:**", expanded=True):
+                            st.write("Displays a Cumulative Distribution Functions (CDF) of job arrival interval(s) comparison of the four job traces (Blue Waters, Mira, Philly, and Helios).")
+            else:
+                st.write("## Please select one or more system model(s) from sidebar to plot the chart")
 # System Utilization and Resource Occupation page
 
 # System Utilization and Resource Occupation page
@@ -570,7 +577,6 @@ elif nav_bar_horizontal == "Sys Util & Res Occu":
     with st.spinner("In Progess... Please do not change any settings now"):
 
             col1, col2 = st.columns(2)
-
             for idx, item in enumerate(selected_charts_list_suaro):
                 col_logic_cal_suaro = col1 if idx % 2 == 0 else col2
                 if item == "Blue Waters CPU":
@@ -776,11 +782,18 @@ elif nav_bar_horizontal == "Job Waiting Time":
                         else:
                             pass
                 awtjs_submit_parameters_button_jwt = st.form_submit_button("Apply Changes")
-                
-            plot_percentage_corehour(awtjs_job_sizes_selected_list_jwt, awtjs_avg_wait_time_slider_jwt, awtjs_selected_system_models_jwt)
+            
+            if len(awtjs_job_sizes_selected_list_jwt) >= 1 and len(awtjs_selected_system_models_jwt) >= 1:
+                plot_percentage_corehour(awtjs_job_sizes_selected_list_jwt, awtjs_avg_wait_time_slider_jwt, awtjs_selected_system_models_jwt)
+                with st.expander("**Avg Waiting Time w.r.t Job Size Chart Description:**", expanded=True):
+                    st.write("Description Goes Here")
+            elif len(awtjs_job_sizes_selected_list_jwt) < 1 and len(awtjs_selected_system_models_jwt) >= 1:
+                st.write("## Please select one or more job size(s) from sidebar to plot the chart")
+            elif len(awtjs_job_sizes_selected_list_jwt) >= 1 and len(awtjs_selected_system_models_jwt) < 1:
+                st.write("## Please select one or more system model(s) from sidebar to plot the chart")
+            else:
+                st.write("## Please select one or more system model(s) and job size(s) from sidebar to plot the chart")
 
-            with st.expander("**Avg Waiting Time w.r.t Job Size Chart Description:**", expanded=True):
-                         st.write("Description Goes Here")
     
     elif chart_select_radio_jwt == "Avg Waiting Time w.r.t Job Run Time":
         # AWTJRT: Average Waiting Time w.r.t Job Run Time
@@ -813,10 +826,17 @@ elif nav_bar_horizontal == "Job Waiting Time":
                             pass
                 awtjrt_submit_parameters_button_jwt = st.form_submit_button("Apply Changes")
         
-            plot_percentage_corehour(awtjrt_job_run_time_selected_list_jwt, awtjrt_avg_wait_time_slider_jwt, awtjrt_selected_system_models_jwt, True)
-        
-            with st.expander("**Avg Waiting Time w.r.t Job Run Time Chart Description:**", expanded=True):
-                         st.write("Description Goes Here")
+            if len(awtjrt_job_run_time_selected_list_jwt) >= 1 and len(awtjrt_selected_system_models_jwt) >= 1:
+                plot_percentage_corehour(awtjrt_job_run_time_selected_list_jwt, awtjrt_avg_wait_time_slider_jwt, awtjrt_selected_system_models_jwt, True)
+                with st.expander("**Avg Waiting Time w.r.t Job Run Time Chart Description:**", expanded=True):
+                    st.write("Description Goes Here")
+            elif len(awtjrt_job_run_time_selected_list_jwt) < 1 and len(awtjrt_selected_system_models_jwt) >= 1:
+                st.write("## Please select one or more job run time(s) from sidebar to plot the chart")
+            elif len(awtjrt_job_run_time_selected_list_jwt) >= 1 and len(awtjrt_selected_system_models_jwt) < 1:
+                st.write("## Please select one or more system model(s) from sidebar to plot the chart")
+            else:
+                st.write("## Please select one or more system model(s) and job run time(s) from sidebar to plot the chart")
+    
     else:
         pass
 

@@ -686,24 +686,30 @@ elif nav_bar_horizontal == "Job Waiting Time":
         cdfowt_max_value_exp_arrival_interval_slider = 8 
 
         st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align: center; color: black;'>CDF of Wait Time</h2>", unsafe_allow_html=True)
+        
 
-        with st.sidebar.form("cdfowt_personal_parameters_update_form"):
-            st.write("### Alter the following settings to customize the CDF of Wait Time Chart:")
+        with st.spinner("In progress...., Please do not change any settings now"):
+            with st.sidebar.form("cdfowt_personal_parameters_update_form"):
+                st.write("### Alter the following settings to customize the CDF of Wait Time Chart:")
 
-            with st.expander("**Select System Model(s)**", expanded=True):
-                for item in system_models_jwt:
-                    cdfowt_model_checkbox_jwt = st.checkbox(item, True)
-                    if not cdfowt_model_checkbox_jwt:
-                        cdfowt_selected_system_models_jwt.remove(item)
-                    else:
-                        pass
-            
-            cdfowt_frequency_slider_jwt = st.slider("**Adjust Frequency(%) Range (Y-axis):**", min_value=0, max_value=100, value=100, step=20)
-            cdfowt_job_wait_time_slider_jwt = st.slider("**Adjust Job Wait Time Range (in powers of 10) (X-axis):**", cdfowt_min_value_exp_arrival_interval_slider, cdfowt_max_value_exp_arrival_interval_slider, value=cdfowt_max_value_exp_arrival_interval_slider, step=1)
-            cdfowt_job_wait_time_slider_value_jwt = int(10**cdfowt_job_wait_time_slider_jwt)         
-            cdfowt_submit_parameters_button_jwt = st.form_submit_button("Apply Changes")
+                with st.expander("**Select System Model(s)**", expanded=True):
+                    for item in system_models_jwt:
+                        cdfowt_model_checkbox_jwt = st.checkbox(item, True)
+                        if not cdfowt_model_checkbox_jwt:
+                            cdfowt_selected_system_models_jwt.remove(item)
+                        else:
+                            pass
+                
+                cdfowt_frequency_slider_jwt = st.slider("**Adjust Frequency(%) Range (Y-axis):**", min_value=0, max_value=100, value=100, step=20)
+                cdfowt_job_wait_time_slider_jwt = st.slider("**Adjust Job Wait Time Range (in powers of 10) (X-axis):**", cdfowt_min_value_exp_arrival_interval_slider, cdfowt_max_value_exp_arrival_interval_slider, value=cdfowt_max_value_exp_arrival_interval_slider, step=1)
+                cdfowt_job_wait_time_slider_value_jwt = int(10**cdfowt_job_wait_time_slider_jwt)         
+                cdfowt_submit_parameters_button_jwt = st.form_submit_button("Apply Changes")
 
-        #Graph Code
+            #Graph Code
+
+            with st.expander("**CDF of wait Time Chart Description:**", expanded=True):
+                            st.write("Description Goes Here")
 
     
     elif chart_select_radio_jwt == "CDF of Turnaround Time":
@@ -712,24 +718,31 @@ elif nav_bar_horizontal == "Job Waiting Time":
         cdfott_max_value_exp_arrival_interval_slider = 8 
 
         st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align: center; color: black;'>CDF of Turnaround Time</h2>", unsafe_allow_html=True)
 
-        with st.sidebar.form("cdfott_personal_parameters_update_form"):
-            st.write("### Alter the following settings to customize the CDF of Turnaround Time Chart:")
+        
+        with st.spinner("In progress...., Please do not change any settings now"):
+            with st.sidebar.form("cdfott_personal_parameters_update_form"):
+                st.write("### Alter the following settings to customize the CDF of Turnaround Time Chart:")
 
-            with st.expander("**Select System Model(s)**", expanded=True):
-                for item in system_models_jwt:
-                    cdfott_model_checkbox_jwt = st.checkbox(item, True)
-                    if not cdfott_model_checkbox_jwt:
-                        cdfott_selected_system_models_jwt.remove(item)
-                    else:
-                        pass
+                with st.expander("**Select System Model(s)**", expanded=True):
+                    for item in system_models_jwt:
+                        cdfott_model_checkbox_jwt = st.checkbox(item, True)
+                        if not cdfott_model_checkbox_jwt:
+                            cdfott_selected_system_models_jwt.remove(item)
+                        else:
+                            pass
 
-            cdfott_frequency_slider_jwt = st.slider("**Adjust Frequency(%) Range (Y-axis):**", min_value=0, max_value=100, value=100, step=20)
-            cdfott_turnaround_time_slider_jwt = st.slider("**Adjust Turnaround Time Range (in powers of 10) (X-axis):**", cdfott_min_value_exp_arrival_interval_slider, cdfott_max_value_exp_arrival_interval_slider, value=cdfott_max_value_exp_arrival_interval_slider, step=1)
-            cdfott_turnaround_time_slider_value_jwt = int(10**cdfott_turnaround_time_slider_jwt)         
-            cdfott_submit_parameters_button_jwt = st.form_submit_button("Apply Changes")
+                cdfott_frequency_slider_jwt = st.slider("**Adjust Frequency(%) Range (Y-axis):**", min_value=0, max_value=100, value=100, step=20)
+                cdfott_turnaround_time_slider_jwt = st.slider("**Adjust Turnaround Time Range (in powers of 10) (X-axis):**", cdfott_min_value_exp_arrival_interval_slider, cdfott_max_value_exp_arrival_interval_slider, value=cdfott_max_value_exp_arrival_interval_slider, step=1)
+                cdfott_turnaround_time_slider_value_jwt = int(10**cdfott_turnaround_time_slider_jwt)         
+                cdfott_submit_parameters_button_jwt = st.form_submit_button("Apply Changes")
 
-        #Graph Code
+            #Graph Code
+
+
+            with st.expander("**CDF of Turnaround Time Chart Description:**", expanded=True):
+                            st.write("Description Goes Here")
 
 
 
@@ -765,6 +778,9 @@ elif nav_bar_horizontal == "Job Waiting Time":
                 awtjs_submit_parameters_button_jwt = st.form_submit_button("Apply Changes")
                 
             plot_percentage_corehour(awtjs_job_sizes_selected_list_jwt, awtjs_avg_wait_time_slider_jwt, awtjs_selected_system_models_jwt)
+
+            with st.expander("**Avg Waiting Time w.r.t Job Size Chart Description:**", expanded=True):
+                         st.write("Description Goes Here")
     
     elif chart_select_radio_jwt == "Avg Waiting Time w.r.t Job Run Time":
         # AWTJRT: Average Waiting Time w.r.t Job Run Time
@@ -799,6 +815,8 @@ elif nav_bar_horizontal == "Job Waiting Time":
         
             plot_percentage_corehour(awtjrt_job_run_time_selected_list_jwt, awtjrt_avg_wait_time_slider_jwt, awtjrt_selected_system_models_jwt, True)
         
+            with st.expander("**Avg Waiting Time w.r.t Job Run Time Chart Description:**", expanded=True):
+                         st.write("Description Goes Here")
     else:
         pass
 
