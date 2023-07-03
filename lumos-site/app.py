@@ -605,21 +605,38 @@ elif nav_bar_horizontal == "Job Waiting Time":
     system_models_jwt = ["Blue Waters", "Mira", "Philly", "Helios"]
 
     #Function to calculate Average Wait Time charts
-    def plot_percentage_corehour(frequency_value, selected_models, run_time=False):
+    def plot_percentage_corehour(selected_job_sizes, frequency_value, selected_models, run_time=False):
             plt.style.use("default")
             traces = selected_models
+            # Chart - Average Waiting Time w.r.t Job Run Time
             if run_time:
-                status = {
-                    'Short': (1.74, 4.70, 1.17, 1.97),
-                    'Middle': (62.07, 81.24, 14.32, 22.28),
-                    'Long': (36.18, 14.05, 84.51, 75.75),
-                }
+                status = {}
+                if "Short" in selected_job_sizes:
+                    status['Short'] =  [1.74, 4.70, 1.17, 1.97]
+                else:
+                    pass
+                if "Middle" in selected_job_sizes:
+                    status['Middle'] = [62.07, 81.24, 14.32, 22.28]
+                else:
+                    pass
+                if "Long" in selected_job_sizes:
+                    status['Long'] = [36.18, 14.05, 84.51, 75.75]
+                else:
+                    pass
             else:
-                status = {
-                    'Small': (86.21, 34.12, 18.48, 4.57),
-                    'Middle': (4.48, 46.63, 68.87, 37.93),
-                    'Large': (9.31, 19.25, 12.65, 57.50),
-                }
+                status = {}
+                if "Small" in selected_job_sizes:
+                    status['Small'] = [86.21, 34.12, 18.48, 4.57]
+                else:
+                    pass
+                if "Middle" in selected_job_sizes:
+                    status['Middle'] = [4.48, 46.63, 68.87, 37.93]
+                else:
+                    pass
+                if "Large" in selected_job_sizes:
+                    status['Large'] = [9.31, 19.25, 12.65, 57.50]
+                else:
+                    pass
 
             x = np.arange(len(traces))  # the label locations
             width = 0.25  # the width of the bars
@@ -637,7 +654,7 @@ elif nav_bar_horizontal == "Job Waiting Time":
             ax.set_ylabel('Percentage (%)', fontsize=20)
             ax.set_xlabel('Traces', fontsize=20)
             ax.set_xticks(x + width, traces, fontsize=15)
-            ax.legend(fontsize=15, loc="upper right")
+            ax.legend(fontsize=14, loc="upper right")
             ax.set_ylim(0, frequency_value)
             plt.grid(axis="y")
             st.pyplot(fig)
@@ -680,8 +697,6 @@ elif nav_bar_horizontal == "Job Waiting Time":
 
         #Graph Code 
 
-
-
     
     elif chart_select_radio_jwt == "CDF of Turnaround Time":
         cdfott_selected_system_models_jwt = system_models_jwt.copy()
@@ -707,6 +722,7 @@ elif nav_bar_horizontal == "Job Waiting Time":
             cdfott_submit_parameters_button_jwt = st.form_submit_button("Apply Changes")
 
         #Graph Code
+
 
 
     elif chart_select_radio_jwt == "Avg waiting Time w.r.t Job Size":
@@ -738,10 +754,8 @@ elif nav_bar_horizontal == "Job Waiting Time":
                         pass
             awtjs_submit_parameters_button_jwt = st.form_submit_button("Apply Changes")
             
-
-        plot_percentage_corehour(awtjs_avg_wait_time_slider_jwt, awtjs_selected_system_models_jwt)
-
-
+        plot_percentage_corehour(awtjs_job_sizes_selected_list_jwt, awtjs_avg_wait_time_slider_jwt, awtjs_selected_system_models_jwt)
+   
     elif chart_select_radio_jwt == "Average Waiting Time w.r.t Job Run Time":
         # AWTJRT: Average Waiting Time w.r.t Job Run Time
         awtjrt_selected_system_models_jwt = system_models_jwt.copy()
@@ -771,9 +785,8 @@ elif nav_bar_horizontal == "Job Waiting Time":
                     else:
                         pass
             awtjrt_submit_parameters_button_jwt = st.form_submit_button("Apply Changes")
-
        
-        plot_percentage_corehour(awtjrt_avg_wait_time_slider_jwt, awtjrt_selected_system_models_jwt, True)
+        plot_percentage_corehour(awtjrt_job_run_time_selected_list_jwt, awtjrt_avg_wait_time_slider_jwt, awtjrt_selected_system_models_jwt, True)
     
     else:
         pass
