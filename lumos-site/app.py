@@ -609,32 +609,40 @@ elif nav_bar_horizontal == "Job Waiting Time":
             plt.style.use("default")
             traces = selected_models
             # Chart - Average Waiting Time w.r.t Job Run Time
+            short_job_size_dic = {'Blue Waters': 1.74, 'Mira': 4.70, 'Philly': 1.17, 'Helios': 1.97}
+            middle_job_size_dic = {'Blue Waters': 62.07, 'Mira': 81.24, 'Philly': 14.32, 'Helios': 22.28}
+            long_job_size_dic = {'Blue Waters': 36.18, 'Mira': 14.05, 'Philly': 84.51, 'Helios': 75.75}
+
+            small_job_size_dic = {'Blue Waters': 86.21, 'Mira': 34.12, 'Philly': 18.48, 'Helios': 4.57}
+            middle2_job_size_dic = {'Blue Waters': 4.48, 'Mira': 46.63, 'Philly': 68.87, 'Helios': 37.93}
+            large_job_size_dic = {'Blue Waters': 9.31, 'Mira': 19.25, 'Philly': 12.65, 'Helios': 57.50}
+
             if run_time:
                 status = {}
                 if "Short" in selected_job_sizes:
-                    status['Short'] =  [1.74, 4.70, 1.17, 1.97]
+                    status['Short'] = [short_job_size_dic[system_model] for system_model in short_job_size_dic if system_model in selected_models]
                 else:
                     pass
                 if "Middle" in selected_job_sizes:
-                    status['Middle'] = [62.07, 81.24, 14.32, 22.28]
+                    status['Middle'] = [middle_job_size_dic[system_model] for system_model in middle_job_size_dic if system_model in selected_models]
                 else:
                     pass
                 if "Long" in selected_job_sizes:
-                    status['Long'] = [36.18, 14.05, 84.51, 75.75]
+                    status['Long'] = [long_job_size_dic[system_model] for system_model in long_job_size_dic if system_model in selected_models]
                 else:
                     pass
             else:
                 status = {}
                 if "Small" in selected_job_sizes:
-                    status['Small'] = [86.21, 34.12, 18.48, 4.57]
+                    status['Small'] = [small_job_size_dic[system_model] for system_model in small_job_size_dic if system_model in selected_models]
                 else:
                     pass
                 if "Middle" in selected_job_sizes:
-                    status['Middle'] = [4.48, 46.63, 68.87, 37.93]
+                    status['Middle'] = [middle2_job_size_dic[system_model] for system_model in middle2_job_size_dic if system_model in selected_models]
                 else:
                     pass
                 if "Large" in selected_job_sizes:
-                    status['Large'] = [9.31, 19.25, 12.65, 57.50]
+                    status['Large'] = [large_job_size_dic[system_model] for system_model in large_job_size_dic if system_model in selected_models]
                 else:
                     pass
 
@@ -651,8 +659,8 @@ elif nav_bar_horizontal == "Job Waiting Time":
                 multiplier += 1
 
             # Add some text for labels, title and custom x-axis tick labels, etc.
-            ax.set_ylabel('Percentage (%)', fontsize=20)
-            ax.set_xlabel('Traces', fontsize=20)
+            ax.set_ylabel('Percentage (%)', fontsize=18)
+            ax.set_xlabel('Traces', fontsize=18)
             ax.set_xticks(x + width, traces, fontsize=15)
             ax.legend(fontsize=14, loc="upper right")
             ax.set_ylim(0, frequency_value)
@@ -661,7 +669,7 @@ elif nav_bar_horizontal == "Job Waiting Time":
 
     with st.form("select_chart_model_jwt"):
         st.write("### Select a chart you want to view")
-        chart_select_radio_jwt = st.radio("Chart Selection", [None, "CDF of Wait Time", "CDF of Turnaround Time", "Avg waiting Time w.r.t Job Size", "Average Waiting Time w.r.t Job Run Time"])
+        chart_select_radio_jwt = st.radio("Chart Selection", [None, "CDF of Wait Time", "CDF of Turnaround Time", "Avg waiting Time w.r.t Job Size", "Avg Waiting Time w.r.t Job Run Time"])
         chart_selection_submit_button = st.form_submit_button("Select")
         if chart_selection_submit_button:
             if not chart_select_radio_jwt is None:
@@ -695,7 +703,7 @@ elif nav_bar_horizontal == "Job Waiting Time":
             cdfowt_job_wait_time_slider_value_jwt = int(10**cdfowt_job_wait_time_slider_jwt)         
             cdfowt_submit_parameters_button_jwt = st.form_submit_button("Apply Changes")
 
-        #Graph Code 
+        #Graph Code
 
     
     elif chart_select_radio_jwt == "CDF of Turnaround Time":
@@ -732,62 +740,65 @@ elif nav_bar_horizontal == "Job Waiting Time":
         awtjs_job_sizes_selected_list_jwt = awtjs_job_sizes_list_jwt.copy()
 
         st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align: center; color: black;'>Avg Waiting Time w.r.t Job Size Chart</h2>", unsafe_allow_html=True)
 
-        with st.sidebar.form("awtjs_personal_parameters_update_form"):
-            st.write("### Alter the following settings to customize the Avg Waiting Time w.r.t Job Size chart:")
-            with st.expander("**Select Job Size(s)**", expanded=True):
-                for item in awtjs_job_sizes_list_jwt:
-                    awtjs_job_size_checkbox_jwt = st.checkbox(item, True)
-                    if not awtjs_job_size_checkbox_jwt:
-                        awtjs_job_sizes_selected_list_jwt.remove(item)
-                    else:
-                        pass
+        with st.spinner("In progress...., Please do not change any settings now"):
+            with st.sidebar.form("awtjs_personal_parameters_update_form"):
+                st.write("### Alter the following settings to customize the Avg Waiting Time w.r.t Job Size chart:")
+                with st.expander("**Select Job Size(s)**", expanded=True):
+                    for item in awtjs_job_sizes_list_jwt:
+                        awtjs_job_size_checkbox_jwt = st.checkbox(item, True)
+                        if not awtjs_job_size_checkbox_jwt:
+                            awtjs_job_sizes_selected_list_jwt.remove(item)
+                        else:
+                            pass
+                
+                awtjs_avg_wait_time_slider_jwt = st.slider("**Adjust Average Wait Time (hours) Range (Y-axis):**", min_value=0, max_value=100, value=100, step=10)
             
-            awtjs_avg_wait_time_slider_jwt = st.slider("**Adjust Average Wait Time (hours) Range (Y-axis):**", min_value=0, max_value=100, value=100, step=10)
-           
-            with st.expander("**Select System Model(s) (x-axis)**", expanded=True):
-                for item in system_models_jwt:
-                    awtjs_model_checkbox_jwt = st.checkbox(item, True)
-                    if not awtjs_model_checkbox_jwt:
-                        awtjs_selected_system_models_jwt.remove(item)
-                    else:
-                        pass
-            awtjs_submit_parameters_button_jwt = st.form_submit_button("Apply Changes")
-            
-        plot_percentage_corehour(awtjs_job_sizes_selected_list_jwt, awtjs_avg_wait_time_slider_jwt, awtjs_selected_system_models_jwt)
-   
-    elif chart_select_radio_jwt == "Average Waiting Time w.r.t Job Run Time":
+                with st.expander("**Select System Model(s) (x-axis)**", expanded=True):
+                    for item in system_models_jwt:
+                        awtjs_model_checkbox_jwt = st.checkbox(item, True)
+                        if not awtjs_model_checkbox_jwt:
+                            awtjs_selected_system_models_jwt.remove(item)
+                        else:
+                            pass
+                awtjs_submit_parameters_button_jwt = st.form_submit_button("Apply Changes")
+                
+            plot_percentage_corehour(awtjs_job_sizes_selected_list_jwt, awtjs_avg_wait_time_slider_jwt, awtjs_selected_system_models_jwt)
+    
+    elif chart_select_radio_jwt == "Avg Waiting Time w.r.t Job Run Time":
         # AWTJRT: Average Waiting Time w.r.t Job Run Time
         awtjrt_selected_system_models_jwt = system_models_jwt.copy()
         awtjrt_job_run_time_list_jwt = ["Short", "Middle", "Long"]
         awtjrt_job_run_time_selected_list_jwt = awtjrt_job_run_time_list_jwt.copy()
-        st.sidebar.markdown("")
 
         st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
-
-        with st.sidebar.form("awtjrt_personal_parameters_update_form"):
-            st.write("### Alter the following settings to customize the Average Waiting Time w.r.t Job Run Time chart:")
-            with st.expander("**Select Job Run Time(s)**", expanded=True):
-                for item in awtjrt_job_run_time_list_jwt:
-                    awtjrt_job_run_time_checkbox_jwt = st.checkbox(item, True)
-                    if not awtjrt_job_run_time_checkbox_jwt:
-                        awtjrt_job_run_time_selected_list_jwt.remove(item)
-                    else:
-                        pass
-
-            awtjrt_avg_wait_time_slider_jwt = st.slider("**Adjust Average Wait Time (hours) Range (Y-axis):**", min_value=0, max_value=100, value=100, step=10)
-
-            with st.expander("**Select System Model(s) (x-axis)**", expanded=True):
-                for item in system_models_jwt:
-                    awtjrt_model_checkbox_jwt = st.checkbox(item, True)
-                    if not awtjrt_model_checkbox_jwt:
-                        awtjrt_selected_system_models_jwt.remove(item)
-                    else:
-                        pass
-            awtjrt_submit_parameters_button_jwt = st.form_submit_button("Apply Changes")
+        st.markdown("<h2 style='text-align: center; color: black;'>Avg Waiting Time w.r.t Job Run Time Chart</h2>", unsafe_allow_html=True)
        
-        plot_percentage_corehour(awtjrt_job_run_time_selected_list_jwt, awtjrt_avg_wait_time_slider_jwt, awtjrt_selected_system_models_jwt, True)
-    
+        with st.spinner("In progress...., Please do not change any settings now"):
+            with st.sidebar.form("awtjrt_personal_parameters_update_form"):
+                st.write("### Alter the following settings to customize the Avg Waiting Time w.r.t Job Run Time chart:")
+                with st.expander("**Select Job Run Time(s)**", expanded=True):
+                    for item in awtjrt_job_run_time_list_jwt:
+                        awtjrt_job_run_time_checkbox_jwt = st.checkbox(item, True)
+                        if not awtjrt_job_run_time_checkbox_jwt:
+                            awtjrt_job_run_time_selected_list_jwt.remove(item)
+                        else:
+                            pass
+
+                awtjrt_avg_wait_time_slider_jwt = st.slider("**Adjust Average Wait Time (hours) Range (Y-axis):**", min_value=0, max_value=100, value=100, step=10)
+
+                with st.expander("**Select System Model(s) (x-axis)**", expanded=True):
+                    for item in system_models_jwt:
+                        awtjrt_model_checkbox_jwt = st.checkbox(item, True)
+                        if not awtjrt_model_checkbox_jwt:
+                            awtjrt_selected_system_models_jwt.remove(item)
+                        else:
+                            pass
+                awtjrt_submit_parameters_button_jwt = st.form_submit_button("Apply Changes")
+        
+            plot_percentage_corehour(awtjrt_job_run_time_selected_list_jwt, awtjrt_avg_wait_time_slider_jwt, awtjrt_selected_system_models_jwt, True)
+        
     else:
         pass
 
