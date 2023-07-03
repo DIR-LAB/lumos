@@ -610,6 +610,21 @@ elif nav_bar_horizontal == "Job Waiting Time":
     chart_select_radio_jwt = None
     system_models_jwt = ["Blue Waters", "Mira", "Philly", "Helios"]
 
+    def plot_cdf(x,bins ,xlabel, ylabel="Frequency (%)",color="", linestyle="--"):
+        plt.xticks(fontsize=16)
+        plt.yticks(fontsize=16) 
+        x = np.sort(x)
+        cdf = 100*np.arange(len(x)) / float(len(x))
+        if color:
+            plt.plot(x, cdf, linestyle=linestyle, linewidth=5, color=color)
+        else:
+            plt.plot(x, cdf, linestyle=linestyle, linewidth=5)
+        plt.xlabel(xlabel, fontsize=20)
+        plt.ylabel(ylabel, fontsize=20)
+        plt.margins(0)
+        plt.ylim(0, 100)
+        plt.grid(True)
+
     #Function to calculate Average Wait Time charts
     def plot_percentage_corehour(selected_job_sizes, frequency_value, selected_models, run_time=False):
             plt.style.use("default")
@@ -713,9 +728,24 @@ elif nav_bar_horizontal == "Job Waiting Time":
                 cdfowt_submit_parameters_button_jwt = st.form_submit_button("Apply Changes")
 
             #Graph Code
+            if len(cdfowt_selected_system_models_jwt) >= 1:
+                for items in system_models_jwt:
+                    if "Blue Waters" in cdfowt_selected_system_models_jwt:
+                        plot_cdf(bw_df["wait_time"], 100000, "Job Wait Time (s)")
+                    if "Mira" in cdfowt_selected_system_models_jwt:
+                        plot_cdf(mira_df_2["wait_time"], 100000, "Job Wait Time (s)")
+                    if "Philly" in cdfowt_selected_system_models_jwt:
+                        plot_cdf(philly_df[10000:130000]["wait_time"], 100000, "Job Wait Time (s)")
+                    if "Helios" in cdfowt_selected_system_models_jwt:
+                        plot_cdf(hl_df["wait_time"], 100000, "Job Wait Time (s)")
+
+                plt.rc('legend', fontsize=12)
+                plt.legend(cdfowt_selected_system_models_jwt, loc="lower right")
+                plt.xscale("log")
+                st.pyplot()
 
             with st.expander("**CDF of wait Time Chart Description:**", expanded=True):
-                            st.write("Description Goes Here")
+                            st.write("Compares the CDF of the waiting time of each job across the four traces")
 
     
     elif chart_select_radio_jwt == "CDF of Turnaround Time":
