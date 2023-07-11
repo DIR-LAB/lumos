@@ -46,7 +46,7 @@ if nav_bar_horizontal == "Job Run Time":
         submit = st.form_submit_button("Select")
         if submit:
             if not chart_select_radio_jrt is None:
-                st.write(f"**You have selected**: {chart_select_radio_jrt}")
+                st.write(f"**You haveselected**: {chart_select_radio_jrt}")
             else:
                 text_color = "red"
                 st.markdown(f'<span style="color:{text_color}">You have selected "None", please select an other option to view chart.</span>', unsafe_allow_html=True)
