@@ -11,17 +11,29 @@ from collections import Counter, defaultdict
 import json
 import time 
 import matplotlib
-banner_image = Image.open('images/JOB TRACE VISULAZATION.png')
+import os 
+
+curr_dir = os.path.dirname(__file__)
+
+banner_image_path = os.path.join(curr_dir, 'images/JOB TRACE VISULAZATION.png')
+
+data_blue_waters_path = os.path.join(curr_dir, 'data/data_blue_waters.csv')
+data_mira_path = os.path.join(curr_dir, 'data/data_mira.csv')
+data_helios_path = os.path.join(curr_dir, 'data/data_helios.csv')
+data_philly_path = os.path.join(curr_dir, 'data/data_philly.csv')
+
+banner_image = Image.open(banner_image_path)
 st.image(banner_image)
+
+bw_df = pd.read_csv(data_blue_waters_path)
+mira_df_2 = pd.read_csv(data_mira_path)
+hl_df = pd.read_csv(data_helios_path)
+philly_df = pd.read_csv(data_philly_path)
 
 nav_bar_horizontal = option_menu(None, ["Job Run Time", "Job Arrival Pattern", "Sys Util & Res Occu", "Job Waiting Time"], default_index=0, orientation="horizontal")
 
 system_models_jrt = ["Mira", "Blue Waters", "Philly", "Helios"]
 
-bw_df = pd.read_csv("data/data_blue_waters.csv")
-mira_df_2 = pd.read_csv("data/data_mira.csv")
-hl_df = pd.read_csv("data/data_helios.csv")
-philly_df = pd.read_csv("data/data_philly.csv")
 message = st.empty()
 columns=["job", "user", "project", "state", "gpu_num", "cpu_num", "node_num", "submit_time", "wait_time", "run_time", "wall_time", "node_hour"]
 
@@ -602,7 +614,8 @@ elif nav_bar_horizontal == "Sys Util & Res Occu":
                 elif item == "Philly GPU-SchedGym":
                     with col_logic_cal_suaro:
                         st.markdown("<h4 style='text-align: center;'>Philly GPU-SchedGym Chart</h4>", unsafe_allow_html=True)
-                        ppppp = pd.read_csv("data/philly_df_schedule.csv")
+                        data_philly_df_schedule_path = os.path.join(curr_dir, 'data/philly_df_schedule.csv')
+                        ppppp = pd.read_csv(data_philly_df_schedule_path)
                         plot_util(ppppp, 2490, "gpu_num", color='#9467bd')
 
 # Job Waiting Time Page
