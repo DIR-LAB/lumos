@@ -468,7 +468,7 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
                 plt.ylabel(ylabel, fontsize=20)
                 plt.margins(0)
                 plt.ylim(0, jai_job_count_slider_jap)
-                plt.xlim(1, jai_hour_of_the_day_slider_value_jap)
+                plt.xlim(int(10 ** jap_min_value_exp_arrival_interval_slider), jai_hour_of_the_day_slider_value_jap)
 
                 plt.grid(True)
             
@@ -610,6 +610,21 @@ elif nav_bar_horizontal == "Job Waiting Time":
     chart_select_radio_jwt = None
     system_models_jwt = ["Blue Waters", "Mira", "Philly", "Helios"]
 
+    def plot_cdf(x,bins ,xlabel, ylabel="Frequency (%)",color="", linestyle="--"):
+        plt.xticks(fontsize=16)
+        plt.yticks(fontsize=16) 
+        x = np.sort(x)
+        cdf = 100*np.arange(len(x)) / float(len(x))
+        if color:
+            plt.plot(x, cdf, linestyle=linestyle, linewidth=5, color=color)
+        else:
+            plt.plot(x, cdf, linestyle=linestyle, linewidth=5)
+        plt.xlabel(xlabel, fontsize=20)
+        plt.ylabel(ylabel, fontsize=20)
+        plt.margins(0)
+        plt.ylim(0, 100)
+        plt.grid(True)
+
     #Function to calculate Average Wait Time charts
     def plot_percentage_corehour(selected_job_sizes, frequency_value, selected_models, run_time=False):
             plt.style.use("default")
@@ -709,13 +724,31 @@ elif nav_bar_horizontal == "Job Waiting Time":
                 
                 cdfowt_frequency_slider_jwt = st.slider("**Adjust Frequency(%) Range (Y-axis):**", min_value=0, max_value=100, value=100, step=20)
                 cdfowt_job_wait_time_slider_jwt = st.slider("**Adjust Job Wait Time Range (in powers of 10) (X-axis):**", cdfowt_min_value_exp_arrival_interval_slider, cdfowt_max_value_exp_arrival_interval_slider, value=cdfowt_max_value_exp_arrival_interval_slider, step=1)
-                cdfowt_job_wait_time_slider_value_jwt = int(10**cdfowt_job_wait_time_slider_jwt)         
+                cdfowt_job_wait_time_slider_value_jwt = int(10 ** cdfowt_job_wait_time_slider_jwt)         
                 cdfowt_submit_parameters_button_jwt = st.form_submit_button("Apply Changes")
 
             #Graph Code
+            if len(cdfowt_selected_system_models_jwt) >= 1:
+                for items in system_models_jwt:
+                    if "Blue Waters" in cdfowt_selected_system_models_jwt:
+                        plot_cdf(bw_df["wait_time"], 100000, "Job Wait Time (s)")
+                    if "Mira" in cdfowt_selected_system_models_jwt:
+                        plot_cdf(mira_df_2["wait_time"], 100000, "Job Wait Time (s)")
+                    if "Philly" in cdfowt_selected_system_models_jwt:
+                        plot_cdf(philly_df[10000:130000]["wait_time"], 100000, "Job Wait Time (s)")
+                    if "Helios" in cdfowt_selected_system_models_jwt:
+                        plot_cdf(hl_df["wait_time"], 100000, "Job Wait Time (s)")
+
+                plt.ylim(0, cdfowt_frequency_slider_jwt)
+                plt.xlim(int(10**cdfowt_min_value_exp_arrival_interval_slider), cdfowt_job_wait_time_slider_value_jwt)
+                plt.rc('legend', fontsize=12)
+                plt.legend(cdfowt_selected_system_models_jwt, loc="lower right")
+                st.set_option('deprecation.showPyplotGlobalUse', False)
+                plt.xscale("log")
+                st.pyplot()
 
             with st.expander("**CDF of wait Time Chart Description:**", expanded=True):
-                            st.write("Description Goes Here")
+                            st.write("Compares the CDF of the waiting time of each job across the four traces")
 
     
     elif chart_select_radio_jwt == "CDF of Turnaround Time":
@@ -740,8 +773,8 @@ elif nav_bar_horizontal == "Job Waiting Time":
                             pass
 
                 cdfott_frequency_slider_jwt = st.slider("**Adjust Frequency(%) Range (Y-axis):**", min_value=0, max_value=100, value=100, step=20)
-                cdfott_turnaround_time_slider_jwt = st.slider("**Adjust Turnaround Time Range (in powers of 10) (X-axis):**", cdfott_min_value_exp_arrival_interval_slider, cdfott_max_value_exp_arrival_interval_slider, value=cdfott_max_value_exp_arrival_interval_slider, step=1)
-                cdfott_turnaround_time_slider_value_jwt = int(10**cdfott_turnaround_time_slider_jwt)         
+                cdfott_turnaround_time_slider_jwt = st.slider("**Adjust Turnaround Time Range (in powers of 10) (X-axis):**", cdfott_min_value_exp_arrival_interval_slider, cdfott_max_value_exp_arrival_interval_slider, value=8, step=1)
+                cdfott_turnaround_time_slider_value_jwt = int(10 ** cdfott_turnaround_time_slider_jwt)         
                 cdfott_submit_parameters_button_jwt = st.form_submit_button("Apply Changes")
 
             #Graph Code
@@ -749,8 +782,6 @@ elif nav_bar_horizontal == "Job Waiting Time":
 
             with st.expander("**CDF of Turnaround Time Chart Description:**", expanded=True):
                             st.write("Description Goes Here")
-
-
 
     elif chart_select_radio_jwt == "Avg waiting Time w.r.t Job Size":
         # AWTJS: Avg waiting Time w.r.t Job Size
@@ -824,6 +855,7 @@ elif nav_bar_horizontal == "Job Waiting Time":
                             awtjrt_selected_system_models_jwt.remove(item)
                         else:
                             pass
+                        
                 awtjrt_submit_parameters_button_jwt = st.form_submit_button("Apply Changes")
         
             if len(awtjrt_job_run_time_selected_list_jwt) >= 1 and len(awtjrt_selected_system_models_jwt) >= 1:
@@ -836,7 +868,6 @@ elif nav_bar_horizontal == "Job Waiting Time":
                 st.write("## Please select one or more system model(s) from sidebar to plot the chart")
             else:
                 st.write("## Please select one or more system model(s) and job run time(s) from sidebar to plot the chart")
-    
     else:
         pass
 
