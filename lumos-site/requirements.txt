@@ -3,3 +3,4 @@ streamlit_option_menu
 seaborn
 matplotlib
 numpy
+pandas
