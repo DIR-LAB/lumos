@@ -528,19 +528,20 @@ elif nav_bar_horizontal == "Sys Util & Res Occu":
         start_time = list(data["submit_time"])[0]
         end_time = list(data["submit_time"])[-1]
         duration = end_time - start_time
-        days = int(duration/(24*3600))
+        days = int(duration/(86400))
         days_usage = [0]*days
 
         data["start_time"] = data["submit_time"] + data["wait_time"] - start_time
         data["end_time"] = data["start_time"] + data["run_time"]
-        data["start_day"] = (data["start_time"]/(24*3600)).astype(int)
-        data["end_day"] = (data["end_time"]/(24*3600)).astype(int) + 1
+        data["start_day"] = (data["start_time"]/(86400)).astype(int)
+        data["end_day"] = (data["end_time"]/(86400)).astype(int) + 1
         
         for index, row in data.iterrows():
             for i in range(int(row["start_day"]), int(row["end_day"])):
                 if i <len(days_usage):
-                    days_usage[i] += row[key]*(min(row["end_time"], (i+1)*24*3600)-max(row["start_time"], i*24*3600))
-        plt.bar(range(len(days_usage)), 100*np.array(days_usage)/(total_nodes*24*3600), color=color)
+                    days_usage[i] += row[key]*(min(row["end_time"], (i+1)*86400)-max(row["start_time"], i*86400))
+        
+        plt.bar(range(len(days_usage)), 100*np.array(days_usage)/(total_nodes*86400), color=color)
         plt.plot([-10, 150], [80]*2, color="black", linestyle="--")
         plt.ylim(0, sys_utilization_slider_suaro)
         plt.xlim(0, time_slider_suaro)
