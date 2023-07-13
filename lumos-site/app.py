@@ -523,6 +523,34 @@ elif nav_bar_horizontal == "Sys Util & Res Occu":
                 "Philly GPU", "Helios GPU", "Philly GPU-SchedGym"]
     selected_charts_list_suaro = []
 
+    def plot_util(data, total_nodes, key="node_num", color='b'):
+        data = data.copy()
+        start_time = list(data["submit_time"])[0]
+        end_time = list(data["submit_time"])[-1]
+        duration = end_time - start_time
+        days = int(duration/(24*3600))
+        days_usage = [0]*days
+
+        data["start_time"] = data["submit_time"] + data["wait_time"] - start_time
+        data["end_time"] = data["start_time"] + data["run_time"]
+        data["start_day"] = (data["start_time"]/(24*3600)).astype(int)
+        data["end_day"] = (data["end_time"]/(24*3600)).astype(int) + 1
+        
+        for index, row in data.iterrows():
+            for i in range(int(row["start_day"]), int(row["end_day"])):
+                if i <len(days_usage):
+                    days_usage[i] += row[key]*(min(row["end_time"], (i+1)*24*3600)-max(row["start_time"], i*24*3600))
+        plt.bar(range(len(days_usage)), 100*np.array(days_usage)/(total_nodes*24*3600), color=color)
+        plt.plot([-10, 150], [80]*2, color="black", linestyle="--")
+        plt.ylim(0, sys_utilization_slider_suaro)
+        plt.xlim(0, time_slider_suaro)
+        plt.xticks(fontsize=20)
+        plt.yticks(fontsize=20)
+        st.set_option('deprecation.showPyplotGlobalUse', False)
+        plt.xlabel("Time (Days)", fontsize=26)
+        plt.ylabel("System Utilization(%)", fontsize=26)
+        st.pyplot()
+
     with st.form("select_charts_checkbox_main_form_suaro"): 
         st.write("### Please select one or more option(s) below to view there charts")
         col1, col2 = st.columns(2)
@@ -553,41 +581,8 @@ elif nav_bar_horizontal == "Sys Util & Res Occu":
         sys_utilization_slider_suaro = st.slider("**Adjust System Utilization Range (Y-axis):**", min_value = 0, max_value=100, value=100, step=20)
         time_slider_suaro = st.slider("**Adjust Time Range (X-axis):**", min_value=0, max_value=120, value=120, step=20)
         submit_button_sidebar_suaro = st.form_submit_button("Apply Changes")
-    
-    def plot_util(data, total_nodes, key="node_num", color='b'):
-        data = data.copy()
-        start_time = list(data["submit_time"])[0]
-        end_time = list(data["submit_time"])[-1]
-        duration = end_time - start_time
-        days = int(duration/(24*3600))
-        days_usage = [0]*days
-        data["start_time"] = data.apply(lambda row: row["submit_time"] + row["wait_time"]-start_time, axis=1)
-        data["end_time"] = data.apply(lambda row: row["start_time"] + row["run_time"], axis=1)
-        data["start_day"] = data.apply(lambda row: int(row["start_time"]/(24*3600)), axis=1)
-        data["end_day"] = data.apply(lambda row: int(row["end_time"]/(24*3600))+1, axis=1)
-    #     print(data[data["start_day"]==60])
-    #     print(data[data["start_day"]==90])
-        for index, row in data.iterrows():
-            for i in range(int(row["start_day"]), int(row["end_day"])):
-                if i <len(days_usage):
-                    days_usage[i] += row[key]*(min(row["end_time"], (i+1)*24*3600)-max(row["start_time"], i*24*3600))
-    #     for i in range(len(days_usage)):
-    #         days_usage[i] = min((total_nodes*24*3600), days_usage[i])
-    #     days_usage = days_usage[10:130]
-        # print(np.mean(np.array(days_usage)/(total_nodes*24*3600)))
-        plt.bar(range(len(days_usage)), 100*np.array(days_usage)/(total_nodes*24*3600), color=color)
-        plt.plot([-10, 150], [80]*2, color="black", linestyle="--")
-        plt.ylim(0, sys_utilization_slider_suaro)
-        plt.xlim(0, time_slider_suaro)
-        plt.xticks(fontsize=20)
-        plt.yticks(fontsize=20)
-        st.set_option('deprecation.showPyplotGlobalUse', False)
-        plt.xlabel("Time (Days)", fontsize=26)
-        plt.ylabel("System Utilization(%)", fontsize=26)
-        st.pyplot()
         
     with st.spinner("In Progess... Please do not change any settings now"):
-
             col1, col2 = st.columns(2)
             for idx, item in enumerate(selected_charts_list_suaro):
                 col_logic_cal_suaro = col1 if idx % 2 == 0 else col2
