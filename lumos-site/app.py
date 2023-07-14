@@ -21,6 +21,7 @@ data_blue_waters_path = os.path.join(curr_dir, 'data/data_blue_waters.csv')
 data_mira_path = os.path.join(curr_dir, 'data/data_mira.csv')
 data_helios_path = os.path.join(curr_dir, 'data/data_helios.csv')
 data_philly_path = os.path.join(curr_dir, 'data/data_philly.csv')
+data_philly_gpu_schedule_path = os.path.join(curr_dir, 'data/philly_df_schedule.csv')
 
 banner_image = Image.open(banner_image_path)
 st.image(banner_image)
@@ -29,6 +30,7 @@ bw_df = pd.read_csv(data_blue_waters_path)
 mira_df_2 = pd.read_csv(data_mira_path)
 hl_df = pd.read_csv(data_helios_path)
 philly_df = pd.read_csv(data_philly_path)
+philly_gpu_schedule_df = pd.read_csv(data_philly_gpu_schedule_path)
 
 nav_bar_horizontal = option_menu(None, ["Job Run Time", "Job Arrival Pattern", "Sys Util & Res Occu", "Job Waiting Time"], default_index=0, orientation="horizontal")
 
@@ -525,24 +527,26 @@ elif nav_bar_horizontal == "Sys Util & Res Occu":
 
     def plot_util(data, total_nodes, key="node_num", color='b'):
         data = data.copy()
-        start_time = list(data["submit_time"])[0]
-        end_time = list(data["submit_time"])[-1]
+        start_time = data["submit_time"].min()
+        end_time = data["submit_time"].max()
         duration = end_time - start_time
         days = int(duration/(86400))
-        days_usage = [0]*days
+        days_usage = np.zeros(days)
 
         data["start_time"] = data["submit_time"] + data["wait_time"] - start_time
         data["end_time"] = data["start_time"] + data["run_time"]
         data["start_day"] = (data["start_time"]/(86400)).astype(int)
         data["end_day"] = (data["end_time"]/(86400)).astype(int) + 1
-        
-        for index, row in data.iterrows():
-            for i in range(int(row["start_day"]), int(row["end_day"])):
-                if i <len(days_usage):
-                    days_usage[i] += row[key]*(min(row["end_time"], (i+1)*86400)-max(row["start_time"], i*86400))
-        
-        plt.bar(range(len(days_usage)), 100*np.array(days_usage)/(total_nodes*86400), color=color)
-        plt.plot([-10, 150], [80]*2, color="black", linestyle="--")
+
+        clipped_start_days = np.clip(data["start_day"], 0, days-1)
+        clipped_end_days = np.clip(data["end_day"], 0, days)
+
+        for day in range(days):
+            mask = (clipped_start_days <= day) & (day < clipped_end_days)
+            days_usage[day] += np.sum(data.loc[mask, key] * (np.minimum(data.loc[mask, "end_time"], (day + 1) * 86400) - np.maximum(data.loc[mask, "start_time"], day * 86400)))
+
+        plt.bar(range(len(days_usage)), 100 * days_usage / (total_nodes * 86400), color=color)
+        plt.plot([-10, 150], [80] * 2, color="black", linestyle="--")
         plt.ylim(0, sys_utilization_slider_suaro)
         plt.xlim(0, time_slider_suaro)
         plt.xticks(fontsize=20)
@@ -572,17 +576,25 @@ elif nav_bar_horizontal == "Sys Util & Res Occu":
             if len(selected_charts_list_suaro) >= 1:
                 st.write(f'**You have selected:** {selected_charts_list_suaro}')
             else:
-                st.markdown("<h5 style='color: red;'>You have not selected any chart options above, please select one or more chart option(s) to load the charts</h5>", unsafe_allow_html=True)
+                st.markdown("<h5 style='color: red;'>You have not selected any chart options above, please select one or more chart option(s) to load the charts.</h5>", unsafe_allow_html=True)
         else: 
             pass
 
-    st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
-    with st.sidebar.form("sidebar_form_suaro"):
-        st.write("### Alter the following settings to customize the selected chart(s):")
-        sys_utilization_slider_suaro = st.slider("**Adjust System Utilization Range (Y-axis):**", min_value = 0, max_value=100, value=100, step=20)
-        time_slider_suaro = st.slider("**Adjust Time Range (X-axis):**", min_value=0, max_value=120, value=120, step=20)
-        submit_button_sidebar_suaro = st.form_submit_button("Apply Changes")
-        
+    if len(selected_charts_list_suaro) >= 1:
+        st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
+        with st.sidebar.form("sidebar_form_suaro"):
+            st.write("### Alter the following settings to customize the selected chart(s):")
+            sys_utilization_slider_suaro = st.slider("**Adjust System Utilization Range (Y-axis):**", min_value = 0, max_value=100, value=100, step=10)
+            time_slider_suaro = st.slider("**Adjust Time Range (X-axis):**", min_value=0, max_value=120, value=120, step=10)
+            submit_button_sidebar_suaro = st.form_submit_button("Apply Changes")
+            if submit_button_sidebar_suaro:
+                if len(selected_charts_list_suaro) < 1:
+                    st.markdown("<h5 style='color: red;'>Please select one or more chart option(s) from the menu in the main screen to load the charts.</h5>", unsafe_allow_html=True)
+                else:
+                    pass
+    else:
+        pass
+
     with st.spinner("In Progess... Please do not change any settings now"):
             col1, col2 = st.columns(2)
             for idx, item in enumerate(selected_charts_list_suaro):
@@ -610,9 +622,9 @@ elif nav_bar_horizontal == "Sys Util & Res Occu":
                 elif item == "Philly GPU-SchedGym":
                     with col_logic_cal_suaro:
                         st.markdown("<h4 style='text-align: center;'>Philly GPU-SchedGym Chart</h4>", unsafe_allow_html=True)
-                        data_philly_df_schedule_path = os.path.join(curr_dir, 'data/philly_df_schedule.csv')
-                        ppppp = pd.read_csv(data_philly_df_schedule_path)
-                        plot_util(ppppp, 2490, "gpu_num", color='#9467bd')
+                        plot_util(philly_gpu_schedule_df, 2490, "gpu_num", color='#9467bd')
+                else:
+                    pass
 
 # Job Waiting Time Page
 elif nav_bar_horizontal == "Job Waiting Time":
