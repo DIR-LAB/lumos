@@ -805,10 +805,16 @@ elif nav_bar_horizontal == "Job Waiting Time":
                 cdfott_submit_parameters_button_jwt = st.form_submit_button("Apply Changes")
 
             #Graph Code
-            plot_cdf(bw_df["wait_time"]+bw_df["run_time"], 100000, "Job Wait Time (s)", linestyle=":")
-            plot_cdf(mira_df_2["wait_time"]+mira_df_2["run_time"], 100000, "Job Wait Time (s)", linestyle="--")
-            plot_cdf(philly_df["wait_time"]+philly_df["run_time"], 100000, "Job Wait Time (s)", linestyle="-.")
-            plot_cdf(hl_df["wait_time"]+hl_df["run_time"], 100000, "Job Turnaround Time (s)", linestyle="--")
+            if len(cdfott_selected_system_models_jwt) >= 1:
+                for items in system_models_jwt:
+                    if "Blue Waters" in cdfott_selected_system_models_jwt:
+                        plot_cdf(bw_df["wait_time"]+bw_df["run_time"], 100000, "Job Wait Time (s)", linestyle=":")
+                    if "Mira" in cdfott_selected_system_models_jwt:
+                        plot_cdf(mira_df_2["wait_time"]+mira_df_2["run_time"], 100000, "Job Wait Time (s)", linestyle="--")
+                    if "Philly" in cdfott_selected_system_models_jwt:
+                        plot_cdf(philly_df["wait_time"]+philly_df["run_time"], 100000, "Job Wait Time (s)", linestyle="-.")
+                    if "Helios" in cdfott_selected_system_models_jwt:
+                        plot_cdf(hl_df["wait_time"]+hl_df["run_time"], 100000, "Job Turnaround Time (s)", linestyle="--")
             plt.legend(["bw","mira", "philly","helios"])
             plt.xscale("log")
             plt.rc('legend',fontsize=23)
