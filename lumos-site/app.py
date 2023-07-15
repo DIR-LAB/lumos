@@ -26,11 +26,18 @@ data_philly_gpu_schedule_path = os.path.join(curr_dir, 'data/philly_df_schedule.
 banner_image = Image.open(banner_image_path)
 st.image(banner_image)
 
-bw_df = pd.read_csv(data_blue_waters_path)
-mira_df_2 = pd.read_csv(data_mira_path)
-hl_df = pd.read_csv(data_helios_path)
-philly_df = pd.read_csv(data_philly_path)
-philly_gpu_schedule_df = pd.read_csv(data_philly_gpu_schedule_path)
+@st.cache_data
+def load_data():
+    bw = pd.read_csv(data_blue_waters_path)
+    mira = pd.read_csv(data_mira_path)
+    hl = pd.read_csv(data_helios_path)
+    philly = pd.read_csv(data_philly_path)
+    philly_gpu = pd.read_csv(data_philly_gpu_schedule_path)
+    return bw, mira, hl, philly, philly_gpu
+
+
+bw_df, mira_df_2, hl_df, philly_df, philly_gpu_schedule_df = load_data()
+
 
 nav_bar_horizontal = option_menu(None, ["Job Run Time", "Job Arrival Pattern", "Sys Util & Res Occu", "Job Waiting Time"], default_index=0, orientation="horizontal")
 
@@ -451,7 +458,6 @@ elif nav_bar_horizontal == "Job Arrival Pattern":
                 plt.margins(0)
                 plt.ylim(0, 100)
                 plt.grid(True)
-
 
             # Job Arrival Interval (s) Fig 2c
             def get_interval(a, peak=False):
