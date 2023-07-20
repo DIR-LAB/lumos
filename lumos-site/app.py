@@ -1001,7 +1001,8 @@ elif main_nav == "Job Failure Characteristics":
         jfd_chart_selected_list_jfc = jfd_chart_selection_options_jfc.copy()
 
         with st.form("jfd_chart_selection_form_jfc"):
-            st.write(jfd_chart_title_jfc)
+            st.write(f"### **{jfd_chart_title_jfc}**")
+            st.markdown("<style>.highlight {background-color: yellow}</style><span class='highlight'>Select only one chart at a time to view it bigger</span>", unsafe_allow_html=True)
             col1, col2 = st.columns(2)
             with col1 :
                 jfd_chart_selection_check_box_left_option_jfc = st.checkbox("Job Count w.r.t Job Status", True)
@@ -1088,7 +1089,7 @@ elif main_nav == "Job Failure Characteristics":
         
     elif nav_bar_jfc == "Correlation between Job Failure and Job Geometries":
         with st.form("cbjfajg_chart_selection_form_jfc"):
-            st.write(jfc_chart_title)
+            st.write("ehhl")
 
 
 
