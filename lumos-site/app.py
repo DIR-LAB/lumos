@@ -97,11 +97,11 @@ if main_nav == "Job Geometric Characteristics":
                             model_checkbox_jrt = st.checkbox(item, True)
                             if not model_checkbox_jrt:
                                 selected_system_models_jrt.remove(item)
-                    cdf_frequency_slider_jrt = st.slider("**Adjust frequency range (y-axis):**", min_value=0, max_value=100, step=20, value=100)
-                    cdf_run_time_slider_jrt = st.slider("**Adjust run time range (in powers of 10) (x-axis):**", min_value_exp_run_time_slider, max_value_exp_run_time_slider, step=1, value=8)
+                    cdf_frequency_slider_jrt = st.slider("**Adjust frequency range (Y-axis):**", min_value=0, max_value=100, step=20, value=100)
+                    cdf_run_time_slider_jrt = st.slider("**Adjust run time range (in powers of 10) (X-axis):**", min_value_exp_run_time_slider, max_value_exp_run_time_slider, step=1, value=8)
                     cdf_run_time_slider_value_jrt = int(10**cdf_run_time_slider_jrt)
                                 
-                    submit_cdf_sidebar_button = st.form_submit_button("Apply")
+                    submit_cdf_sidebar_button = st.form_submit_button("Apply Changes")
                     if submit_cdf_sidebar_button:
                         if len(selected_system_models_jrt) < 1:
                             text_color = "red"
@@ -179,13 +179,13 @@ if main_nav == "Job Geometric Characteristics":
                                 drt_model_checkbox_jrt = st.checkbox(item, True)
                                 if not drt_model_checkbox_jrt:
                                     drt_selected_system_models_jrt.remove(item)
-                        drt_frequency_slider_jrt = st.slider("**Adjust frequency range (y-axis):**", min_value=0.0, max_value=0.6, step=0.1, value=0.6)
-                        with st.expander("**Select Run Time Range (x-axis):**", expanded=True):
+                        drt_frequency_slider_jrt = st.slider("**Adjust frequency range (Y-axis):**", min_value=0.0, max_value=0.6, step=0.1, value=0.6)
+                        with st.expander("**Select Run Time Range (X-axis):**", expanded=True):
                             for item in drt_time_ranges:
                                 drt_time_range_checkbox_jrt = st.checkbox(item, True)
                                 if not drt_time_range_checkbox_jrt:
                                     drt_selected_time_range_jrt.remove(item)
-                        submit_drt_sidebar_button = st.form_submit_button("Apply")
+                        submit_drt_sidebar_button = st.form_submit_button("Apply Changes")
                         if submit_drt_sidebar_button:
                             if len(drt_selected_system_models_jrt) < 1:
                                 text_color = "red"
@@ -336,8 +336,8 @@ if main_nav == "Job Geometric Characteristics":
                             dsp_model_checkbox_jap = st.checkbox(item, True)
                             if not dsp_model_checkbox_jap:
                                 dsp_selected_system_models_jap.remove(item)
-                    dsp_job_count_slider_jap = st.slider("**Adjust Job Submit Count Range (y-axis):**", min_value=0, max_value=180, step=20, value=180)
-                    dsp_hour_of_the_day_slider_jap = st.slider("**Adjust Hour of the Day Range (x-axis):**", min_value=-1, max_value=24, step=1, value=24)
+                    dsp_job_count_slider_jap = st.slider("**Adjust Job Submit Count Range (Y-axis):**", min_value=0, max_value=180, step=20, value=180)
+                    dsp_hour_of_the_day_slider_jap = st.slider("**Adjust Hour of the Day Range (X-axis):**", min_value=-1, max_value=24, step=1, value=24)
                     dap_submit_parameters_button_jap = st.form_submit_button("Apply Changes")
                     if dap_submit_parameters_button_jap:
                         if len(dsp_selected_system_models_jap) < 1:
@@ -392,8 +392,8 @@ if main_nav == "Job Geometric Characteristics":
                             wsp_model_checkbox_jap = st.checkbox(item, True)
                             if not wsp_model_checkbox_jap:
                                 wsp_selected_system_models_jap.remove(item)
-                    wsp_job_count_slider_jap = st.slider("**Adjust Job Submit Count Range (y-axis):**", min_value=0, max_value=3000, step=500, value=3000)
-                    wsp_hour_of_the_day_slider_jap = st.slider("**Adjust Day of the Week Range (x-axis):**", min_value=0, max_value=8, step=1, value=8)
+                    wsp_job_count_slider_jap = st.slider("**Adjust Job Submit Count Range (Y-axis):**", min_value=0, max_value=3000, step=500, value=3000)
+                    wsp_hour_of_the_day_slider_jap = st.slider("**Adjust Day of the Week Range (X-axis):**", min_value=0, max_value=8, step=1, value=8)
                     wsp_submit_parameters_button_jap = st.form_submit_button("Apply Changes")
                     if wsp_submit_parameters_button_jap:
                         if len(wsp_selected_system_models_jap) < 1:
@@ -449,7 +449,7 @@ if main_nav == "Job Geometric Characteristics":
                             if not jai_model_checkbox_jap:
                                 jai_selected_system_models_jap.remove(item)
                     jai_job_count_slider_jap = st.slider("**Adjust Frequency Range (y-axis):**", min_value=0, max_value=100, step=20, value=100)
-                    jai_hour_of_the_day_slider_jap = st.slider("**Adjust Job Arrival Interval Range (in powers of 10) (x-axis):**", jap_min_value_exp_arrival_interval_slider, jap_max_value_exp_arrival_interval_slider, step=1, value=8)
+                    jai_hour_of_the_day_slider_jap = st.slider("**Adjust Job Arrival Interval Range (in powers of 10) (X-axis):**", jap_min_value_exp_arrival_interval_slider, jap_max_value_exp_arrival_interval_slider, step=1, value=8)
                     jai_hour_of_the_day_slider_value_jap = int(10**jai_hour_of_the_day_slider_jap)
                     jai_submit_parameters_button_jap = st.form_submit_button("Apply Changes")
                     if jai_submit_parameters_button_jap:
@@ -869,7 +869,7 @@ if main_nav == "Job Geometric Characteristics":
                     
                     awtjs_avg_wait_time_slider_jwt = st.slider("**Adjust Average Wait Time (hours) Range (Y-axis):**", min_value=0, max_value=100, value=100, step=10)
                 
-                    with st.expander("**Select System Model(s) (x-axis)**", expanded=True):
+                    with st.expander("**Select System Model(s) (X-axis)**", expanded=True):
                         for item in system_models_jwt:
                             awtjs_model_checkbox_jwt = st.checkbox(item, True)
                             if not awtjs_model_checkbox_jwt:
@@ -912,7 +912,7 @@ if main_nav == "Job Geometric Characteristics":
 
                     awtjrt_avg_wait_time_slider_jwt = st.slider("**Adjust Average Wait Time (hours) Range (Y-axis):**", min_value=0, max_value=100, value=100, step=10)
 
-                    with st.expander("**Select System Model(s) (x-axis)**", expanded=True):
+                    with st.expander("**Select System Model(s) (X-axis)**", expanded=True):
                         for item in system_models_jwt:
                             awtjrt_model_checkbox_jwt = st.checkbox(item, True)
                             if not awtjrt_model_checkbox_jwt:
@@ -938,9 +938,11 @@ if main_nav == "Job Geometric Characteristics":
         st.write("Please select a section from the navigation bar.")
 
 elif main_nav == "Job Failure Characteristics":
-    system_models_jfc = ["Blue Water", "Mira", "Philly", "Helios"]
     nav_bar_jfc = option_menu("Job Failure Characteristics Models", ["Job Failures Distribution", "Correlation between Job Failure and Job Geometries"], 
     default_index=0, orientation="vertical", menu_icon="bi-list")
+    system_models_jfc = ["Blue Water", "Mira", "Philly", "Helios"]
+    chart_selection_form_title_jfc = "Chart Selection Form"
+    chart_checkbox_highlight_text_jfc = "To view anyone of the charts bigger, make sure only one option is selected below"
 
 
     def plot_percentage_status(selected_status, frequency_value, selected_models, job_counts=True):
@@ -995,23 +997,21 @@ elif main_nav == "Job Failure Characteristics":
         st.pyplot(fig)
 
     if nav_bar_jfc == "Job Failures Distribution":
-        jfd_chart_title_jfc = "Chart Selection Form"
-        jfd_chart_checkbox_title_jfc = "Select one or more charts"
         jfd_chart_selection_options_jfc = ["Job Count w.r.t Job Status", "Core Hours w.r.t Job Status"] 
         jfd_chart_selected_list_jfc = jfd_chart_selection_options_jfc.copy()
 
         with st.form("jfd_chart_selection_form_jfc"):
-            st.write(f"### **{jfd_chart_title_jfc}**")
-            st.markdown("<style>.highlight {background-color: yellow}</style><span class='highlight'>Select only one chart at a time to view it bigger</span>", unsafe_allow_html=True)
+            st.write(f"### **{chart_selection_form_title_jfc}**")
+            st.markdown(f"<style>.highlight {{background-color: yellow}}</style><span class='highlight'>{chart_checkbox_highlight_text_jfc}</span>", unsafe_allow_html=True)
             col1, col2 = st.columns(2)
             with col1 :
-                jfd_chart_selection_check_box_left_option_jfc = st.checkbox("Job Count w.r.t Job Status", True)
+                jfd_chart_selection_check_box_left_option_jfc = st.checkbox(jfd_chart_selection_options_jfc[0], True)
                 if not jfd_chart_selection_check_box_left_option_jfc:
-                     jfd_chart_selected_list_jfc.remove("Job Count w.r.t Job Status")
+                     jfd_chart_selected_list_jfc.remove(jfd_chart_selection_options_jfc[0])
             with col2:
-                jfd_chart_selection_check_box_right_option_jfc = st.checkbox("Core Hours w.r.t Job Status", True)
+                jfd_chart_selection_check_box_right_option_jfc = st.checkbox(jfd_chart_selection_options_jfc[1], True)
                 if not jfd_chart_selection_check_box_right_option_jfc:
-                     jfd_chart_selected_list_jfc.remove("Core Hours w.r.t Job Status")
+                     jfd_chart_selected_list_jfc.remove(jfd_chart_selection_options_jfc[1])
 
             jfd_chart_selection_check_box_submission_button_jfc = st.form_submit_button("Load Charts")
             if jfd_chart_selection_check_box_submission_button_jfc:
@@ -1041,7 +1041,7 @@ elif main_nav == "Job Failure Characteristics":
                             pass
 
                 jfd_percentage_slider_jfc = st.slider("**Adjust Percentage Range (Y-axis):**", min_value=0, max_value=100, value=100, step=20)
-                with st.expander("**Select System Model(s)**", expanded=True):
+                with st.expander("**Select System Model(s) (X-axis)**", expanded=True):
                     for item in system_models_jfc:
                         jfd_model_checkbox_jfc = st.checkbox(item, True)
                         if not jfd_model_checkbox_jfc:
@@ -1088,12 +1088,70 @@ elif main_nav == "Job Failure Characteristics":
 
         
     elif nav_bar_jfc == "Correlation between Job Failure and Job Geometries":
+        cbjfajg_chart_title_jfc = "Chart Selection Form"
+        cbjfajg_chart_checkbox_title_jfc = "Select one or more charts"
+        cbjfajg_chart_selection_options_jfc = ["Job Status w.r.t Job Size", "Job Stsatus w.r.t Job Run Time"]
+        cbjfajg_chart_selected_list_jfc = cbjfajg_chart_selection_options_jfc.copy()
+
         with st.form("cbjfajg_chart_selection_form_jfc"):
-            st.write("ehhl")
+            st.write(f"### **{chart_selection_form_title_jfc}**")
+            st.markdown(f"<style>.highlight {{background-color: yellow}}</style><span class='highlight'>{chart_checkbox_highlight_text_jfc}</span>", unsafe_allow_html=True)
+            col1, col2 = st.columns(2)
+            with col1 :
+                cbjfajg_chart_selection_check_box_left_option_jfc = st.checkbox(cbjfajg_chart_selection_options_jfc[0], True)
+                if not cbjfajg_chart_selection_check_box_left_option_jfc:
+                    cbjfajg_chart_selected_list_jfc.remove(cbjfajg_chart_selection_options_jfc[0])
+            with col2:
+                cbjfajg_chart_selection_check_box_right_option_jfc = st.checkbox(cbjfajg_chart_selection_options_jfc[1], True)
+                if not cbjfajg_chart_selection_check_box_right_option_jfc:
+                    cbjfajg_chart_selected_list_jfc.remove(cbjfajg_chart_selection_options_jfc[1])
 
+            cbjfajg_chart_selection_check_box_submission_button_jfc = st.form_submit_button("Load Charts")
+            if cbjfajg_chart_selection_check_box_submission_button_jfc:
+                if len(cbjfajg_chart_selected_list_jfc) >= 1:
+                    st.write(f"**You Have Selected:** {cbjfajg_chart_selected_list_jfc}")
+                else:
+                    st.markdown("<h5 style='color: red'>Please select one or more charts options above and then click 'Load Charts'</h5>", unsafe_allow_html=True)
+            else:
+                pass
 
+        if len(cbjfajg_chart_selected_list_jfc) >= 1:
+            st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
 
+            with st.sidebar.form("cbjfajg_sidebar_form_jfc"):
+                # jfd: Job Failures Distribution
+                cbjfajg_selected_system_models_jfc = system_models_jfc.copy()
+                cbjfajg_job_size_list_jfc = ["Small", "Middle", "Large"]
+                cbjfajg_job_size_selected_list_jfc = cbjfajg_job_size_list_jfc.copy()
 
+                st.write("### Alter the following settings to customize the chart(s):")
+                with st.expander("**Select Job Status(es)**", expanded=True):
+                    for item in cbjfajg_job_size_list_jfc:
+                        cbjfajg_job_status_checkbox_jfc = st.checkbox(item, True)
+                        if not cbjfajg_job_status_checkbox_jfc:
+                            cbjfajg_job_size_selected_list_jfc.remove(item)
+                        else:
+                            pass
+
+                cbjfajg_percentage_slider_jfc = st.slider("**Adjust Percentage Range (Y-axis):**", min_value=0, max_value=100, value=100, step=20)
+                with st.expander("**Select System Model(s) (X-axis)**", expanded=True):
+                    for item in system_models_jfc:
+                        cbjfajg_model_checkbox_jfc = st.checkbox(item, True)
+                        if not cbjfajg_model_checkbox_jfc:
+                            cbjfajg_selected_system_models_jfc.remove(item)
+                        else:
+                            pass
+
+                cbjfajg_submit_parameters_button_jfc = st.form_submit_button("Apply Changes")
+        
+        with st.spinner(spinner_text):
+            #Alex graph code here for both of your charts 
+            st.write("Graph Code")
+           
+
+        with st.expander("**Chart Description:**", expanded=True):
+            st.write("**Job Status w.r.t Job Size:** This chart illustrates the status of jobs (Pass, Failed, Killed) with respect to their sizes. It provides insight into how job size may impact completion status, thereby helping to predict potential job execution outcomes.")
+            st.write("**Job Status w.r.t Job Run Time:** This visualization represents the correlation between job status and job run time. By analyzing job completion (Pass, Failed, Killed) in relation to run time, it aids in understanding the efficiency of jobs and can assist in identifying potential bottlenecks or issues in job execution.")
      
 
 elif main_nav == "User Behavior Characteristics":
