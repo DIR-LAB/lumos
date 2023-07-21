@@ -943,6 +943,7 @@ elif main_nav == "Job Failure Characteristics":
     system_models_jfc = ["Blue Water", "Mira", "Philly", "Helios"]
     chart_selection_form_title_jfc = "Chart Selection Form"
     chart_checkbox_highlight_text_jfc = "To view anyone of the charts' enlarged, ensure only that chart option is selected below and then click 'Load Charts'."
+    chart_side_by_side_checkbox_highlight_text_jfc = "Select more than one charts in 'Chart Selection Form' above to view charts side by side"
 
 
     def plot_percentage_status(selected_status, frequency_value, selected_models, job_counts=True):
@@ -1002,7 +1003,7 @@ elif main_nav == "Job Failure Characteristics":
 
         with st.form("jfd_chart_selection_form_jfc"):
             st.write(f"### **{chart_selection_form_title_jfc}**")
-            st.markdown(f"<style>.highlight {{background-color: yellow}}</style><span class='highlight'>{chart_checkbox_highlight_text_jfc}</span>", unsafe_allow_html=True)
+            # st.markdown(f"<style>.highlight {{background-color: yellow}}</style><span class='highlight'>{chart_checkbox_highlight_text_jfc}</span>", unsafe_allow_html=True)
             col1, col2 = st.columns(2)
             with col1 :
                 jfd_chart_selection_check_box_left_option_jfc = st.checkbox(jfd_chart_selection_options_jfc[0], True)
@@ -1052,24 +1053,31 @@ elif main_nav == "Job Failure Characteristics":
                 jfd_submit_parameters_button_jfc = st.form_submit_button("Apply Changes")
            
             if len(jfd_job_status_selected_list_jfc) >= 1 and len(jfd_selected_system_models_jfc) >= 1:        
+                with st.expander("**Chart View Settings**", expanded=True):
+                    jfd_check_box_view_side_by_side_jfc = st.checkbox("Select to view charts side by side")
                 with st.spinner(spinner_text):
-                    if len(jfd_chart_selected_list_jfc) == 1:
-                        if jfd_chart_selected_list_jfc[0] == "Job Count w.r.t Job Status":
+                    if jfd_check_box_view_side_by_side_jfc:
+                        if len(jfd_chart_selected_list_jfc) > 1:
+                            col1, col2 = st.columns(2)
+                            with col1:
+                                st.markdown("<h4 style='text-align: center;'>Job Count w.r.t Job Status</h4>", unsafe_allow_html=True)
+                                plot_percentage_status(jfd_job_status_selected_list_jfc, jfd_percentage_slider_jfc, jfd_selected_system_models_jfc, True)
+                            with col2:
+                                st.markdown("<h4 style='text-align: center;'>Core Hours w.r.t Job Status</h4>", unsafe_allow_html=True)
+                                plot_percentage_status(jfd_job_status_selected_list_jfc, jfd_percentage_slider_jfc, jfd_selected_system_models_jfc, False)
+                        else:
+                            st.markdown(f"<style>.highlight {{background-color: yellow}}</style><span class='highlight'>{chart_side_by_side_checkbox_highlight_text_jfc}</span>", unsafe_allow_html=True)
+                    else:
+                        if "Job Count w.r.t Job Status" in jfd_chart_selected_list_jfc:
                             st.markdown("<h2 style='text-align: center; color: black;'>Job Count w.r.t Job Status</h2>", unsafe_allow_html=True)
                             plot_percentage_status(jfd_job_status_selected_list_jfc, jfd_percentage_slider_jfc, jfd_selected_system_models_jfc, True)
-                        elif jfd_chart_selected_list_jfc[0] == "Core Hours w.r.t Job Status":
+                        else:
+                            pass
+                        if "Core Hours w.r.t Job Status" in jfd_chart_selected_list_jfc:
                             st.markdown("<h2 style='text-align: center; color: black;'>Core Hours w.r.t Job Status</h2>", unsafe_allow_html=True)
                             plot_percentage_status(jfd_job_status_selected_list_jfc, jfd_percentage_slider_jfc, jfd_selected_system_models_jfc, False)
-                    elif len(jfd_chart_selected_list_jfc) > 1:
-                        col1, col2 = st.columns(2)
-                        with col1:
-                            st.markdown("<h4 style='text-align: center;'>Job Count w.r.t Job Status</h4>", unsafe_allow_html=True)
-                            plot_percentage_status(jfd_job_status_selected_list_jfc, jfd_percentage_slider_jfc, jfd_selected_system_models_jfc, True)
-                        with col2:
-                            st.markdown("<h4 style='text-align: center;'>Core Hours w.r.t Job Status</h4>", unsafe_allow_html=True)
-                            plot_percentage_status(jfd_job_status_selected_list_jfc, jfd_percentage_slider_jfc, jfd_selected_system_models_jfc, False)
-                    else:
-                        pass
+                        else:
+                            pass
             
                 with st.expander("**Chart Description:**", expanded=True):
                     st.write("**Job Count w.r.t Job Status:** This depicts the total number of jobs classified according to their completion status - Pass, Failed, or Killed. It helps in analyzing job execution trends.")
