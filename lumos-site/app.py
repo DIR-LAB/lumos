@@ -942,7 +942,7 @@ elif main_nav == "Job Failure Characteristics":
     default_index=0, orientation="vertical", menu_icon="bi-list")
     system_models_jfc = ["Blue Water", "Mira", "Philly", "Helios"]
     chart_selection_form_title_jfc = "Chart Selection Form"
-    chart_checkbox_highlight_text_jfc = "To view anyone of the charts bigger, make sure only one option is selected below"
+    chart_checkbox_highlight_text_jfc = "To view anyone of the charts' enlarged, ensure only that chart option is selected below and then click 'Load Charts'."
 
 
     def plot_percentage_status(selected_status, frequency_value, selected_models, job_counts=True):
@@ -988,9 +988,9 @@ elif main_nav == "Job Failure Characteristics":
 
 
         # Add some text for labels, title and custom x-axis tick labels, etc.
-        ax.set_ylabel('Percentage (%)', fontsize=20)
-        ax.set_xlabel('Traces', fontsize=20)
-        ax.set_xticks(x + width, traces, fontsize=15)
+        ax.set_ylabel('Percentage (%)', fontsize=18)
+        ax.set_xlabel('Traces', fontsize=18)
+        ax.set_xticks(x + width, traces, fontsize=12)
         ax.legend(fontsize=15)
         ax.set_ylim(0, frequency_value)
         plt.grid(axis="y")
@@ -1090,7 +1090,7 @@ elif main_nav == "Job Failure Characteristics":
     elif nav_bar_jfc == "Correlation between Job Failure and Job Geometries":
         cbjfajg_chart_title_jfc = "Chart Selection Form"
         cbjfajg_chart_checkbox_title_jfc = "Select one or more charts"
-        cbjfajg_chart_selection_options_jfc = ["Job Status w.r.t Job Size", "Job Stsatus w.r.t Job Run Time"]
+        cbjfajg_chart_selection_options_jfc = ["Job Status w.r.t Job Size", "Job Status w.r.t Job Run Time"]
         cbjfajg_chart_selected_list_jfc = cbjfajg_chart_selection_options_jfc.copy()
 
         with st.form("cbjfajg_chart_selection_form_jfc"):
@@ -1153,7 +1153,6 @@ elif main_nav == "Job Failure Characteristics":
             st.write("**Job Status w.r.t Job Size:** This chart illustrates the status of jobs (Pass, Failed, Killed) with respect to their sizes. It provides insight into how job size may impact completion status, thereby helping to predict potential job execution outcomes.")
             st.write("**Job Status w.r.t Job Run Time:** This visualization represents the correlation between job status and job run time. By analyzing job completion (Pass, Failed, Killed) in relation to run time, it aids in understanding the efficiency of jobs and can assist in identifying potential bottlenecks or issues in job execution.")
      
-
 elif main_nav == "User Behavior Characteristics":
     ubc_nav_bar = option_menu("User Behavior Characteristics", ["Users’ Submission Behaviors", "Users’ Repeated Behaviors", "Correlation between Job Run Time and Job Statuses"], 
     default_index=0, orientation="vertical", menu_icon="bi-list")
