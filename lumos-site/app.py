@@ -946,7 +946,7 @@ elif main_nav == "Job Failure Characteristics":
     chart_checkbox_highlight_text_jfc = "To view anyone of the charts' enlarged, ensure only that chart option is selected below and then click 'Load Charts'."
     chart_side_by_side_checkbox_highlight_text_jfc = "Select more than one charts in 'Chart Selection Form' above to view charts side by side"
 
-
+    # Job Failures Distribution charts plotting function.
     def plot_percentage_status(selected_status, frequency_value, selected_models, job_counts=True):
         plt.style.use("default")
         traces = selected_models
@@ -997,6 +997,8 @@ elif main_nav == "Job Failure Characteristics":
         ax.set_ylim(0, frequency_value)
         plt.grid(axis="y")
         st.pyplot(fig)
+    
+    # Alex - Correlation between Job Failure and Job Geometries charts function here (only function)
 
     if nav_bar_jfc == "Job Failures Distribution":
         jfd_chart_selection_options_jfc = ["Job Count w.r.t Job Status", "Core Hours w.r.t Job Status"] 
@@ -1104,7 +1106,7 @@ elif main_nav == "Job Failure Characteristics":
 
         with st.form("cbjfajg_chart_selection_form_jfc"):
             st.write(f"### **{chart_selection_form_title_jfc}**")
-            st.markdown(f"<style>.highlight {{background-color: yellow}}</style><span class='highlight'>{chart_checkbox_highlight_text_jfc}</span>", unsafe_allow_html=True)
+            # st.markdown(f"<style>.highlight {{background-color: yellow}}</style><span class='highlight'>{chart_checkbox_highlight_text_jfc}</span>", unsafe_allow_html=True)
             col1, col2 = st.columns(2)
             with col1 :
                 cbjfajg_chart_selection_check_box_left_option_jfc = st.checkbox(cbjfajg_chart_selection_options_jfc[0], True)
@@ -1154,14 +1156,47 @@ elif main_nav == "Job Failure Characteristics":
                 cbjfajg_submit_parameters_button_jfc = st.form_submit_button("Apply Changes")
         
         with st.spinner(spinner_text):
-            #Alex graph code here for both of your charts 
-            st.write("Graph Code")
-           
+            if len(cbjfajg_job_size_selected_list_jfc) >= 1 and len(cbjfajg_selected_system_models_jfc) >= 1:        
+                with st.expander("**Chart View Settings**", expanded=True):
+                    cbjfajg_check_box_view_side_by_side_jfc = st.checkbox("Select to view charts side by side")
+                with st.spinner(spinner_text):
+                    if cbjfajg_check_box_view_side_by_side_jfc:
+                        if len(cbjfajg_chart_selected_list_jfc) > 1:
+                            col1, col2 = st.columns(2)
+                            with col1:
+                                st.markdown("<h4 style='text-align: center;'>Job Status w.r.t Job Size</h4>", unsafe_allow_html=True)
+                                #Alex - call function with the parameters to plot Job Status w.r.t Job Size
+                            with col2:
+                                st.markdown("<h4 style='text-align: center;'>Job Status w.r.t Job Run Time</h4>", unsafe_allow_html=True)
+                                #Alex - call function with the parameters to plot Job Status w.r.t Job Run Time
+                        else:
+                            st.markdown(f"<style>.highlight {{background-color: yellow}}</style><span class='highlight'>{chart_side_by_side_checkbox_highlight_text_jfc}</span>", unsafe_allow_html=True)
+                    else:
+                        if "Job Status w.r.t Job Size" in cbjfajg_chart_selected_list_jfc:
+                            st.markdown("<h2 style='text-align: center; color: black;'>Job Status w.r.t Job Size</h2>", unsafe_allow_html=True)
+                            #Alex - call function with the parameters to plot Job Status w.r.t Job Size
+                        else:
+                            pass
+                        if "Job Status w.r.t Job Run Time" in cbjfajg_chart_selected_list_jfc:
+                            st.markdown("<h2 style='text-align: center; color: black;'>Job Status w.r.t Job Run Time</h2>", unsafe_allow_html=True)
+                            #Alex - call function with the parameters to plot Job Status w.r.t Job Run Time
+                        else:
+                            pass
 
-        with st.expander("**Chart Description:**", expanded=True):
-            st.write("**Job Status w.r.t Job Size:** This chart illustrates the status of jobs (Pass, Failed, Killed) with respect to their sizes. It provides insight into how job size may impact completion status, thereby helping to predict potential job execution outcomes.")
-            st.write("**Job Status w.r.t Job Run Time:** This visualization represents the correlation between job status and job run time. By analyzing job completion (Pass, Failed, Killed) in relation to run time, it aids in understanding the efficiency of jobs and can assist in identifying potential bottlenecks or issues in job execution.")
-     
+                with st.expander("**Chart Description:**", expanded=True):
+                    st.write("**Job Status w.r.t Job Size:** This chart illustrates the status of jobs (Pass, Failed, Killed) with respect to their sizes. It provides insight into how job size may impact completion status, thereby helping to predict potential job execution outcomes.")
+                    st.write("**Job Status w.r.t Job Run Time:** This visualization represents the correlation between job status and job run time. By analyzing job completion (Pass, Failed, Killed) in relation to run time, it aids in understanding the efficiency of jobs and can assist in identifying potential bottlenecks or issues in job execution.")
+            elif len(cbjfajg_job_size_selected_list_jfc) < 1 and len(cbjfajg_selected_system_models_jfc) >= 1:
+                st.write("## Please select one or more job status(es) from the sidebar to plot the chart")
+
+            elif len(cbjfajg_job_size_selected_list_jfc) >= 1 and len(cbjfajg_selected_system_models_jfc) < 1:
+                st.write("## Please select one or more system model(s) from the sidebar to plot the chart")
+
+            else: # len(cbjfajg_job_size_selected_list_jfc) < 1 and len(cbjfajg_selected_system_models_jfc) < 1
+                st.write("## Please select one or more job status(es) and system model(s) from the sidebar to plot the chart")
+
+
+
 elif main_nav == "User Behavior Characteristics":
     ubc_nav_bar = option_menu("User Behavior Characteristics", ["Users’ Submission Behaviors", "Users’ Repeated Behaviors", "Correlation between Job Run Time and Job Statuses"], 
     default_index=0, orientation="vertical", menu_icon="bi-list")
