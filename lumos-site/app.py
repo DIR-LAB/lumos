@@ -45,7 +45,11 @@ styles = {
     }
 }
 
-#Common title, button, and loading text varaibles
+#Common title, button, and loading text variables
+chart_selection_form_title = "Chart Selection Form"
+# chart_checkbox_highlight_text_jfc = "To view anyone of the charts' enlarged, ensure only that chart option is selected below and then click 'Load Charts'."
+chart_selection_form_load_charts_text = "Select/Deselect options below and then click 'Load Charts' to apply your changes."
+chart_side_by_side_checkbox_highlight_text = "Select more than one charts in 'Chart Selection Form' above to view charts side by side"
 
 spinner_text = "In progress...., Please do not change any settings now"
 
@@ -535,7 +539,6 @@ if main_nav == "Job Geometric Characteristics":
                                 st.write("Displays a Cumulative Distribution Functions (CDF) of job arrival interval(s) comparison of the four job traces (Blue Waters, Mira, Philly, and Helios).")
                 else:
                     st.write("## Please select one or more system model(s) from sidebar to plot the chart")
-    # System Utilization and Resource Occupation page
 
     # System Utilization and Resource Occupation page
     elif nav_bar_horizontal == "Sys Util & Res Occu":
@@ -941,23 +944,19 @@ if main_nav == "Job Geometric Characteristics":
 elif main_nav == "Job Failure Characteristics":
     nav_bar_jfc = option_menu("Job Failure Characteristics Models", ["Job Failures Distribution", "Correlation between Job Failure and Job Geometries"], 
     default_index=0, orientation="vertical", menu_icon="bi-list")
-    system_models_jfc = ["Blue Water", "Mira", "Philly", "Helios"]
-    chart_selection_form_title_jfc = "Chart Selection Form"
-    # chart_checkbox_highlight_text_jfc = "To view anyone of the charts' enlarged, ensure only that chart option is selected below and then click 'Load Charts'."
-    chart_selection_form_load_charts_text_jfc = "Select/Deselect options below and then click 'Load Charts' to apply your changes."
-    chart_side_by_side_checkbox_highlight_text_jfc = "Select more than one charts in 'Chart Selection Form' above to view charts side by side"
+    system_models_jfc = ["Blue Waters", "Mira", "Philly", "Helios"]
 
     # Job Failures Distribution charts plotting function.
     def plot_percentage_status(selected_status, frequency_value, selected_models, job_counts=True):
         plt.style.use("default")
         traces = selected_models
-        pass_dict = {'Blue Water': 64.99, 'Mira': 70.05, 'Philly': 59.58, 'Helios': 64.72}
-        failed_dict = {'Blue Water': 7.26, 'Mira': 9.01, 'Philly': 30.90, 'Helios': 14.06}
-        killed_dict = {'Blue Water': 27.74, 'Mira': 20.94, 'Philly': 9.52, 'Helios': 21.15}
+        pass_dict = {'Blue Waters': 64.99, 'Mira': 70.05, 'Philly': 59.58, 'Helios': 64.72}
+        failed_dict = {'Blue Waters': 7.26, 'Mira': 9.01, 'Philly': 30.90, 'Helios': 14.06}
+        killed_dict = {'Blue Waters': 27.74, 'Mira': 20.94, 'Philly': 9.52, 'Helios': 21.15}
 
-        pass_dict_2 = {'Blue Water': 53.64, 'Mira': 56.94, 'Philly': 33.78, 'Helios': 52.42}
-        failed_dict_2 = {'Blue Water': 4.91, 'Mira': 5.78, 'Philly': 33.40, 'Helios': 6.64}
-        killed_dict_2 = {'Blue Water': 41.45, 'Mira': 37.28, 'Philly': 32.82, 'Helios': 40.94}
+        pass_dict_2 = {'Blue Waters': 53.64, 'Mira': 56.94, 'Philly': 33.78, 'Helios': 52.42}
+        failed_dict_2 = {'Blue Waters': 4.91, 'Mira': 5.78, 'Philly': 33.40, 'Helios': 6.64}
+        killed_dict_2 = {'Blue Waters': 41.45, 'Mira': 37.28, 'Philly': 32.82, 'Helios': 40.94}
 
         if job_counts:
             status = {}
@@ -1006,8 +1005,8 @@ elif main_nav == "Job Failure Characteristics":
         jfd_chart_selected_list_jfc = jfd_chart_selection_options_jfc.copy()
 
         with st.form("jfd_chart_selection_form_jfc"):
-            st.write(f"### **{chart_selection_form_title_jfc}**")
-            st.write(f'**{chart_selection_form_load_charts_text_jfc}**')
+            st.write(f"### **{chart_selection_form_title}**")
+            st.write(f'**{chart_selection_form_load_charts_text}**')
             col1, col2 = st.columns(2)
             with col1 :
                 jfd_chart_selection_check_box_left_option_jfc = st.checkbox(jfd_chart_selection_options_jfc[0], True)
@@ -1070,7 +1069,7 @@ elif main_nav == "Job Failure Characteristics":
                                 st.markdown("<h4 style='text-align: center;'>Core Hours w.r.t Job Status</h4>", unsafe_allow_html=True)
                                 plot_percentage_status(jfd_job_status_selected_list_jfc, jfd_percentage_slider_jfc, jfd_selected_system_models_jfc, False)
                         else:
-                            st.markdown(f"<style>.highlight {{background-color: yellow}}</style><span class='highlight'>{chart_side_by_side_checkbox_highlight_text_jfc}</span>", unsafe_allow_html=True)
+                            st.markdown(f"<style>.highlight {{background-color: yellow}}</style><span class='highlight'>{chart_side_by_side_checkbox_highlight_text}</span>", unsafe_allow_html=True)
                     else:
                         if "Job Count w.r.t Job Status" in jfd_chart_selected_list_jfc:
                             st.markdown("<h2 style='text-align: center; color: black;'>Job Count w.r.t Job Status</h2>", unsafe_allow_html=True)
@@ -1097,7 +1096,6 @@ elif main_nav == "Job Failure Characteristics":
 
         else:
             pass
-
         
     elif nav_bar_jfc == "Correlation between Job Failure and Job Geometries":
         cbjfajg_chart_title_jfc = "Chart Selection Form"
@@ -1106,8 +1104,8 @@ elif main_nav == "Job Failure Characteristics":
         cbjfajg_chart_selected_list_jfc = cbjfajg_chart_selection_options_jfc.copy()
 
         with st.form("cbjfajg_chart_selection_form_jfc"):
-            st.write(f"### **{chart_selection_form_title_jfc}**")
-            st.write(f'**{chart_selection_form_load_charts_text_jfc}**')
+            st.write(f"### **{chart_selection_form_title}**")
+            st.write(f'**{chart_selection_form_load_charts_text}**')
             col1, col2 = st.columns(2)
             with col1 :
                 cbjfajg_chart_selection_check_box_left_option_jfc = st.checkbox(cbjfajg_chart_selection_options_jfc[0], True)
@@ -1171,7 +1169,7 @@ elif main_nav == "Job Failure Characteristics":
                                 st.markdown("<h4 style='text-align: center;'>Job Status w.r.t Job Run Time</h4>", unsafe_allow_html=True)
                                 #Alex - call function with the parameters to plot Job Status w.r.t Job Run Time
                         else:
-                            st.markdown(f"<style>.highlight {{background-color: yellow}}</style><span class='highlight'>{chart_side_by_side_checkbox_highlight_text_jfc}</span>", unsafe_allow_html=True)
+                            st.markdown(f"<style>.highlight {{background-color: yellow}}</style><span class='highlight'>{chart_side_by_side_checkbox_highlight_text}</span>", unsafe_allow_html=True)
                     else:
                         if "Job Status w.r.t Job Size" in cbjfajg_chart_selected_list_jfc:
                             st.markdown("<h2 style='text-align: center; color: black;'>Job Status w.r.t Job Size</h2>", unsafe_allow_html=True)
@@ -1196,11 +1194,65 @@ elif main_nav == "Job Failure Characteristics":
             else: # len(cbjfajg_job_size_selected_list_jfc) < 1 and len(cbjfajg_selected_system_models_jfc) < 1
                 st.write("## Please select one or more job status(es) and system model(s) from the sidebar to plot the chart")
 
-
-
 elif main_nav == "User Behavior Characteristics":
     ubc_nav_bar = option_menu("User Behavior Characteristics", ["Users’ Submission Behaviors", "Users’ Repeated Behaviors", "Correlation between Job Run Time and Job Statuses"], 
     default_index=0, orientation="vertical", menu_icon="bi-list")
+
+    if ubc_nav_bar == "Users’ Submission Behaviors":
+        usb_chart_title_ubc = "Chart Selection Form"
+        usb_chart_checkbox_title_ubc = "Select one or more charts"
+        usb_chart_selection_left_col_options_ubc = ["Blue Waters", "Mira"]
+        usb_chart_selection_right_col_options_ubc = ["Philly", "Helios"]
+        usb_chart_selection_options_ubc = usb_chart_selection_left_col_options_ubc + usb_chart_selection_right_col_options_ubc
+        usb_chart_selected_list_ubc = usb_chart_selection_options_ubc.copy()
+
+        with st.form("usb_chart_selection_form_ubc"):
+            st.write(f"### **{chart_selection_form_title}**")
+            st.write(f'**{chart_selection_form_load_charts_text}**')
+            col1, col2 = st.columns(2)
+            with col1 :
+                for item in usb_chart_selection_left_col_options_ubc:
+                    usb_chart_selection_check_box_left_option_ubc = st.checkbox(item, True)
+                    if not usb_chart_selection_check_box_left_option_ubc:
+                        usb_chart_selected_list_ubc.remove(item)
+            with col2:
+                for item2 in usb_chart_selection_right_col_options_ubc:
+                    usb_chart_selection_check_box_right_option_ubc = st.checkbox(item2, True)
+                    if not usb_chart_selection_check_box_right_option_ubc:
+                        usb_chart_selected_list_ubc.remove(item2)
+            usb_chart_selection_check_box_submission_button_ubc = st.form_submit_button("Load Charts")
+
+            if usb_chart_selection_check_box_submission_button_ubc:
+                if len(usb_chart_selected_list_ubc) >= 1:
+                    st.write(f"**You Have Selected:** {usb_chart_selected_list_ubc}")
+                else:
+                    st.markdown("<h5 style='color: red'>Please select one or more charts options above and then click 'Load Charts'</h5>", unsafe_allow_html=True)
+            else:
+                pass
+
+        if len(usb_chart_selected_list_ubc) >= 1:
+            st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
+
+            with st.sidebar.form("usb_sidebar_form_ubc"):
+                st.write("### Alter the following settings to customize the chart(s):")
+                usb_percentage_slider_ubc = st.slider("**Adjust Percentage Range (Y-axis):**", min_value=0, max_value=100, value=100, step=20)
+                usb_no_of_top_groups_per_user_slider_ubc = st.slider("**Adjust No Of Top Groups Per User (X-axis):**", min_value=0, max_value=10, value=10, step=1)
+                usb_submit_parameters_button_ubc = st.form_submit_button("Apply Changes")
+
+        with st.spinner(spinner_text):
+            st.markdown("<h2 style='text-align: center; color: black;'>The Resource-configuration group per user Charts</h2>", unsafe_allow_html=True)
+
+            with st.expander("**Chart Description:**", expanded=True):
+                st.write("Description goes here")
+
+            
+
+    elif ubc_nav_bar == "Users’ Repeated Behaviors":
+        st.write("Hello from Users' Repeated Behavior")
+    elif ubc_nav_bar == "Correlation between Job Run Time and Job Statuses":
+        st.write("Hello from Correlation between Job Run Time and Job Statuses")
+    else:
+        pass
 
 else:
     pass
