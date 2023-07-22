@@ -13,6 +13,7 @@ import time
 import matplotlib
 import os 
 
+st.set_page_config(page_title="Job Trace Visualization Application", page_icon="📊")
 curr_dir = os.path.dirname(__file__)
 
 banner_image_path = os.path.join(curr_dir, 'images/JOB TRACE VISULAZATION.png')
