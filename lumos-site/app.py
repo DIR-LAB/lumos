@@ -943,7 +943,8 @@ elif main_nav == "Job Failure Characteristics":
     default_index=0, orientation="vertical", menu_icon="bi-list")
     system_models_jfc = ["Blue Water", "Mira", "Philly", "Helios"]
     chart_selection_form_title_jfc = "Chart Selection Form"
-    chart_checkbox_highlight_text_jfc = "To view anyone of the charts' enlarged, ensure only that chart option is selected below and then click 'Load Charts'."
+    # chart_checkbox_highlight_text_jfc = "To view anyone of the charts' enlarged, ensure only that chart option is selected below and then click 'Load Charts'."
+    chart_selection_form_load_charts_text_jfc = "Select/Deselect options below and then click 'Load Charts' to apply your changes."
     chart_side_by_side_checkbox_highlight_text_jfc = "Select more than one charts in 'Chart Selection Form' above to view charts side by side"
 
     # Job Failures Distribution charts plotting function.
@@ -1006,7 +1007,7 @@ elif main_nav == "Job Failure Characteristics":
 
         with st.form("jfd_chart_selection_form_jfc"):
             st.write(f"### **{chart_selection_form_title_jfc}**")
-            # st.markdown(f"<style>.highlight {{background-color: yellow}}</style><span class='highlight'>{chart_checkbox_highlight_text_jfc}</span>", unsafe_allow_html=True)
+            st.write(f'**{chart_selection_form_load_charts_text_jfc}**')
             col1, col2 = st.columns(2)
             with col1 :
                 jfd_chart_selection_check_box_left_option_jfc = st.checkbox(jfd_chart_selection_options_jfc[0], True)
@@ -1106,7 +1107,7 @@ elif main_nav == "Job Failure Characteristics":
 
         with st.form("cbjfajg_chart_selection_form_jfc"):
             st.write(f"### **{chart_selection_form_title_jfc}**")
-            # st.markdown(f"<style>.highlight {{background-color: yellow}}</style><span class='highlight'>{chart_checkbox_highlight_text_jfc}</span>", unsafe_allow_html=True)
+            st.write(f'**{chart_selection_form_load_charts_text_jfc}**')
             col1, col2 = st.columns(2)
             with col1 :
                 cbjfajg_chart_selection_check_box_left_option_jfc = st.checkbox(cbjfajg_chart_selection_options_jfc[0], True)
