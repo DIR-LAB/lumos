@@ -1325,19 +1325,33 @@ elif main_nav == "User Behavior Characteristics":
                 ax.grid(axis="y")
                 st.pyplot(fig)
 
-                
-                
+            #a,b,c,d - Blue waters, Mira, Philly, and Helios     
             a =[0.6194840399786984, 0.7729370934866642, 0.8425218118648454, 0.8906973579175446, 0.9238788917664792, 0.9479635533005115, 0.9659413769736639, 0.9788211703158228, 0.9842781315514204, 0.987734831866639]
             b =[0.6918350088912488, 0.8533482445948762, 0.921081711512026, 0.9533918131448507, 0.9710197995695022, 0.9810033596267114, 0.9872495542508333, 0.9916599140171835, 0.9944420135092896, 0.9964546220465884]
             c =[0.28569096620357964, 0.4384045247520146, 0.545916628344075, 0.6263372405355048, 0.6897181499719287, 0.7429051624867624, 0.7877784887121456, 0.8257544812862695, 0.8583802658301265, 0.8858856158005057]
             d = [0.3412589175944932, 0.5253771632298813, 0.6401852895114848, 0.7268169396811582, 0.7918618794877094, 0.8394237557838181, 0.8733033543091736, 0.9005927265133411, 0.9214560290971314, 0.9370205635505027]
-            x = [a,b,c,d]
             colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728']
+            x = []
+ 
+            for item in urb_chart_selected_list_ubc:
+                if "Blue Waters" in urb_chart_selected_list_ubc:
+                    x.append(a)
+                  
+                elif "Mira" in urb_chart_selected_list_ubc:
+                    x.append(b)
+                 
+                elif "Philly" in urb_chart_selected_list_ubc:
+                    x.append(c)
+                  
+                elif "Helios" in urb_chart_selected_list_ubc:
+                    x.append(d)  
+                else:
+                    pass
 
             for i, j in zip(x, colors):
                 plot_123(i,j)    
 
-
+         
             with st.expander("**Chart Description:**", expanded=True):
                 st.write("Description goes here")
 
