@@ -91,8 +91,8 @@ if main_nav == "Job Geometric Characteristics":
             min_value_exp_run_time_slider = 0
             max_value_exp_run_time_slider = 8 
             selected_system_models_jrt = system_models_jrt.copy() 
-            st.markdown("<h2 style='text-align: center; color: black;'>CDF of Run Time Chart</h2>", unsafe_allow_html=True)
-            st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
+            st.markdown("<h2 style='text-align: center;'>CDF of Run Time Chart</h2>", unsafe_allow_html=True)
+            st.sidebar.markdown("<h1 style='text-align: center;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
 
             with st.spinner("In progress...., Please do not change any settings now"):  
                 with st.sidebar.form("CDF_chart_form_jrt"):
@@ -169,8 +169,8 @@ if main_nav == "Job Geometric Characteristics":
                     st.write("## Please select one or more system model(s) in the sidebar to plot the chart.")
 
         elif chart_select_radio_jrt == "Detailed Run Time Distribution Chart":
-                st.markdown("<h2 style='text-align: center; color: black;'>Detailed Run Time Distribution Chart</h2>", unsafe_allow_html=True)
-                st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
+                st.markdown("<h2 style='text-align: center;'>Detailed Run Time Distribution Chart</h2>", unsafe_allow_html=True)
+                st.sidebar.markdown("<h1 style='text-align: center;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
 
                 # drt = detailed run time
                 drt_time_ranges = ['0~30s', '30s~10min', '10min~1h', '1h~12h', "more than 12h"]
@@ -330,8 +330,8 @@ if main_nav == "Job Geometric Characteristics":
                 
         #  Code for individual charts             
         if chart_select_radio_jap == "Daily Submit Pattern":
-            st.markdown("<h2 style='text-align: center; color: black;'>Daily Submit Pattern Chart</h2>", unsafe_allow_html=True)
-            st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
+            st.markdown("<h2 style='text-align: center;'>Daily Submit Pattern Chart</h2>", unsafe_allow_html=True)
+            st.sidebar.markdown("<h1 style='text-align: center;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
             
             dsp_selected_system_models_jap = system_models_jap.copy()
             with st.spinner("In progress...., Please do not change any settings now"):   
@@ -386,8 +386,8 @@ if main_nav == "Job Geometric Characteristics":
                     st.write("## Please select one or more system model(s) from sidebar to plot the chart")
 
         elif chart_select_radio_jap == "Weekly Submit Pattern":
-            st.markdown("<h2 style='text-align: center; color: black;'>Weekly Submit Pattern Chart</h2>", unsafe_allow_html=True)
-            st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
+            st.markdown("<h2 style='text-align: center;'>Weekly Submit Pattern Chart</h2>", unsafe_allow_html=True)
+            st.sidebar.markdown("<h1 style='text-align: center;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
         
             wsp_selected_system_models_jap = system_models_jap.copy()
             with st.spinner("In progress...., Please do not change any settings now"):   
@@ -439,8 +439,8 @@ if main_nav == "Job Geometric Characteristics":
                     st.write("## Please select one or more system model(s) from sidebar to plot the chart")
 
         elif chart_select_radio_jap == "Job Arrival Interval":
-            st.markdown("<h2 style='text-align: center; color: black;'>Job Arrival Interval Chart</h2>", unsafe_allow_html=True)
-            st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)  
+            st.markdown("<h2 style='text-align: center;'>Job Arrival Interval Chart</h2>", unsafe_allow_html=True)
+            st.sidebar.markdown("<h1 style='text-align: center;'>Chart Customization Panel</h1>", unsafe_allow_html=True)  
         
             jap_min_value_exp_arrival_interval_slider = 0
             jap_max_value_exp_arrival_interval_slider = 8 
@@ -609,7 +609,7 @@ if main_nav == "Job Geometric Characteristics":
                 pass
 
         if len(selected_charts_list_suaro) >= 1:
-            st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
+            st.sidebar.markdown("<h1 style='text-align: center;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
             with st.sidebar.form("sidebar_form_suaro"):
                 st.write("### Alter the following settings to customize the selected chart(s):")
                 sys_utilization_slider_suaro = st.slider("**Adjust System Utilization Range (Y-axis):**", min_value = 0, max_value=100, value=100, step=10)
@@ -755,8 +755,8 @@ if main_nav == "Job Geometric Characteristics":
             cdfowt_min_value_exp_arrival_interval_slider = 0
             cdfowt_max_value_exp_arrival_interval_slider = 8 
 
-            st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
-            st.markdown("<h2 style='text-align: center; color: black;'>CDF of Wait Time</h2>", unsafe_allow_html=True)
+            st.sidebar.markdown("<h1 style='text-align: center;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
+            st.markdown("<h2 style='text-align: center;'>CDF of Wait Time</h2>", unsafe_allow_html=True)
             
 
             with st.spinner("In progress...., Please do not change any settings now"):
@@ -807,8 +807,8 @@ if main_nav == "Job Geometric Characteristics":
             cdfott_min_value_exp_arrival_interval_slider = 0
             cdfott_max_value_exp_arrival_interval_slider = 8 
 
-            st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
-            st.markdown("<h2 style='text-align: center; color: black;'>CDF of Turnaround Time</h2>", unsafe_allow_html=True)
+            st.sidebar.markdown("<h1 style='text-align: center;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
+            st.markdown("<h2 style='text-align: center;'>CDF of Turnaround Time</h2>", unsafe_allow_html=True)
 
             
             with st.spinner("In progress...., Please do not change any settings now"):
@@ -858,8 +858,8 @@ if main_nav == "Job Geometric Characteristics":
             awtjs_job_sizes_list_jwt = ["Small", "Middle", "Large"]
             awtjs_job_sizes_selected_list_jwt = awtjs_job_sizes_list_jwt.copy()
 
-            st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
-            st.markdown("<h2 style='text-align: center; color: black;'>Avg Waiting Time w.r.t Job Size Chart</h2>", unsafe_allow_html=True)
+            st.sidebar.markdown("<h1 style='text-align: center;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
+            st.markdown("<h2 style='text-align: center;'>Avg Waiting Time w.r.t Job Size Chart</h2>", unsafe_allow_html=True)
 
             with st.spinner("In progress...., Please do not change any settings now"):
                 with st.sidebar.form("awtjs_personal_parameters_update_form"):
@@ -901,8 +901,8 @@ if main_nav == "Job Geometric Characteristics":
             awtjrt_job_run_time_list_jwt = ["Short", "Middle", "Long"]
             awtjrt_job_run_time_selected_list_jwt = awtjrt_job_run_time_list_jwt.copy()
 
-            st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
-            st.markdown("<h2 style='text-align: center; color: black;'>Avg Waiting Time w.r.t Job Run Time Chart</h2>", unsafe_allow_html=True)
+            st.sidebar.markdown("<h1 style='text-align: center;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
+            st.markdown("<h2 style='text-align: center;'>Avg Waiting Time w.r.t Job Run Time Chart</h2>", unsafe_allow_html=True)
         
             with st.spinner("In progress...., Please do not change any settings now"):
                 with st.sidebar.form("awtjrt_personal_parameters_update_form"):
@@ -1095,7 +1095,7 @@ elif main_nav == "Job Failure Characteristics":
                 pass
         
         if len(jfd_chart_selected_list_jfc) >= 1:
-            st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
+            st.sidebar.markdown("<h1 style='text-align: center;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
 
             with st.sidebar.form("jfd_sidebar_form_jfc"):
                 # jfd: Job Failures Distribution
@@ -1140,12 +1140,12 @@ elif main_nav == "Job Failure Characteristics":
                             st.markdown(f"<style>.highlight {{background-color: yellow}}</style><span class='highlight'>{chart_side_by_side_checkbox_highlight_text}</span>", unsafe_allow_html=True)
                     else:
                         if "Job Count w.r.t Job Status" in jfd_chart_selected_list_jfc:
-                            st.markdown("<h2 style='text-align: center; color: black;'>Job Count w.r.t Job Status</h2>", unsafe_allow_html=True)
+                            st.markdown("<h2 style='text-align: center;'>Job Count w.r.t Job Status</h2>", unsafe_allow_html=True)
                             plot_percentage_status(jfd_job_status_selected_list_jfc, jfd_percentage_slider_jfc, jfd_selected_system_models_jfc, True)
                         else:
                             pass
                         if "Core Hours w.r.t Job Status" in jfd_chart_selected_list_jfc:
-                            st.markdown("<h2 style='text-align: center; color: black;'>Core Hours w.r.t Job Status</h2>", unsafe_allow_html=True)
+                            st.markdown("<h2 style='text-align: center;'>Core Hours w.r.t Job Status</h2>", unsafe_allow_html=True)
                             plot_percentage_status(jfd_job_status_selected_list_jfc, jfd_percentage_slider_jfc, jfd_selected_system_models_jfc, False)
                         else:
                             pass
@@ -1194,7 +1194,7 @@ elif main_nav == "Job Failure Characteristics":
                 pass
 
         if len(cbjfajg_chart_selected_list_jfc) >= 1:
-            st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
+            st.sidebar.markdown("<h1 style='text-align: center;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
 
             with st.sidebar.form("cbjfajg_sidebar_form_jfc"):
                 # jfd: Job Failures Distribution
@@ -1241,13 +1241,13 @@ elif main_nav == "Job Failure Characteristics":
                             st.markdown(f"<style>.highlight {{background-color: yellow}}</style><span class='highlight'>{chart_side_by_side_checkbox_highlight_text}</span>", unsafe_allow_html=True)
                     else:
                         if "Job Status w.r.t Job Size" in cbjfajg_chart_selected_list_jfc:
-                            st.markdown("<h2 style='text-align: center; color: black;'>Job Status w.r.t Job Size</h2>", unsafe_allow_html=True)
+                            st.markdown("<h2 style='text-align: center;'>Job Status w.r.t Job Size</h2>", unsafe_allow_html=True)
                             #Alex - call function with the parameters to plot Job Status w.r.t Job Size
                             plot_status_over()
                         else:
                             pass
                         if "Job Status w.r.t Job Run Time" in cbjfajg_chart_selected_list_jfc:
-                            st.markdown("<h2 style='text-align: center; color: black;'>Job Status w.r.t Job Run Time</h2>", unsafe_allow_html=True)
+                            st.markdown("<h2 style='text-align: center;'>Job Status w.r.t Job Run Time</h2>", unsafe_allow_html=True)
                             #Alex - call function with the parameters to plot Job Status w.r.t Job Run Time
                             plot_status_over(True)
                         else:
@@ -1336,13 +1336,10 @@ elif main_nav == "User Behavior Characteristics":
             for item in urb_chart_selected_list_ubc:
                 if "Blue Waters" in urb_chart_selected_list_ubc:
                     x.append(a)
-                  
                 elif "Mira" in urb_chart_selected_list_ubc:
                     x.append(b)
-                 
                 elif "Philly" in urb_chart_selected_list_ubc:
                     x.append(c)
-                  
                 elif "Helios" in urb_chart_selected_list_ubc:
                     x.append(d)  
                 else:
