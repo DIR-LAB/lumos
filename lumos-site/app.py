@@ -999,6 +999,74 @@ elif main_nav == "Job Failure Characteristics":
         st.pyplot(fig)
     
     # Alex - Correlation between Job Failure and Job Geometries charts function here (only function)
+    # Creates bar plot to compare percentage distribution of run time across Blue Water, Mira, Philly, and Helios
+    def plot_status_over(run_time=False):
+
+        plt.style.use("default")
+        traces = ("bw", "mira", "philly", "helios")
+        if run_time:
+            bw = [[77.38959920341603, 10.274344986835594, 12.336055809748379],
+                [53.084873994352385, 5.706217699397944, 41.20890830624967],
+                [59.617663499161544, 2.222470653996646, 38.15986584684181]]
+            mira = [[76.86672302056917, 15.995115995115993, 7.13816098431483],
+                    [64.34694050751082, 2.5799881184757703, 33.07307137401341],
+                    [2.564102564102564, 0, 97.43589743589743]]
+            philly = [[60.49915507604315, 32.72672126175311, 6.774123662203735],
+                    [60.98551323079041, 22.593854306458827, 16.420632462750763],
+                    [39.69247516668935, 35.07960266702953, 25.227922166281125]]
+            hl = [[65.05428807036834, 15.161489829576691, 19.784222100054976],
+                [64.9508786495088, 4.849868548498685, 30.199252801992525],
+                [49.60118168389956, 8.951255539143279, 41.44756277695716]]
+            z = ["Short", "Middle", "Long"]
+        else:
+            bw = [[67.00871394770195, 7.114774934564608, 25.876511117733443],
+                [47.096774193548384, 1.2903225806451613, 51.61290322580645],
+                [67.36842105263158, 4.2105263157894735, 28.421052631578945]]
+            mira = [[70.73658165207462, 8.288922725542443, 20.974495622382946],
+                    [58.49765258215962, 19.342723004694836, 22.15962441314554],
+                    [65.33957845433255, 13.817330210772832, 20.843091334894616]]
+            philly = [[67.6981199964019, 24.18899801287136, 8.112881990726734],
+                    [26.483950799689726, 58.283160344254426, 15.232888856055848],
+                    [20.27687296416938, 63.27361563517915, 16.449511400651463]]
+            hl = [[57.48994568597371, 21.9826692648949, 20.527385049131393],
+                [45.79295637720701, 22.9936964907329, 31.213347132060086],
+                [36.688236653570605, 13.173099144904091, 50.13866420152531]]
+            z = ["Small", "Middle", "Large"]
+            status = {
+                'Small': (15.61, 12.22, 5.68, 0.3),
+                'Middle': (143.62, 50.96, 15.84, 0.4),
+                'Large': (53.33, 42.83, 13.26, 0.53),
+            }
+
+        x = np.arange(len(traces))  # the label locations
+        width = 0.25  # the width of the bars
+        multiplier = 0
+
+        fig, ax = plt.subplots()
+        hatches = ["-", ".", "x", "-"]
+        colors = ['#1f77b4', '#ff7f0e', '#2ca02c']
+        for i, measurement in enumerate(zip(bw, mira, philly, hl)):
+            offset = width * multiplier
+            prev = np.array([0.0] * 4)
+            print(*zip(*measurement))
+            for k, j in enumerate(zip(*measurement)):
+                rects = ax.bar(x + offset, j, width, hatch=hatches[k], color=colors[k], edgecolor='black', bottom=prev)
+                prev += np.array(j)
+            # ax.bar_label(rects, padding=3)
+            multiplier += 1
+
+        # Add some text for labels, title and custom x-axis tick labels, etc.
+        ax.set_ylabel('Percentage (%)', fontsize=20)
+        # ax.set_xlabel('Traces', fontsize=20)
+        # ax.set_title('Penguin attributes by species')
+        ax.set_xticks(np.delete(np.arange(16) * 0.25, [3, 7, 11, 15]), 4 * z, fontsize=10, rotation=45)
+        # ax.set_xticks(x + width, traces, fontsize=15)
+        # ax.set_ylim(0, 100)
+        plt.grid(axis="y")
+        plt.show()
+        st.pyplot(fig)
+
+    
 
     if nav_bar_jfc == "Job Failures Distribution":
         jfd_chart_selection_options_jfc = ["Job Count w.r.t Job Status", "Core Hours w.r.t Job Status"] 
@@ -1165,20 +1233,24 @@ elif main_nav == "Job Failure Characteristics":
                             with col1:
                                 st.markdown("<h4 style='text-align: center;'>Job Status w.r.t Job Size</h4>", unsafe_allow_html=True)
                                 #Alex - call function with the parameters to plot Job Status w.r.t Job Size
+                                plot_status_over()
                             with col2:
                                 st.markdown("<h4 style='text-align: center;'>Job Status w.r.t Job Run Time</h4>", unsafe_allow_html=True)
                                 #Alex - call function with the parameters to plot Job Status w.r.t Job Run Time
+                                plot_status_over(True)
                         else:
                             st.markdown(f"<style>.highlight {{background-color: yellow}}</style><span class='highlight'>{chart_side_by_side_checkbox_highlight_text}</span>", unsafe_allow_html=True)
                     else:
                         if "Job Status w.r.t Job Size" in cbjfajg_chart_selected_list_jfc:
                             st.markdown("<h2 style='text-align: center; color: black;'>Job Status w.r.t Job Size</h2>", unsafe_allow_html=True)
                             #Alex - call function with the parameters to plot Job Status w.r.t Job Size
+                            plot_status_over()
                         else:
                             pass
                         if "Job Status w.r.t Job Run Time" in cbjfajg_chart_selected_list_jfc:
                             st.markdown("<h2 style='text-align: center; color: black;'>Job Status w.r.t Job Run Time</h2>", unsafe_allow_html=True)
                             #Alex - call function with the parameters to plot Job Status w.r.t Job Run Time
+                            plot_status_over(True)
                         else:
                             pass
 
