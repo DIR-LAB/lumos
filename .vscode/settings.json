@@ -25,6 +25,7 @@
         "xlabel",
         "xlim",
         "xscale",
+        "xticklabels",
         "xticks",
         "ylabel",
         "ylim",
