@@ -1048,7 +1048,7 @@ elif main_nav == "Job Failure Characteristics":
         for i, measurement in enumerate(zip(bw, mira, philly, hl)):
             offset = width * multiplier
             prev = np.array([0.0] * 4)
-            print(*zip(*measurement))
+            # print(*zip(*measurement))
             for k, j in enumerate(zip(*measurement)):
                 rects = ax.bar(x + offset, j, width, hatch=hatches[k], color=colors[k], edgecolor='black', bottom=prev)
                 prev += np.array(j)
@@ -1061,9 +1061,8 @@ elif main_nav == "Job Failure Characteristics":
         # ax.set_title('Penguin attributes by species')
         ax.set_xticks(np.delete(np.arange(16) * 0.25, [3, 7, 11, 15]), 4 * z, fontsize=10, rotation=45)
         # ax.set_xticks(x + width, traces, fontsize=15)
-        # ax.set_ylim(0, 100)
+        ax.set_ylim(0, 100)
         plt.grid(axis="y")
-        plt.show()
         st.pyplot(fig)
 
     
@@ -1222,7 +1221,6 @@ elif main_nav == "Job Failure Characteristics":
 
                 cbjfajg_submit_parameters_button_jfc = st.form_submit_button("Apply Changes")
         
-        with st.spinner(spinner_text):
             if len(cbjfajg_job_size_selected_list_jfc) >= 1 and len(cbjfajg_selected_system_models_jfc) >= 1:        
                 with st.expander("**Chart View Settings**", expanded=True):
                     cbjfajg_check_box_view_side_by_side_jfc = st.checkbox("Select to view charts side by side")
