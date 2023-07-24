@@ -1267,49 +1267,49 @@ elif main_nav == "Job Failure Characteristics":
                 st.write("## Please select one or more job status(es) and system model(s) from the sidebar to plot the chart")
 
 elif main_nav == "User Behavior Characteristics":
-    ubc_nav_bar = option_menu("User Behavior Characteristics", ["Users’ Submission Behaviors", "Users’ Repeated Behaviors", "Correlation between Job Run Time and Job Statuses"], 
+    ubc_nav_bar = option_menu("User Behavior Characteristics", ["Users’ Repeated Behaviors", "Users’ Submission Behaviors", "Correlation between Job Run Time and Job Statuses"], 
     default_index=0, orientation="vertical", menu_icon="bi-list")
 
-    if ubc_nav_bar == "Users’ Submission Behaviors":
-        usb_chart_title_ubc = "Chart Selection Form"
-        usb_chart_checkbox_title_ubc = "Select one or more charts"
-        usb_chart_selection_left_col_options_ubc = ["Blue Waters", "Mira"]
-        usb_chart_selection_right_col_options_ubc = ["Philly", "Helios"]
-        usb_chart_selection_options_ubc = usb_chart_selection_left_col_options_ubc + usb_chart_selection_right_col_options_ubc
-        usb_chart_selected_list_ubc = usb_chart_selection_options_ubc.copy()
+    if ubc_nav_bar == "Users’ Repeated Behaviors":
+        urb_chart_title_ubc = "Chart Selection Form"
+        urb_chart_checkbox_title_ubc = "Select one or more charts"
+        urb_chart_selection_left_col_options_ubc = ["Blue Waters", "Mira"]
+        urb_chart_selection_right_col_options_ubc = ["Philly", "Helios"]
+        urb_chart_selection_options_ubc = urb_chart_selection_left_col_options_ubc + urb_chart_selection_right_col_options_ubc
+        urb_chart_selected_list_ubc = urb_chart_selection_options_ubc.copy()
 
-        with st.form("usb_chart_selection_form_ubc"):
+        with st.form("urb_chart_selection_form_ubc"):
             st.write(f"### **{chart_selection_form_title}**")
             st.write(f'**{chart_selection_form_load_charts_text}**')
             col1, col2 = st.columns(2)
             with col1 :
-                for item in usb_chart_selection_left_col_options_ubc:
-                    usb_chart_selection_check_box_left_option_ubc = st.checkbox(item, True)
-                    if not usb_chart_selection_check_box_left_option_ubc:
-                        usb_chart_selected_list_ubc.remove(item)
+                for item in urb_chart_selection_left_col_options_ubc:
+                    urb_chart_selection_check_box_left_option_ubc = st.checkbox(item, True)
+                    if not urb_chart_selection_check_box_left_option_ubc:
+                        urb_chart_selected_list_ubc.remove(item)
             with col2:
-                for item2 in usb_chart_selection_right_col_options_ubc:
-                    usb_chart_selection_check_box_right_option_ubc = st.checkbox(item2, True)
-                    if not usb_chart_selection_check_box_right_option_ubc:
-                        usb_chart_selected_list_ubc.remove(item2)
-            usb_chart_selection_check_box_submission_button_ubc = st.form_submit_button("Load Charts")
+                for item2 in urb_chart_selection_right_col_options_ubc:
+                    urb_chart_selection_check_box_right_option_ubc = st.checkbox(item2, True)
+                    if not urb_chart_selection_check_box_right_option_ubc:
+                        urb_chart_selected_list_ubc.remove(item2)
+            urb_chart_selection_check_box_submission_button_ubc = st.form_submit_button("Load Charts")
 
-            if usb_chart_selection_check_box_submission_button_ubc:
-                if len(usb_chart_selected_list_ubc) >= 1:
-                    st.write(f"**You Have Selected:** {usb_chart_selected_list_ubc}")
+            if urb_chart_selection_check_box_submission_button_ubc:
+                if len(urb_chart_selected_list_ubc) >= 1:
+                    st.write(f"**You Have Selected:** {urb_chart_selected_list_ubc}")
                 else:
                     st.markdown("<h5 style='color: red'>Please select one or more charts options above and then click 'Load Charts'</h5>", unsafe_allow_html=True)
             else:
                 pass
 
-        if len(usb_chart_selected_list_ubc) >= 1:
+        if len(urb_chart_selected_list_ubc) >= 1:
             st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
 
-            with st.sidebar.form("usb_sidebar_form_ubc"):
+            with st.sidebar.form("urb_sidebar_form_ubc"):
                 st.write("### Alter the following settings to customize the chart(s):")
-                usb_percentage_slider_ubc = st.slider("**Adjust Percentage Range (Y-axis):**", min_value=0, max_value=100, value=100, step=20)
-                usb_no_of_top_groups_per_user_slider_ubc = st.slider("**Adjust No Of Top Groups Per User (X-axis):**", min_value=0, max_value=10, value=10, step=1)
-                usb_submit_parameters_button_ubc = st.form_submit_button("Apply Changes")
+                urb_percentage_slider_ubc = st.slider("**Adjust Percentage Range (Y-axis):**", min_value=0, max_value=100, value=100, step=20)
+                urb_no_of_top_groups_per_user_slider_ubc = st.slider("**Adjust No Of Top Groups Per User (X-axis):**", min_value=0, max_value=10, value=10, step=1)
+                urb_submit_parameters_button_ubc = st.form_submit_button("Apply Changes")
 
         with st.spinner(spinner_text):
             st.markdown("<h2 style='text-align: center; color: black;'>The Resource-configuration group per user Charts</h2>", unsafe_allow_html=True)
@@ -1319,8 +1319,8 @@ elif main_nav == "User Behavior Characteristics":
 
             
 
-    elif ubc_nav_bar == "Users’ Repeated Behaviors":
-        st.write("Hello from Users' Repeated Behavior")
+    elif ubc_nav_bar == "Users’ Submission Behaviors":
+        st.write("Hello from Users’ Submission Behaviors")
     elif ubc_nav_bar == "Correlation between Job Run Time and Job Statuses":
         st.write("Hello from Correlation between Job Run Time and Job Statuses")
     else:
