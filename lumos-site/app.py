@@ -5,6 +5,7 @@ import pandas as pd
 import warnings
 from streamlit_option_menu import option_menu
 from matplotlib import pyplot as plt
+import matplotlib.ticker as mticker
 import seaborn
 from datetime import datetime
 from collections import Counter, defaultdict
@@ -1344,8 +1345,107 @@ elif main_nav == "User Behavior Characteristics":
 
     elif ubc_nav_bar == "Users’ Submission Behaviors":
         st.write("Hello from Users’ Submission Behaviors")
+
     elif ubc_nav_bar == "Correlation between Job Run Time and Job Statuses":
         st.write("Hello from Correlation between Job Run Time and Job Statuses")
+
+        def analyze_attribute_per(u, data):
+            rows = list(data.groupby(u).count().sort_values(by="job", ascending=False).index[:10])
+            job_counts = list(data.groupby(u).count().sort_values(by="job", ascending=False)["job"][:10])
+            sum_of_node_hour = [data.groupby(u).sum()["node_hour"].loc[i]//3600 for i in rows]
+            mean_nodes = [data.groupby(u).mean()["node_num"].loc[i] for i in rows]
+            mean_run_time = [data.groupby(u).mean()["run_time"].loc[i] for i in rows]
+            temp_df = pd.DataFrame(list(zip(rows, job_counts, sum_of_node_hour, mean_nodes, mean_run_time)),
+                                columns=[u, "job_count", "sum_of_node_hour", "mean_nodes", "mean_run_time"])
+            return temp_df
+
+        def analyze_attribute_per_ml(u, data, status=["Pass","Failed","Killed"]):
+            rows = list(data.groupby(u).count().sort_values(by="job", ascending=False).index[:10])
+            job_counts = list(data.groupby(u).count().sort_values(by="job", ascending=False)["job"][:10])
+            sum_of_node_hour = [data.groupby(u).sum()["node_hour"].loc[i]//3600 for i in rows]
+            mean_nodes = [data.groupby(u).mean()["node_num"].loc[i] for i in rows]
+            mean_run_time = [data.groupby(u).mean()["run_time"].loc[i] for i in rows]
+            st0_run_time = [data.groupby([u, "state"]).mean()["run_time"].loc[i].get(status[0],0) for i in rows]
+            st1_run_time = [data.groupby([u, "state"]).mean()["run_time"].loc[i].get(status[1],0) for i in rows]
+            st2_run_time = [data.groupby([u, "state"]).mean()["run_time"].loc[i].get(status[2],0) for i in rows]
+
+            temp_df = pd.DataFrame(list(zip(rows, job_counts, sum_of_node_hour, mean_nodes, mean_run_time, st0_run_time,
+                                        st1_run_time, st2_run_time )),
+                                columns=[u, "job_count", "sum_of_node_hour", "mean_nodes", "mean_run_time", 
+                                            "mean_run_time ({})".format(status[0]),
+                                        "mean_run_time ({})".format(status[1]),
+                                        "mean_run_time ({})".format(status[2])])
+            return temp_df
+
+        def plot_attribute_per_ml(u, data, state="state", status=["Pass","Failed","Killed"],all_user=False):
+            plt.style.use("default")
+            rows = list(data.groupby(u).sum().sort_values(by="node_hour", ascending=False).index[:3])
+        #     job_counts = list(data.groupby(u).count().sort_values(by="job", ascending=False)["job"][:10])
+        #     sum_of_node_hour = [data.groupby(u).sum()["node_hour"].loc[i]//3600 for i in rows]
+        #     mean_nodes = [data.groupby(u).mean()["node_num"].loc[i] for i in rows]
+            if all_user:
+                mean_run_time = [data["run_time"]]
+                st0_run_time = [data.groupby([state])["run_time"].apply(list).get(status[0],0)]
+                st1_run_time = [data.groupby([state])["run_time"].apply(list).get(status[1],0)]
+                st2_run_time = [data.groupby([state])["run_time"].apply(list).get(status[2],0)]
+                fig, axes = plt.subplots(1, 1, figsize=(4, 3))
+
+                for index, i in enumerate(zip(st0_run_time, st1_run_time, st2_run_time)):
+                    k = [np.log10(np.array(j)+1) for j in i]
+        #             k = pd.DataFrame(k, columns=[])
+        #             k[-2] = k[-2]+(k[-1] if k[-1] else [])
+                    seaborn.violinplot(data=k,ax=axes, scale="width")
+                ax = axes
+                ax.yaxis.set_major_formatter(mticker.StrMethodFormatter("$10^{{{x:.0f}}}$"))
+                ymin, ymax = ax.get_ylim()
+                tick_range = np.arange(np.floor(ymin), ymax)
+                ax.yaxis.set_ticks(tick_range)
+                ax.yaxis.set_ticks([np.log10(x) for p in tick_range for x in np.linspace(10 ** p, 10 ** (p + 1), 10)], minor=True)
+                ax.yaxis.grid(True)
+                ax.set_xticks([y for y in range(3)])
+                ax.set_xticklabels([ "Pass", "Failed", "Killed"], fontsize=24)
+            #         ax.set_xticks([y + 1 for y in range(4)])
+            #         ax.set_xticklabels(['all', *status])
+        #         ax.set_xlabel('User '+str(index+1), fontsize=20)
+
+                ax.set_ylabel('Job Run time (s)', fontsize=20)
+        #         ax.set_xticks([y + 1 for y in range(4)])
+        #         ax.set_xticklabels(['all', *status])
+            else:
+                mean_run_time = [data.groupby(u)["run_time"].apply(list).loc[i] for i in rows]
+                st0_run_time = [data.groupby([u, state])["run_time"].apply(list).loc[i].get(status[0],0) for i in rows]
+                st1_run_time = [data.groupby([u, state])["run_time"].apply(list).loc[i].get(status[1],0) for i in rows]
+                st2_run_time = [data.groupby([u, state])["run_time"].apply(list).loc[i].get(status[2],0) for i in rows]
+                fig, axes = plt.subplots(1, 3, figsize=(12, 3))
+
+                for index, i in enumerate(zip(st0_run_time, st1_run_time, st2_run_time)):
+                    k = [np.log10(np.array(j)+1) for j in i]
+        #             k = pd.DataFrame(k, columns=[])
+        #             k[-2] = k[-2]+(k[-1] if k[-1] else [])
+                    seaborn.violinplot(data=k,ax=axes[index%3], scale="width")
+                for index, ax in enumerate(axes.flatten()):
+                    ax.yaxis.set_major_formatter(mticker.StrMethodFormatter("$10^{{{x:.0f}}}$"))
+                    ymin, ymax = ax.get_ylim()
+                    tick_range = np.arange(np.floor(ymin), ymax)
+                    ax.yaxis.set_ticks(tick_range, fontsize=20)
+                    ax.yaxis.set_ticks([np.log10(x) for p in tick_range for x in np.linspace(10 ** p, 10 ** (p + 1), 10)], minor=True,)
+                    ax.yaxis.grid(True)
+                    ax.set_xticks([y for y in range(3)])
+                    ax.set_xticklabels([ "Pass", "Failed", "Killed"], fontsize=15)
+            #         ax.set_xticks([y + 1 for y in range(4)])
+            #         ax.set_xticklabels(['all', *status])
+                    ax.set_xlabel('User '+str(index+1), fontsize=20)
+
+                    if index == 0:
+                        ax.set_ylabel('Job Run time (s)', fontsize=20)
+            st.set_option('deprecation.showPyplotGlobalUse', False)
+            st.pyplot()
+
+        plot_attribute_per_ml("user", data=bw_df, state="new_status", all_user=True)
+        plot_attribute_per_ml("user", data=mira_df_2, state="new_status", all_user=True)
+        plot_attribute_per_ml("user", data=philly_df, state="state", all_user=True)
+        plot_attribute_per_ml("user", data=hl_df, state="state", all_user=True)
+
     else:
         pass
 
