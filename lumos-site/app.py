@@ -50,7 +50,7 @@ styles = {
 chart_selection_form_title = "Chart Selection Form"
 # chart_checkbox_highlight_text_jfc = "To view anyone of the charts' enlarged, ensure only that chart option is selected below and then click 'Load Charts'."
 chart_selection_form_load_charts_text = "Select/Deselect options below and then click 'Load Charts' to apply your changes."
-chart_side_by_side_checkbox_highlight_text = "Select more than one charts in 'Chart Selection Form' above to view charts side by side"
+chart_side_by_side_checkbox_highlight_text = "Select one or more charts in 'Chart Selection Form' above to view charts side by side"
 
 spinner_text = "In progress...., Please do not change any settings now"
 
@@ -1128,16 +1128,23 @@ elif main_nav == "Job Failure Characteristics":
                     jfd_check_box_view_side_by_side_jfc = st.checkbox("Select to view charts side by side")
                 with st.spinner(spinner_text):
                     if jfd_check_box_view_side_by_side_jfc:
-                        if len(jfd_chart_selected_list_jfc) > 1:
+                        if len(jfd_chart_selected_list_jfc) >= 1:
                             col1, col2 = st.columns(2)
-                            with col1:
-                                st.markdown("<h4 style='text-align: center;'>Job Count w.r.t Job Status</h4>", unsafe_allow_html=True)
-                                plot_percentage_status(jfd_job_status_selected_list_jfc, jfd_percentage_slider_jfc, jfd_selected_system_models_jfc, True)
-                            with col2:
-                                st.markdown("<h4 style='text-align: center;'>Core Hours w.r.t Job Status</h4>", unsafe_allow_html=True)
-                                plot_percentage_status(jfd_job_status_selected_list_jfc, jfd_percentage_slider_jfc, jfd_selected_system_models_jfc, False)
+                            for idx, item in enumerate(jfd_chart_selected_list_jfc):
+                                jfd_col_logic_cal_jfc = col1 if idx % 2 == 0 else col2
+                                if item == "Job Count w.r.t Job Status":
+                                    with jfd_col_logic_cal_jfc:
+                                        st.markdown("<h4 style='text-align: center;'>Job Count w.r.t Job Status</h4>", unsafe_allow_html=True)
+                                        plot_percentage_status(jfd_job_status_selected_list_jfc, jfd_percentage_slider_jfc, jfd_selected_system_models_jfc, True)
+                                elif item == "Core Hours w.r.t Job Status":
+                                    with jfd_col_logic_cal_jfc:
+                                        st.markdown("<h4 style='text-align: center;'>Core Hours w.r.t Job Status</h4>", unsafe_allow_html=True)
+                                        plot_percentage_status(jfd_job_status_selected_list_jfc, jfd_percentage_slider_jfc, jfd_selected_system_models_jfc, False)
+                                else:
+                                    pass
                         else:
-                            st.markdown(f"<style>.highlight {{background-color: yellow}}</style><span class='highlight'>{chart_side_by_side_checkbox_highlight_text}</span>", unsafe_allow_html=True)
+                            pass
+                            # st.markdown(f"<style>.highlight {{background-color: yellow}}</style><span class='highlight'>{chart_side_by_side_checkbox_highlight_text}</span>", unsafe_allow_html=True)
                     else:
                         if "Job Count w.r.t Job Status" in jfd_chart_selected_list_jfc:
                             st.markdown("<h2 style='text-align: center;'>Job Count w.r.t Job Status</h2>", unsafe_allow_html=True)
@@ -1227,18 +1234,23 @@ elif main_nav == "Job Failure Characteristics":
                     cbjfajg_check_box_view_side_by_side_jfc = st.checkbox("Select to view charts side by side")
                 with st.spinner(spinner_text):
                     if cbjfajg_check_box_view_side_by_side_jfc:
-                        if len(cbjfajg_chart_selected_list_jfc) > 1:
+                        if len(cbjfajg_chart_selected_list_jfc) >= 1:
                             col1, col2 = st.columns(2)
-                            with col1:
-                                st.markdown("<h4 style='text-align: center;'>Job Status w.r.t Job Size</h4>", unsafe_allow_html=True)
-                                #Alex - call function with the parameters to plot Job Status w.r.t Job Size
-                                plot_status_over()
-                            with col2:
-                                st.markdown("<h4 style='text-align: center;'>Job Status w.r.t Job Run Time</h4>", unsafe_allow_html=True)
-                                #Alex - call function with the parameters to plot Job Status w.r.t Job Run Time
-                                plot_status_over(True)
+                            for idx, item in enumerate(cbjfajg_chart_selected_list_jfc):
+                                cbjfajg_col_logic_cal_jfc = col1 if idx % 2 == 0 else col2
+                                if item == "Job Status w.r.t Job Size":
+                                    with cbjfajg_col_logic_cal_jfc:
+                                        st.markdown("<h4 style='text-align: center;'>Job Status w.r.t Job Size</h4>", unsafe_allow_html=True)
+                                        # Alex - call function with the parameters to plot Job Status w.r.t Job Size
+                                        plot_status_over()
+                                elif item == "Job Status w.r.t Job Run Time":
+                                    with cbjfajg_col_logic_cal_jfc:
+                                        st.markdown("<h4 style='text-align: center;'>Job Status w.r.t Job Run Time</h4>", unsafe_allow_html=True)
+                                        # Alex - call function with the parameters to plot Job Status w.r.t Job Run Time
+                                        plot_status_over(True)
                         else:
-                            st.markdown(f"<style>.highlight {{background-color: yellow}}</style><span class='highlight'>{chart_side_by_side_checkbox_highlight_text}</span>", unsafe_allow_html=True)
+                            pass
+                            # st.markdown(f"<style>.highlight {{background-color: yellow}}</style><span class='highlight'>{chart_side_by_side_checkbox_highlight_text}</span>", unsafe_allow_html=True)
                     else:
                         if "Job Status w.r.t Job Size" in cbjfajg_chart_selected_list_jfc:
                             st.markdown("<h2 style='text-align: center;'>Job Status w.r.t Job Size</h2>", unsafe_allow_html=True)
@@ -1310,60 +1322,86 @@ elif main_nav == "User Behavior Characteristics":
                 urb_no_of_top_groups_per_user_slider_ubc = st.slider("**Adjust No Of Top Groups Per User (X-axis):**", min_value=0, max_value=10, value=10, step=1)
                 urb_submit_parameters_button_ubc = st.form_submit_button("Apply Changes")
 
-        with st.spinner(spinner_text):
             with st.expander("**Chart View Settings**", expanded=True):
-                    urb_check_box_view_side_by_side_ubc = st.checkbox("Select to view charts side by side")
-            st.markdown("<h2 style='text-align: center; color: black;'>The Resource-configuration group per user Charts</h2>", unsafe_allow_html=True)
+                urb_check_box_view_side_by_side_ubc = st.checkbox("Select to view charts side by side")
 
-            def plot_123(a, color, chart_title, x_axis_value, y_axis_value):
-                fig, ax = plt.subplots()
-                x_axis_value_calculate = x_axis_value
+            with st.spinner(spinner_text):
+                st.markdown("<h2 style='text-align: center; color: black;'>The Resource-configuration group per user Charts</h2>", unsafe_allow_html=True)
 
-                x_axis_value_calculate = x_axis_value + 1
-                x_values = list(range(1, x_axis_value_calculate))
-                y_values = np.array(a)*100
-                ax.bar(x_values, y_values, color=color)
-  
-                ax.set_ylabel('Percentage (%)', fontsize=20)
-                ax.set_xlabel('Number of Top Groups Per User', fontsize=20)
-                ax.set_xticks(list(range(1, x_axis_value_calculate)))
-                ax.set_xticklabels(list(range(1, x_axis_value_calculate)), fontsize=15)
-                ax.set_ylim(0, y_axis_value)         
-                ax.grid(axis="y")
-                st.markdown(f"<h2 style='text-align: center;'>{chart_title}</h2>", unsafe_allow_html=True)
-                st.pyplot(fig)
+                def plot_123(a, color, chart_title, x_axis_value, y_axis_value):
+                    fig, ax = plt.subplots()
+                    x_axis_value_calculate = x_axis_value
 
-            #a,b,c,d - Blue waters, Mira, Philly, and Helios     
-            a = [0.6194840399786984, 0.7729370934866642, 0.8425218118648454, 0.8906973579175446, 0.9238788917664792, 0.9479635533005115, 0.9659413769736639, 0.9788211703158228, 0.9842781315514204, 0.987734831866639]
-            b = [0.6918350088912488, 0.8533482445948762, 0.921081711512026, 0.9533918131448507, 0.9710197995695022, 0.9810033596267114, 0.9872495542508333, 0.9916599140171835, 0.9944420135092896, 0.9964546220465884]
-            c = [0.28569096620357964, 0.4384045247520146, 0.545916628344075, 0.6263372405355048, 0.6897181499719287, 0.7429051624867624, 0.7877784887121456, 0.8257544812862695, 0.8583802658301265, 0.8858856158005057]
-            d = [0.3412589175944932, 0.5253771632298813, 0.6401852895114848, 0.7268169396811582, 0.7918618794877094, 0.8394237557838181, 0.8733033543091736, 0.9005927265133411, 0.9214560290971314, 0.9370205635505027]
-            colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728']
-            x = []
-            urb_chart_titles_ubc = []
-            urb_x_axis_slice_end_value_ubc = urb_no_of_top_groups_per_user_slider_ubc
+                    x_axis_value_calculate = x_axis_value + 1
+                    x_values = list(range(1, x_axis_value_calculate))
+                    y_values = np.array(a)*100
+                    ax.bar(x_values, y_values, color=color)
+    
+                    ax.set_ylabel('Percentage (%)', fontsize=20)
+                    ax.set_xlabel('Number of Top Groups Per User', fontsize=20)
+                    ax.set_xticks(list(range(1, x_axis_value_calculate)))
+                    ax.set_xticklabels(list(range(1, x_axis_value_calculate)), fontsize=15)
+                    ax.set_ylim(0, y_axis_value)         
+                    ax.grid(axis="y")
+                    st.markdown(f"<h2 style='text-align: center;'>{chart_title}</h2>", unsafe_allow_html=True)
+                    st.pyplot(fig)
 
-            for item in urb_chart_selected_list_ubc:
-                if "Blue Waters" == item:
-                    x.append(a[:urb_x_axis_slice_end_value_ubc])
-                    urb_chart_titles_ubc.append("Blue Waters")
-                elif "Mira" == item:
-                    x.append(b[:urb_x_axis_slice_end_value_ubc])
-                    urb_chart_titles_ubc.append("Mira")
-                elif "Philly" == item:
-                    x.append(c[:urb_x_axis_slice_end_value_ubc])
-                    urb_chart_titles_ubc.append("Philly")
-                elif "Helios" == item:
-                    x.append(d[:urb_x_axis_slice_end_value_ubc]) 
-                    urb_chart_titles_ubc.append("Helios")
+                #a,b,c,d - Blue waters, Mira, Philly, and Helios     
+                a = [0.6194840399786984, 0.7729370934866642, 0.8425218118648454, 0.8906973579175446, 0.9238788917664792, 0.9479635533005115, 0.9659413769736639, 0.9788211703158228, 0.9842781315514204, 0.987734831866639]
+                b = [0.6918350088912488, 0.8533482445948762, 0.921081711512026, 0.9533918131448507, 0.9710197995695022, 0.9810033596267114, 0.9872495542508333, 0.9916599140171835, 0.9944420135092896, 0.9964546220465884]
+                c = [0.28569096620357964, 0.4384045247520146, 0.545916628344075, 0.6263372405355048, 0.6897181499719287, 0.7429051624867624, 0.7877784887121456, 0.8257544812862695, 0.8583802658301265, 0.8858856158005057]
+                d = [0.3412589175944932, 0.5253771632298813, 0.6401852895114848, 0.7268169396811582, 0.7918618794877094, 0.8394237557838181, 0.8733033543091736, 0.9005927265133411, 0.9214560290971314, 0.9370205635505027]
+                colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728']
+                x = []
+                urb_chart_titles_ubc = []
+                urb_x_axis_slice_end_value_ubc = urb_no_of_top_groups_per_user_slider_ubc
+
+                for item in urb_chart_selected_list_ubc:
+                    if "Blue Waters" == item:
+                        x.append(a[:urb_x_axis_slice_end_value_ubc])
+                        urb_chart_titles_ubc.append("Blue Waters")
+                    elif "Mira" == item:
+                        x.append(b[:urb_x_axis_slice_end_value_ubc])
+                        urb_chart_titles_ubc.append("Mira")
+                    elif "Philly" == item:
+                        x.append(c[:urb_x_axis_slice_end_value_ubc])
+                        urb_chart_titles_ubc.append("Philly")
+                    elif "Helios" == item:
+                        x.append(d[:urb_x_axis_slice_end_value_ubc]) 
+                        urb_chart_titles_ubc.append("Helios")
+                    else:
+                        pass
+
+                if urb_check_box_view_side_by_side_ubc:
+                    if len(urb_chart_selected_list_ubc) >= 1:
+                        col1, col2 = st.columns(2)
+                        for idx, item in enumerate(urb_chart_selected_list_ubc):
+                            urb_col_logic_cal_ubc = col1 if idx % 2 == 0 else col2
+                            if item == "Blue Waters":
+                                with urb_col_logic_cal_ubc:
+                                    plot_123(a, colors[0], "Blue Waters", urb_no_of_top_groups_per_user_slider_ubc, urb_percentage_slider_ubc)
+                            elif item == "Mira":
+                                with urb_col_logic_cal_ubc:
+                                    plot_123(b, colors[1], "Mira", urb_no_of_top_groups_per_user_slider_ubc, urb_percentage_slider_ubc)
+                            elif item == "Philly":
+                                with urb_col_logic_cal_ubc:
+                                    plot_123(c, colors[2], "Philly", urb_no_of_top_groups_per_user_slider_ubc, urb_percentage_slider_ubc)
+                            elif item == "Helios":
+                                with urb_col_logic_cal_ubc:
+                                    plot_123(d, colors[3], "Helios", urb_no_of_top_groups_per_user_slider_ubc, urb_percentage_slider_ubc)
+                            else:
+                                pass          
+                    else:
+                            st.markdown(f"<style>.highlight {{background-color: yellow}}</style><span class='highlight'>{chart_side_by_side_checkbox_highlight_text}</span>", unsafe_allow_html=True)
                 else:
-                    pass
+                    for i, j, z in zip(x, colors, urb_chart_titles_ubc):
+                        plot_123(i, j, z, urb_no_of_top_groups_per_user_slider_ubc, urb_percentage_slider_ubc)
+                    
 
-            for i, j, z in zip(x, colors, urb_chart_titles_ubc):
-                plot_123(i, j, z, urb_no_of_top_groups_per_user_slider_ubc, urb_percentage_slider_ubc)
-
-            with st.expander("**Chart Description:**", expanded=True):
-                st.write("Description goes here")
+                with st.expander("**Chart Description:**", expanded=True):
+                    st.write("Description goes here")
+        else:
+            pass
 
     elif ubc_nav_bar == "Users’ Submission Behaviors":
         with st.expander("**Chart View Settings**", expanded=True):
