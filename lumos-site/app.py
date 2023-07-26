@@ -17,7 +17,7 @@ import os
 st.set_page_config(page_title="Job Trace Visualization Application", page_icon="📊")
 curr_dir = os.path.dirname(__file__)
 
-banner_image_path = os.path.join(curr_dir, 'images/JOB TRACE VISULAZATION.png')
+banner_image_path = os.path.join(curr_dir, 'images/App Banner Image.png')
 
 data_blue_waters_path = os.path.join(curr_dir, 'data/data_blue_waters.csv')
 data_mira_path = os.path.join(curr_dir, 'data/data_mira.csv')
@@ -624,6 +624,8 @@ if main_nav == "Job Geometric Characteristics":
             pass
 
         with st.spinner("In Progess... Please do not change any settings now"):
+                st.markdown("<h1 style='text-align: center; color: black;'>The System Utilization Across Multiple Systems</h1>", unsafe_allow_html=True)
+
                 col1, col2 = st.columns(2)
                 for idx, item in enumerate(selected_charts_list_suaro):
                     col_logic_cal_suaro = col1 if idx % 2 == 0 else col2
@@ -1127,6 +1129,8 @@ elif main_nav == "Job Failure Characteristics":
                 with st.expander("**Chart View Settings**", expanded=True):
                     jfd_check_box_view_side_by_side_jfc = st.checkbox("Select to view charts side by side")
                 with st.spinner(spinner_text):
+                    st.markdown("<h1 style='text-align: center; color: black;'>The Distribution Of Different Job Statuses</h1>", unsafe_allow_html=True)
+
                     if jfd_check_box_view_side_by_side_jfc:
                         if len(jfd_chart_selected_list_jfc) >= 1:
                             col1, col2 = st.columns(2)
@@ -1232,7 +1236,9 @@ elif main_nav == "Job Failure Characteristics":
             if len(cbjfajg_job_size_selected_list_jfc) >= 1 and len(cbjfajg_selected_system_models_jfc) >= 1:        
                 with st.expander("**Chart View Settings**", expanded=True):
                     cbjfajg_check_box_view_side_by_side_jfc = st.checkbox("Select to view charts side by side")
+
                 with st.spinner(spinner_text):
+                    st.markdown("<h1 style='text-align: center; color: black;'>Job Failure v.s Job Runtime And Job Requested Resources Charts</h1>", unsafe_allow_html=True)
                     if cbjfajg_check_box_view_side_by_side_jfc:
                         if len(cbjfajg_chart_selected_list_jfc) >= 1:
                             col1, col2 = st.columns(2)
@@ -1326,7 +1332,7 @@ elif main_nav == "User Behavior Characteristics":
                 urb_check_box_view_side_by_side_ubc = st.checkbox("Select to view charts side by side")
 
             with st.spinner(spinner_text):
-                st.markdown("<h2 style='text-align: center; color: black;'>The Resource-configuration group per user Charts</h2>", unsafe_allow_html=True)
+                st.markdown("<h1 style='text-align: center; color: black;'>The Resource-Configuration Group Per User Charts</h1>", unsafe_allow_html=True)
 
                 def plot_123(a, color, chart_title, x_axis_value, y_axis_value):
                     fig, ax = plt.subplots()
@@ -1399,7 +1405,7 @@ elif main_nav == "User Behavior Characteristics":
                     
 
                 with st.expander("**Chart Description:**", expanded=True):
-                    st.write("Description goes here")
+                    st.write("**Resource-Configuration Groups per User:** This chart visualizes the repeated job submission patterns based on resource configurations (number of nodes and run time). It shows that nearly 90% of all jobs fall within the top 10 largest groups of similar job configurations, indicating high repetition in user job submissions. Additionally, it compares repetition across different systems (Philly, Helios, Blue Waters, Mira), revealing less repeated patterns in deep learning workloads on Philly and Helios.")
         else:
             pass
 
