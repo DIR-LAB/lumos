@@ -1385,16 +1385,16 @@ elif main_nav == "User Behavior Characteristics":
                             urb_col_logic_cal_ubc = col1 if idx % 2 == 0 else col2
                             if item == "Blue Waters":
                                 with urb_col_logic_cal_ubc:
-                                    plot_123(a, colors[0], "Blue Waters", urb_no_of_top_groups_per_user_slider_ubc, urb_percentage_slider_ubc)
+                                    plot_123(a[:urb_x_axis_slice_end_value_ubc], colors[0], "Blue Waters", urb_no_of_top_groups_per_user_slider_ubc, urb_percentage_slider_ubc)
                             elif item == "Mira":
                                 with urb_col_logic_cal_ubc:
-                                    plot_123(b, colors[1], "Mira", urb_no_of_top_groups_per_user_slider_ubc, urb_percentage_slider_ubc)
+                                    plot_123(b[:urb_x_axis_slice_end_value_ubc], colors[1], "Mira", urb_no_of_top_groups_per_user_slider_ubc, urb_percentage_slider_ubc)
                             elif item == "Philly":
                                 with urb_col_logic_cal_ubc:
-                                    plot_123(c, colors[2], "Philly", urb_no_of_top_groups_per_user_slider_ubc, urb_percentage_slider_ubc)
+                                    plot_123(c[:urb_x_axis_slice_end_value_ubc], colors[2], "Philly", urb_no_of_top_groups_per_user_slider_ubc, urb_percentage_slider_ubc)
                             elif item == "Helios":
                                 with urb_col_logic_cal_ubc:
-                                    plot_123(d, colors[3], "Helios", urb_no_of_top_groups_per_user_slider_ubc, urb_percentage_slider_ubc)
+                                    plot_123(d[:urb_x_axis_slice_end_value_ubc], colors[3], "Helios", urb_no_of_top_groups_per_user_slider_ubc, urb_percentage_slider_ubc)
                             else:
                                 pass          
                     else:
@@ -1516,6 +1516,5 @@ elif main_nav == "User Behavior Characteristics":
 
     else:
         pass
-
 else:
     pass
