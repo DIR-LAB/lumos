@@ -624,7 +624,7 @@ if main_nav == "Job Geometric Characteristics":
             pass
 
         with st.spinner("In Progess... Please do not change any settings now"):
-                st.markdown("<h1 style='text-align: center; color: black;'>The System Utilization Across Multiple Systems</h1>", unsafe_allow_html=True)
+                st.markdown("<h1 style='text-align: center; color: black;'>The System Utilization Across Multiple Systems Charts</h1>", unsafe_allow_html=True)
 
                 col1, col2 = st.columns(2)
                 for idx, item in enumerate(selected_charts_list_suaro):
@@ -1129,7 +1129,7 @@ elif main_nav == "Job Failure Characteristics":
                 with st.expander("**Chart View Settings**", expanded=True):
                     jfd_check_box_view_side_by_side_jfc = st.checkbox("Select to view charts side by side")
                 with st.spinner(spinner_text):
-                    st.markdown("<h1 style='text-align: center; color: black;'>The Distribution Of Different Job Statuses</h1>", unsafe_allow_html=True)
+                    st.markdown("<h1 style='text-align: center; color: black;'>The Distribution Of Different Job Statuses Charts</h1>", unsafe_allow_html=True)
 
                     if jfd_check_box_view_side_by_side_jfc:
                         if len(jfd_chart_selected_list_jfc) >= 1:
