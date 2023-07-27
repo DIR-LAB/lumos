@@ -1355,7 +1355,7 @@ elif main_nav == "User Behavior Characteristics":
                 b = [0.6918350088912488, 0.8533482445948762, 0.921081711512026, 0.9533918131448507, 0.9710197995695022, 0.9810033596267114, 0.9872495542508333, 0.9916599140171835, 0.9944420135092896, 0.9964546220465884]
                 c = [0.28569096620357964, 0.4384045247520146, 0.545916628344075, 0.6263372405355048, 0.6897181499719287, 0.7429051624867624, 0.7877784887121456, 0.8257544812862695, 0.8583802658301265, 0.8858856158005057]
                 d = [0.3412589175944932, 0.5253771632298813, 0.6401852895114848, 0.7268169396811582, 0.7918618794877094, 0.8394237557838181, 0.8733033543091736, 0.9005927265133411, 0.9214560290971314, 0.9370205635505027]
-                colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728']
+                colors = []
                 x = []
                 urb_chart_titles_ubc = []
                 urb_x_axis_slice_end_value_ubc = urb_no_of_top_groups_per_user_slider_ubc
@@ -1364,15 +1364,19 @@ elif main_nav == "User Behavior Characteristics":
                     if "Blue Waters" == item:
                         x.append(a[:urb_x_axis_slice_end_value_ubc])
                         urb_chart_titles_ubc.append("Blue Waters")
+                        colors.append('#1f77b4')
                     elif "Mira" == item:
                         x.append(b[:urb_x_axis_slice_end_value_ubc])
                         urb_chart_titles_ubc.append("Mira")
+                        colors.append('#ff7f0e')
                     elif "Philly" == item:
                         x.append(c[:urb_x_axis_slice_end_value_ubc])
                         urb_chart_titles_ubc.append("Philly")
+                        colors.append('#2ca02c')
                     elif "Helios" == item:
                         x.append(d[:urb_x_axis_slice_end_value_ubc]) 
                         urb_chart_titles_ubc.append("Helios")
+                        colors.append('#d62728')
                     else:
                         pass
 
@@ -1469,6 +1473,7 @@ elif main_nav == "User Behavior Characteristics":
                     mean_run_time = [data["run_time"]]
                     selected_run_times = []
 
+
                     if side_by_side:
                         st.markdown(f"<h4 style='text-align: center;'>{chart_title}</h4>", unsafe_allow_html=True)
                     else:
@@ -1481,18 +1486,20 @@ elif main_nav == "User Behavior Characteristics":
                             selected_run_times.append(st0_run_time)
                         elif item == "Failed":
                             st1_run_time = [data.groupby([state])["run_time"].apply(list).get(status[idx],0)]
-                            selected_run_times.append(st1_run_time)
+                            selected_run_times.append(st1_run_time)   
                         elif item == "Killed":
                             st2_run_time = [data.groupby([state])["run_time"].apply(list).get(status[idx],0)]
                             selected_run_times.append(st2_run_time)
                         else:
                             pass
 
+
                     fig, axes = plt.subplots(1, 1, figsize=(4, 3))
 
                     for index, i in enumerate(zip(*selected_run_times)):
                         k = [np.log10(np.array(j)+1) for j in i]
                         seaborn.violinplot(data=k,ax=axes, scale="width")
+
                     ax = axes
                     ax.yaxis.set_major_formatter(mticker.StrMethodFormatter("$10^{{{x:.0f}}}$"))
 
@@ -1507,10 +1514,48 @@ elif main_nav == "User Behavior Characteristics":
                     ax.set_ylabel('Job Run time (s)', fontsize=20)
 
                 else:
-                    pass
+                    mean_run_time = [data.groupby(u)["run_time"].apply(list).loc[i] for i in rows]
+                    selected_run_times = []
+
+                    if side_by_side:
+                        st.markdown(f"<h4 style='text-align: center;'>{chart_title}</h4>", unsafe_allow_html=True)
+                    else:
+                        st.markdown(f"<h2 style='text-align: center;'>{chart_title}</h2>", unsafe_allow_html=True)
+
+                    for idx, item in enumerate(status):
+                        if item == "Pass":
+                            st0_run_time = [data.groupby([u, state])["run_time"].apply(list).loc[i].get(status[0],0) for i in rows]
+                            selected_run_times.append(st0_run_time)
+                        elif item == "Failed":
+                            st1_run_time = [data.groupby([u, state])["run_time"].apply(list).loc[i].get(status[1],0) for i in rows]
+                            selected_run_times.append(st1_run_time)
+                        elif item == "Killed":
+                            st2_run_time = [data.groupby([u, state])["run_time"].apply(list).loc[i].get(status[2],0) for i in rows]
+                            selected_run_times.append(st2_run_time)
+                        else:
+                            pass
+
+                    fig, axes = plt.subplots(1, 3, figsize=(12, 3))
+
+                    for index, i in enumerate(zip(*selected_run_times)):
+                        k = [np.log10(np.array(j)+1) for j in i]
+                        seaborn.violinplot(data=k,ax=axes[index%3], scale="width")
+
+                    for index, ax in enumerate(axes.flatten()):
+                        ax.yaxis.set_major_formatter(mticker.StrMethodFormatter("$10^{{{x:.0f}}}$"))
+                        ymin, ymax = ax.get_ylim()
+                        tick_range = np.arange(np.floor(ymin), ymax)
+                        ax.yaxis.set_ticks(tick_range, fontsize=20)
+                        ax.yaxis.set_ticks([np.log10(x) for p in tick_range for x in np.linspace(10 ** p, 10 ** (p + 1), 10)], minor=True,)
+                        ax.yaxis.grid(True)
+                        ax.set_xticks([y for y in range(status)])
+                        ax.set_xticklabels(status, fontsize=15)
+                        ax.set_xlabel('User '+str(index+1), fontsize=20)
+
+                        if index == 0:
+                            ax.set_ylabel('Job Run time (s)', fontsize=20)
                 
-                st.set_option('deprecation.showPyplotGlobalUse', False)
-                st.pyplot()
+                st.pyplot(fig)
 
             with st.spinner(spinner_text):
 
@@ -1555,7 +1600,6 @@ elif main_nav == "User Behavior Characteristics":
 
                 with st.expander("**Chart Description:**", expanded=True):
                     st.write("**The Median Runtime Of Different Types Of Jobs Charts:** ")
-
     else:
         pass
 else:
