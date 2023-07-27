@@ -1330,6 +1330,7 @@ elif main_nav == "User Behavior Characteristics":
                 urb_check_box_view_side_by_side_ubc = st.checkbox("Select to view charts side by side")
 
             with st.spinner(spinner_text):
+                st.markdown("<h2 style='text-align: center; color: black;'>The Resource-configuration group per user Charts</h2>", unsafe_allow_html=True)
 
                 def plot_123(a, color, chart_title, x_axis_value, y_axis_value):
                     fig, ax = plt.subplots()
@@ -1375,28 +1376,28 @@ elif main_nav == "User Behavior Characteristics":
                     else:
                         pass
 
-                    st.markdown("<h1 style='text-align: center; color: black;'>The Resource-Configuration Group Per User Charts</h1>", unsafe_allow_html=True)
-                    if urb_check_box_view_side_by_side_ubc:
+                if urb_check_box_view_side_by_side_ubc:
                         col1, col2 = st.columns(2)
                         for idx, item in enumerate(urb_chart_selected_list_ubc):
                             urb_col_logic_cal_ubc = col1 if idx % 2 == 0 else col2
                             if item == "Blue Waters":
                                 with urb_col_logic_cal_ubc:
-                                    plot_123(a[:urb_x_axis_slice_end_value_ubc], colors[0], "Blue Waters", urb_no_of_top_groups_per_user_slider_ubc, urb_percentage_slider_ubc)
+                                    plot_123(a, colors[0], "Blue Waters", urb_no_of_top_groups_per_user_slider_ubc, urb_percentage_slider_ubc)
                             elif item == "Mira":
                                 with urb_col_logic_cal_ubc:
-                                    plot_123(b[:urb_x_axis_slice_end_value_ubc], colors[1], "Mira", urb_no_of_top_groups_per_user_slider_ubc, urb_percentage_slider_ubc)
+                                    plot_123(b, colors[1], "Mira", urb_no_of_top_groups_per_user_slider_ubc, urb_percentage_slider_ubc)
                             elif item == "Philly":
                                 with urb_col_logic_cal_ubc:
-                                    plot_123(c[:urb_x_axis_slice_end_value_ubc], colors[2], "Philly", urb_no_of_top_groups_per_user_slider_ubc, urb_percentage_slider_ubc)
+                                    plot_123(c, colors[2], "Philly", urb_no_of_top_groups_per_user_slider_ubc, urb_percentage_slider_ubc)
                             elif item == "Helios":
                                 with urb_col_logic_cal_ubc:
-                                    plot_123(d[:urb_x_axis_slice_end_value_ubc], colors[3], "Helios", urb_no_of_top_groups_per_user_slider_ubc, urb_percentage_slider_ubc)
+                                    plot_123(d, colors[3], "Helios", urb_no_of_top_groups_per_user_slider_ubc, urb_percentage_slider_ubc)
                             else:
                                 pass          
-                    else:
-                        for i, j, z in zip(x, colors, urb_chart_titles_ubc):
-                            plot_123(i, j, z, urb_no_of_top_groups_per_user_slider_ubc, urb_percentage_slider_ubc)         
+                else:
+                    for i, j, z in zip(x, colors, urb_chart_titles_ubc):
+                        plot_123(i, j, z, urb_no_of_top_groups_per_user_slider_ubc, urb_percentage_slider_ubc)
+                    
 
                 with st.expander("**Chart Description:**", expanded=True):
                     st.write("**The Resource-Configuration Groups per User:** This chart visualizes the repeated job submission patterns based on resource configurations (number of nodes and run time). It shows that nearly 90% of all jobs fall within the top 10 largest groups of similar job configurations, indicating high repetition in user job submissions. Additionally, it compares repetition across different systems (Philly, Helios, Blue Waters, Mira), revealing less repeated patterns in deep learning workloads on Philly and Helios.")
@@ -1405,10 +1406,7 @@ elif main_nav == "User Behavior Characteristics":
 
     elif ubc_nav_bar == "Users’ Submission Behaviors":
         with st.expander("**Chart View Settings**", expanded=True):
-                usb_check_box_view_side_by_side_ubc = st.checkbox("Select to view charts side by side")
-
-        
-        
+                usb_check_box_view_side_by_side_ubc = st.checkbox("Select to view charts side by side") 
 
     elif ubc_nav_bar == "Correlation between Job Run Time and Job Statuses":
         cbjrtajs_chart_title_ubc = "Chart Selection Form"
@@ -1463,13 +1461,19 @@ elif main_nav == "User Behavior Characteristics":
                 cbjrtajs_check_box_view_side_by_side_ubc = st.checkbox("Select to view charts side by side")
                 
             #Function to plot the charts
-            def plot_attribute_per_ml(u, data, state="state", status=None ,all_user=False):
+            def plot_attribute_per_ml(u, data, state="state", status=None ,all_user=False, side_by_side = False, chart_title=None):
                 plt.style.use("default")
                 rows = list(data.groupby(u).sum().sort_values(by="node_hour", ascending=False).index[:3])
 
                 if all_user:
                     mean_run_time = [data["run_time"]]
                     selected_run_times = []
+
+                    if side_by_side:
+                        st.markdown(f"<h4 style='text-align: center;'>{chart_title}</h4>", unsafe_allow_html=True)
+                    else:
+                        st.markdown(f"<h2 style='text-align: center;'>{chart_title}</h2>", unsafe_allow_html=True)
+
 
                     for idx, item in enumerate(status):
                         if item == "Pass":
@@ -1489,9 +1493,7 @@ elif main_nav == "User Behavior Characteristics":
                     for index, i in enumerate(zip(*selected_run_times)):
                         k = [np.log10(np.array(j)+1) for j in i]
                         seaborn.violinplot(data=k,ax=axes, scale="width")
-                    
                     ax = axes
-                    
                     ax.yaxis.set_major_formatter(mticker.StrMethodFormatter("$10^{{{x:.0f}}}$"))
 
                     ymin, ymax = ax.get_ylim()
@@ -1520,34 +1522,34 @@ elif main_nav == "User Behavior Characteristics":
                             cbjrtajs_col_logic_cal_ubc = col1 if idx % 2 == 0 else col2
                             if item == "Blue Waters":
                                 with cbjrtajs_col_logic_cal_ubc:
-                                    st.markdown("<h4 style='text-align: center;'>Blue Waters</h4>", unsafe_allow_html=True)
-                                    plot_attribute_per_ml("user", data=bw_df, state="new_status", status=cbjrtajs_job_status_selected_list_ubc, all_user=True)
+                                    plot_attribute_per_ml("user", data=bw_df, state="new_status", status=cbjrtajs_job_status_selected_list_ubc, all_user=True, side_by_side = True, chart_title = "Blue Waters")
                             elif item == "Mira":
-                                 with cbjrtajs_col_logic_cal_ubc:
-                                    st.markdown("<h4 style='text-align: center;'>Mira</h4>", unsafe_allow_html=True)
-                                    plot_attribute_per_ml("user", data=mira_df_2, state="new_status", status=cbjrtajs_job_status_selected_list_ubc, all_user=True)
+                                with cbjrtajs_col_logic_cal_ubc:
+                                    plot_attribute_per_ml("user", data=mira_df_2, state="new_status", status=cbjrtajs_job_status_selected_list_ubc, all_user=True, side_by_side = True, chart_title = "Mira")
                             elif item == "Philly":
-                                 with cbjrtajs_col_logic_cal_ubc:
-                                    st.markdown("<h4 style='text-align: center;'>Philly</h4>", unsafe_allow_html=True)
-                                    plot_attribute_per_ml("user", data=philly_df, state="state", status=cbjrtajs_job_status_selected_list_ubc, all_user=True)
+                                with cbjrtajs_col_logic_cal_ubc:
+                                    plot_attribute_per_ml("user", data=philly_df, state="state", status=cbjrtajs_job_status_selected_list_ubc, all_user=True, side_by_side = True, chart_title = "Philly")
                             elif item == "Helios":
-                                 with cbjrtajs_col_logic_cal_ubc:
-                                    st.markdown("<h4 style='text-align: center;'>Helios</h4>", unsafe_allow_html=True)
-                                    plot_attribute_per_ml("user", data=hl_df, state="state", status=cbjrtajs_job_status_selected_list_ubc, all_user=True)
+                                with cbjrtajs_col_logic_cal_ubc:
+                                    plot_attribute_per_ml("user", data=hl_df, state="state", status=cbjrtajs_job_status_selected_list_ubc, all_user=True, side_by_side = True, chart_title = "Helios")
                             else:
                                 pass
+                            
                     else:
-                        st.markdown("<h2 style='text-align: center;'>Blue Waters</h2>", unsafe_allow_html=True)
-                        plot_attribute_per_ml("user", data=bw_df, state="new_status", status=cbjrtajs_job_status_selected_list_ubc, all_user=True)
-
-                        st.markdown("<h2 style='text-align: center;'>Mira</h2>", unsafe_allow_html=True)
-                        plot_attribute_per_ml("user", data=mira_df_2, state="new_status", status=cbjrtajs_job_status_selected_list_ubc, all_user=True)
-
-                        st.markdown("<h2 style='text-align: center;'>Philly</h2>", unsafe_allow_html=True)
-                        plot_attribute_per_ml("user", data=philly_df, state="state", status=cbjrtajs_job_status_selected_list_ubc, all_user=True)
-
-                        st.markdown("<h2 style='text-align: center;'>Helios</h2>", unsafe_allow_html=True)
-                        plot_attribute_per_ml("user", data=hl_df, state="state", status=cbjrtajs_job_status_selected_list_ubc, all_user=True)
+                        for item in cbjrtajs_chart_selected_list_ubc:
+                            if item == "Blue Waters":
+                                plot_attribute_per_ml("user", data=bw_df, state="new_status", status=cbjrtajs_job_status_selected_list_ubc, all_user=True, side_by_side = False, chart_title = "Blue Waters")
+                            
+                            elif item == "Mira":
+                                plot_attribute_per_ml("user", data=mira_df_2, state="new_status", status=cbjrtajs_job_status_selected_list_ubc, all_user=True, side_by_side = False, chart_title = "Mira")
+                            
+                            elif item == "Philly":
+                                plot_attribute_per_ml("user", data=philly_df, state="state", status=cbjrtajs_job_status_selected_list_ubc, all_user=True, side_by_side = False, chart_title = "Philly")
+                            
+                            elif item == "Helios":
+                                plot_attribute_per_ml("user", data=hl_df, state="state", status=cbjrtajs_job_status_selected_list_ubc, all_user=True, side_by_side = False, chart_title = "Helios")
+                            else:
+                                pass
                 else:
                     st.write("## Please select one or more job status(es) from the sidebar to plot the chart(s)")
 
