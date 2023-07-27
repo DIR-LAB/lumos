@@ -1484,12 +1484,11 @@ elif main_nav == "User Behavior Characteristics":
             with st.expander(f"**{chart_view_settings_title}**", expanded=True):
                     usb_check_box_view_side_by_side_ubc = st.checkbox("Select to view charts side by side") 
                     
-            #Graph code
+            #Alex Graph Code Here
             
             
             with st.expander(f"**{chart_description_expander_title}**", expanded=True):
                     st.write("**The Median Runtime Of Different Types Of Jobs Charts:** ")
-            
             
 
     elif ubc_nav_bar == "Correlation between Job Run Time and Job Statuses":
@@ -1501,6 +1500,10 @@ elif main_nav == "User Behavior Characteristics":
         cbjrtajs_chart_selected_list_ubc = cbjrtajs_chart_selection_options_ubc.copy()
         cbjrtajs_job_status_list_ubc = ["Pass", "Failed", "Killed"]
         cbjrtajs_job_status_selected_list_ubc = cbjrtajs_job_status_list_ubc.copy()
+        
+        #Y-axis min and max 
+        cbjrtajs_min_value_exp_run_time_slider_ubc = 0
+        cbjrtajs_max_value_exp_run_time_slider_ubc = 6 
 
         with st.form("cbjrtajs_chart_selection_form_ubc"):
             st.write(f"### **{chart_selection_form_title}**")
@@ -1531,7 +1534,10 @@ elif main_nav == "User Behavior Characteristics":
 
             with st.sidebar.form("cbjrtajs_sidebar_form_ubc"):
                 st.write("### Alter the following settings to customize the selected chart(s):")
-                cbjrtajs_percentage_slider_ubc = st.slider("**Adjust Job Run Time (in powers of 10) (Y-axis):**", min_value=0, max_value=6, value=6, step=1)
+                
+                cbjrtajs_percentage_slider_ubc = st.slider("**Adjust Job Run Time (in powers of 10) (Y-axis):**", min_value=cbjrtajs_min_value_exp_run_time_slider_ubc, max_value=cbjrtajs_max_value_exp_run_time_slider_ubc, value=6, step=1)
+                cbjrtajs_percentage_slider_value_ubc = int(10**cbjrtajs_percentage_slider_ubc)
+                
                 with st.expander("**Select Job Status(es) (X-axis)**", expanded=True):
                     for item in cbjrtajs_job_status_list_ubc:
                         cbjrtajs_job_status_checkbox_ubc = st.checkbox(item, True)
@@ -1663,14 +1669,11 @@ elif main_nav == "User Behavior Characteristics":
                     else:
                         for item in cbjrtajs_chart_selected_list_ubc:
                             if item == "Blue Waters":
-                                plot_attribute_per_ml("user", data=bw_df, state="new_status", status=cbjrtajs_job_status_selected_list_ubc, all_user=True, side_by_side = False, chart_title = "Blue Waters")
-                            
+                                plot_attribute_per_ml("user", data=bw_df, state="new_status", status=cbjrtajs_job_status_selected_list_ubc, all_user=True, side_by_side = False, chart_title = "Blue Waters")                          
                             elif item == "Mira":
-                                plot_attribute_per_ml("user", data=mira_df_2, state="new_status", status=cbjrtajs_job_status_selected_list_ubc, all_user=True, side_by_side = False, chart_title = "Mira")
-                            
+                                plot_attribute_per_ml("user", data=mira_df_2, state="new_status", status=cbjrtajs_job_status_selected_list_ubc, all_user=True, side_by_side = False, chart_title = "Mira")                        
                             elif item == "Philly":
-                                plot_attribute_per_ml("user", data=philly_df, state="state", status=cbjrtajs_job_status_selected_list_ubc, all_user=True, side_by_side = False, chart_title = "Philly")
-                            
+                                plot_attribute_per_ml("user", data=philly_df, state="state", status=cbjrtajs_job_status_selected_list_ubc, all_user=True, side_by_side = False, chart_title = "Philly")                      
                             elif item == "Helios":
                                 plot_attribute_per_ml("user", data=hl_df, state="state", status=cbjrtajs_job_status_selected_list_ubc, all_user=True, side_by_side = False, chart_title = "Helios")
                             else:
