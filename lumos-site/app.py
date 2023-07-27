@@ -1462,89 +1462,54 @@ elif main_nav == "User Behavior Characteristics":
             with st.expander("**Chart View Settings**", expanded=True):
                 cbjrtajs_check_box_view_side_by_side_ubc = st.checkbox("Select to view charts side by side")
                 
-            # Function to plot charts
-            def analyze_attribute_per(u, data):
-                rows = list(data.groupby(u).count().sort_values(by="job", ascending=False).index[:10])
-                job_counts = list(data.groupby(u).count().sort_values(by="job", ascending=False)["job"][:10])
-                sum_of_node_hour = [data.groupby(u).sum()["node_hour"].loc[i]//3600 for i in rows]
-                mean_nodes = [data.groupby(u).mean()["node_num"].loc[i] for i in rows]
-                mean_run_time = [data.groupby(u).mean()["run_time"].loc[i] for i in rows]
-                temp_df = pd.DataFrame(list(zip(rows, job_counts, sum_of_node_hour, mean_nodes, mean_run_time)),
-                                    columns=[u, "job_count", "sum_of_node_hour", "mean_nodes", "mean_run_time"])
-                return temp_df
-
-            def analyze_attribute_per_ml(u, data, status=["Pass","Failed","Killed"]):
-                rows = list(data.groupby(u).count().sort_values(by="job", ascending=False).index[:10])
-                job_counts = list(data.groupby(u).count().sort_values(by="job", ascending=False)["job"][:10])
-                sum_of_node_hour = [data.groupby(u).sum()["node_hour"].loc[i]//3600 for i in rows]
-                mean_nodes = [data.groupby(u).mean()["node_num"].loc[i] for i in rows]
-                mean_run_time = [data.groupby(u).mean()["run_time"].loc[i] for i in rows]
-                st0_run_time = [data.groupby([u, "state"]).mean()["run_time"].loc[i].get(status[0],0) for i in rows]
-                st1_run_time = [data.groupby([u, "state"]).mean()["run_time"].loc[i].get(status[1],0) for i in rows]
-                st2_run_time = [data.groupby([u, "state"]).mean()["run_time"].loc[i].get(status[2],0) for i in rows]
-
-                temp_df = pd.DataFrame(list(zip(rows, job_counts, sum_of_node_hour, mean_nodes, mean_run_time, st0_run_time,
-                                            st1_run_time, st2_run_time )),
-                                    columns=[u, "job_count", "sum_of_node_hour", "mean_nodes", "mean_run_time", 
-                                                "mean_run_time ({})".format(status[0]),
-                                            "mean_run_time ({})".format(status[1]),
-                                            "mean_run_time ({})".format(status[2])])
-                return temp_df
-
-            def plot_attribute_per_ml(u, data, state="state", status=["Pass","Failed","Killed"],all_user=False):
+            #Function to plot the charts
+            def plot_attribute_per_ml(u, data, state="state", status=None ,all_user=False):
                 plt.style.use("default")
                 rows = list(data.groupby(u).sum().sort_values(by="node_hour", ascending=False).index[:3])
 
                 if all_user:
                     mean_run_time = [data["run_time"]]
-                    st0_run_time = [data.groupby([state])["run_time"].apply(list).get(status[0],0)]
-                    st1_run_time = [data.groupby([state])["run_time"].apply(list).get(status[1],0)]
-                    st2_run_time = [data.groupby([state])["run_time"].apply(list).get(status[2],0)]
+                    selected_run_times = []
+
+                    for idx, item in enumerate(status):
+                        if item == "Pass":
+                            st0_run_time = [data.groupby([state])["run_time"].apply(list).get(status[idx],0)]
+                            selected_run_times.append(st0_run_time)
+                        elif item == "Failed":
+                            st1_run_time = [data.groupby([state])["run_time"].apply(list).get(status[idx],0)]
+                            selected_run_times.append(st1_run_time)
+                        elif item == "Killed":
+                            st2_run_time = [data.groupby([state])["run_time"].apply(list).get(status[idx],0)]
+                            selected_run_times.append(st2_run_time)
+                        else:
+                            pass
+
                     fig, axes = plt.subplots(1, 1, figsize=(4, 3))
 
-                    for index, i in enumerate(zip(st0_run_time, st1_run_time, st2_run_time)):
+                    for index, i in enumerate(zip(*selected_run_times)):
                         k = [np.log10(np.array(j)+1) for j in i]
                         seaborn.violinplot(data=k,ax=axes, scale="width")
                     
                     ax = axes
+                    
                     ax.yaxis.set_major_formatter(mticker.StrMethodFormatter("$10^{{{x:.0f}}}$"))
+
                     ymin, ymax = ax.get_ylim()
                     tick_range = np.arange(np.floor(ymin), ymax)
                     ax.yaxis.set_ticks(tick_range)
                     ax.yaxis.set_ticks([np.log10(x) for p in tick_range for x in np.linspace(10 ** p, 10 ** (p + 1), 10)], minor=True)
                     ax.yaxis.grid(True)
-                    ax.set_xticks([y for y in range(3)])
-                    ax.set_xticklabels([ "Pass", "Failed", "Killed"], fontsize=24)
+
+                    ax.set_xticks([y for y in range(len(status))])
+                    ax.set_xticklabels(status, fontsize=24)
                     ax.set_ylabel('Job Run time (s)', fontsize=20)
 
                 else:
-                    mean_run_time = [data.groupby(u)["run_time"].apply(list).loc[i] for i in rows]
-                    st0_run_time = [data.groupby([u, state])["run_time"].apply(list).loc[i].get(status[0],0) for i in rows]
-                    st1_run_time = [data.groupby([u, state])["run_time"].apply(list).loc[i].get(status[1],0) for i in rows]
-                    st2_run_time = [data.groupby([u, state])["run_time"].apply(list).loc[i].get(status[2],0) for i in rows]
-                    fig, axes = plt.subplots(1, 3, figsize=(12, 3))
-
-                    for index, i in enumerate(zip(st0_run_time, st1_run_time, st2_run_time)):
-                        k = [np.log10(np.array(j)+1) for j in i]
-                        seaborn.violinplot(data=k,ax=axes[index%3], scale="width")
-                    for index, ax in enumerate(axes.flatten()):
-                        ax.yaxis.set_major_formatter(mticker.StrMethodFormatter("$10^{{{x:.0f}}}$"))
-                        ymin, ymax = ax.get_ylim()
-                        tick_range = np.arange(np.floor(ymin), ymax)
-                        ax.yaxis.set_ticks(tick_range, fontsize=20)
-                        ax.yaxis.set_ticks([np.log10(x) for p in tick_range for x in np.linspace(10 ** p, 10 ** (p + 1), 10)], minor=True,)
-                        ax.yaxis.grid(True)
-                        ax.set_xticks([y for y in range(3)])
-                        ax.set_xticklabels([ "Pass", "Failed", "Killed"], fontsize=15)
-                        ax.set_xlabel('User '+str(index+1), fontsize=20)
-
-                        if index == 0:
-                            ax.set_ylabel('Job Run time (s)', fontsize=20)
+                    pass
                 
                 st.set_option('deprecation.showPyplotGlobalUse', False)
                 st.pyplot()
-            
-            
+
             with st.spinner(spinner_text):
 
                 if len(cbjrtajs_job_status_selected_list_ubc) >= 1:
@@ -1556,33 +1521,33 @@ elif main_nav == "User Behavior Characteristics":
                             if item == "Blue Waters":
                                 with cbjrtajs_col_logic_cal_ubc:
                                     st.markdown("<h4 style='text-align: center;'>Blue Waters</h4>", unsafe_allow_html=True)
-                                    plot_attribute_per_ml("user", data=bw_df, state="new_status", all_user=True)
+                                    plot_attribute_per_ml("user", data=bw_df, state="new_status", status=cbjrtajs_job_status_selected_list_ubc, all_user=True)
                             elif item == "Mira":
                                  with cbjrtajs_col_logic_cal_ubc:
                                     st.markdown("<h4 style='text-align: center;'>Mira</h4>", unsafe_allow_html=True)
-                                    plot_attribute_per_ml("user", data=mira_df_2, state="new_status", all_user=True)
+                                    plot_attribute_per_ml("user", data=mira_df_2, state="new_status", status=cbjrtajs_job_status_selected_list_ubc, all_user=True)
                             elif item == "Philly":
                                  with cbjrtajs_col_logic_cal_ubc:
                                     st.markdown("<h4 style='text-align: center;'>Philly</h4>", unsafe_allow_html=True)
-                                    plot_attribute_per_ml("user", data=philly_df, state="state", all_user=True)
+                                    plot_attribute_per_ml("user", data=philly_df, state="state", status=cbjrtajs_job_status_selected_list_ubc, all_user=True)
                             elif item == "Helios":
                                  with cbjrtajs_col_logic_cal_ubc:
                                     st.markdown("<h4 style='text-align: center;'>Helios</h4>", unsafe_allow_html=True)
-                                    plot_attribute_per_ml("user", data=hl_df, state="state", all_user=True)
+                                    plot_attribute_per_ml("user", data=hl_df, state="state", status=cbjrtajs_job_status_selected_list_ubc, all_user=True)
                             else:
                                 pass
                     else:
                         st.markdown("<h2 style='text-align: center;'>Blue Waters</h2>", unsafe_allow_html=True)
-                        plot_attribute_per_ml("user", data=bw_df, state="new_status", all_user=True)
+                        plot_attribute_per_ml("user", data=bw_df, state="new_status", status=cbjrtajs_job_status_selected_list_ubc, all_user=True)
 
                         st.markdown("<h2 style='text-align: center;'>Mira</h2>", unsafe_allow_html=True)
-                        plot_attribute_per_ml("user", data=mira_df_2, state="new_status", all_user=True)
+                        plot_attribute_per_ml("user", data=mira_df_2, state="new_status", status=cbjrtajs_job_status_selected_list_ubc, all_user=True)
 
                         st.markdown("<h2 style='text-align: center;'>Philly</h2>", unsafe_allow_html=True)
-                        plot_attribute_per_ml("user", data=philly_df, state="state", all_user=True)
+                        plot_attribute_per_ml("user", data=philly_df, state="state", status=cbjrtajs_job_status_selected_list_ubc, all_user=True)
 
                         st.markdown("<h2 style='text-align: center;'>Helios</h2>", unsafe_allow_html=True)
-                        plot_attribute_per_ml("user", data=hl_df, state="state", all_user=True)
+                        plot_attribute_per_ml("user", data=hl_df, state="state", status=cbjrtajs_job_status_selected_list_ubc, all_user=True)
                 else:
                     st.write("## Please select one or more job status(es) from the sidebar to plot the chart(s)")
 
