@@ -49,7 +49,7 @@ styles = {
 #Common title, button, and loading text variables
 chart_selection_form_title = "Chart Selection Form"
 # chart_checkbox_highlight_text_jfc = "To view anyone of the charts' enlarged, ensure only that chart option is selected below and then click 'Load Charts'."
-chart_selection_form_load_charts_text = "Select/Deselect options below and then click 'Load Charts' to apply your changes."
+chart_selection_form_load_charts_text = "Select/Deselect charts below and then click 'Load Charts' to apply your changes."
 chart_side_by_side_checkbox_highlight_text = "Select one or more charts in 'Chart Selection Form' above to view charts side by side"
 
 spinner_text = "In progress...., Please do not change any settings now"
@@ -60,7 +60,7 @@ main_nav = option_menu(options=["Job Geometric Characteristics", "Job Failure Ch
                                  styles=styles, orientation="horizontal", menu_icon="bi-segmented-nav")
 
 if main_nav == "Job Geometric Characteristics":
-    nav_bar_horizontal = option_menu("Job Geometric Characteristics Model Selection Bar",
+    nav_bar_horizontal = option_menu("Job Geometric: Pick a model to load related charts",
      ["Job Run Time", "Job Arrival Pattern", "Sys Util & Res Occu", "Job Waiting Time"],
      default_index=0, orientation="vertical", menu_icon="bi-list")
 
@@ -945,7 +945,7 @@ if main_nav == "Job Geometric Characteristics":
         st.write("Please select a section from the navigation bar.")
 
 elif main_nav == "Job Failure Characteristics":
-    nav_bar_jfc = option_menu("Job Failure Characteristics Models", ["Job Failures Distribution", "Correlation between Job Failure and Job Geometries"], 
+    nav_bar_jfc = option_menu("Job Failure: Pick a model to load related charts", ["Job Failures Distribution", "Correlation between Job Failure and Job Geometries"], 
     default_index=0, orientation="vertical", menu_icon="bi-list")
     system_models_jfc = ["Blue Waters", "Mira", "Philly", "Helios"]
 
@@ -1282,7 +1282,7 @@ elif main_nav == "Job Failure Characteristics":
                 st.write("## Please select one or more job status(es) and system model(s) from the sidebar to plot the chart")
 
 elif main_nav == "User Behavior Characteristics":
-    ubc_nav_bar = option_menu("User Behavior Characteristics", ["Users’ Repeated Behaviors", "Users’ Submission Behaviors", "Correlation between Job Run Time and Job Statuses"], 
+    ubc_nav_bar = option_menu("User Behavior: Pick a model to load related charts", ["Users’ Repeated Behaviors", "Users’ Submission Behaviors", "Correlation between Job Run Time and Job Statuses"], 
     default_index=0, orientation="vertical", menu_icon="bi-list")
 
     if ubc_nav_bar == "Users’ Repeated Behaviors":
@@ -1409,8 +1409,64 @@ elif main_nav == "User Behavior Characteristics":
             pass
 
     elif ubc_nav_bar == "Users’ Submission Behaviors":
-        with st.expander("**Chart View Settings**", expanded=True):
-                usb_check_box_view_side_by_side_ubc = st.checkbox("Select to view charts side by side") 
+        usb_chart_title_ubc = "Chart Selection Form"
+        usb_chart_checkbox_title_ubc = "Select one or more charts"
+        usb_chart_selection_left_col_options_ubc = ["Blue Waters", "Mira"]
+        usb_chart_selection_right_col_options_ubc = ["Philly", "Helios"]
+        usb_chart_selection_options_ubc = usb_chart_selection_left_col_options_ubc + usb_chart_selection_right_col_options_ubc
+        usb_chart_selected_list_ubc = usb_chart_selection_options_ubc.copy()
+        usb_job_size_list_ubc = ["Short Queue", "Middle Queue", "Long Queue"]
+        usb_job_size_selected_list_ubc = usb_job_size_list_ubc.copy()
+
+        with st.form("usb_chart_selection_form_ubc"):
+            st.write(f"### **{chart_selection_form_title}**")
+            st.write(f'**{chart_selection_form_load_charts_text}**')
+            col1, col2 = st.columns(2)
+            with col1 :
+                for item in usb_chart_selection_left_col_options_ubc:
+                    usb_chart_selection_check_box_left_option_ubc = st.checkbox(item, True)
+                    if not usb_chart_selection_check_box_left_option_ubc:
+                        usb_chart_selected_list_ubc.remove(item)
+            with col2:
+                for item2 in usb_chart_selection_right_col_options_ubc:
+                    usb_chart_selection_check_box_right_option_ubc = st.checkbox(item2, True)
+                    if not usb_chart_selection_check_box_right_option_ubc:
+                        usb_chart_selected_list_ubc.remove(item2)
+            usb_chart_selection_check_box_submission_button_ubc = st.form_submit_button("Load Charts")
+
+            if usb_chart_selection_check_box_submission_button_ubc:
+                if len(usb_chart_selected_list_ubc) >= 1:
+                    st.write(f"**You Have Selected:** {usb_chart_selected_list_ubc}")
+                else:
+                    st.markdown("<h5 style='color: red'>Please select one or more charts options above and then click 'Load Charts'</h5>", unsafe_allow_html=True)
+            else:
+                pass
+
+        if len(usb_chart_selected_list_ubc) >= 1:
+            st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
+
+            with st.sidebar.form("usb_sidebar_form_ubc"):
+                st.write("### Alter the following settings to customize the chart(s):")
+                usb_percentage_slider_ubc = st.slider("**Adjust Percentage (%) (Y-axis):**", min_value=0, max_value=100, value=100, step=20)
+                with st.expander("**Select Job Size(s) (X-axis)**", expanded=True):
+                    for item in usb_job_size_list_ubc:
+                        usb_job_size_checkbox_ubc = st.checkbox(item, True)
+                        if not usb_job_size_checkbox_ubc:
+                            usb_job_size_selected_list_ubc.remove(item)
+                        else:
+                            pass
+                usb_submit_parameters_button_ubc = st.form_submit_button("Apply Changes")
+
+            with st.expander("**Chart View Settings**", expanded=True):
+                    usb_check_box_view_side_by_side_ubc = st.checkbox("Select to view charts side by side") 
+                    
+            #Graph code
+            
+            
+            with st.expander("**Chart Description:**", expanded=True):
+                    st.write("**The Median Runtime Of Different Types Of Jobs Charts:** ")
+            
+            
 
     elif ubc_nav_bar == "Correlation between Job Run Time and Job Statuses":
         cbjrtajs_chart_title_ubc = "Chart Selection Form"
