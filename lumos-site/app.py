@@ -47,10 +47,12 @@ styles = {
 }
 
 #Common title, button, and loading text variables
-chart_selection_form_title = "Chart Selection Form"
-# chart_checkbox_highlight_text_jfc = "To view anyone of the charts' enlarged, ensure only that chart option is selected below and then click 'Load Charts'."
+chart_selection_form_title = "Charts Selection Form"
 chart_selection_form_load_charts_text = "Select/Deselect charts below and then click 'Load Charts' to apply your changes."
 chart_side_by_side_checkbox_highlight_text = "Select one or more charts in 'Chart Selection Form' above to view charts side by side"
+chart_description_expander_title = "Charts Description"
+chart_view_settings_title = "Charts View Settings"
+
 
 spinner_text = "In progress...., Please do not change any settings now"
 
@@ -543,23 +545,24 @@ if main_nav == "Job Geometric Characteristics":
 
     # System Utilization and Resource Occupation page
     elif nav_bar_horizontal == "Sys Util & Res Occu":
-        select_cpu_gpu_radio_suaro = None
-        select_cpu_radio_suaro = None
-        select_gpu_radio_suaro = None
-        chart_options_suaro = ["Blue Waters CPU", "Mira CPU", "Blue Waters GPU", 
+        suaro_cpu_chart_options_jgc = ["Blue Waters CPU", "Mira CPU"]
+        suaro_gpu_chart_options_jgc = ["Blue Waters GPU", 
                     "Philly GPU", "Helios GPU", "Philly GPU-SchedGym"]
-        cpu_chart_options_suaro = ["Blue Waters CPU", "Mira CPU"]
-        gpu_chart_options_suaro = ["Blue Waters GPU", 
-                    "Philly GPU", "Helios GPU", "Philly GPU-SchedGym"]
-        selected_charts_list_suaro = []
+        suaro_chart_options_jgc = suaro_cpu_chart_options_jgc + suaro_gpu_chart_options_jgc
+        suaro_selected_charts_list_jgc = suaro_chart_options_jgc.copy()
 
-        def plot_util(data, total_nodes, key="node_num", color='b'):
+        def plot_util_jgc(data, total_nodes, key="node_num", color='b', side_by_side=False, chart_title=None):
             data = data.copy()
             start_time = data["submit_time"].min()
             end_time = data["submit_time"].max()
             duration = end_time - start_time
             days = int(duration/(86400))
             days_usage = np.zeros(days)
+            
+            if side_by_side:
+                st.markdown(f"<h4 style='text-align: center;'>{chart_title}</h4>", unsafe_allow_html=True)
+            else:
+                st.markdown(f"<h2 style='text-align: center;'>{chart_title}</h2>", unsafe_allow_html=True)
 
             data["start_time"] = data["submit_time"] + data["wait_time"] - start_time
             data["end_time"] = data["start_time"] + data["run_time"]
@@ -575,8 +578,8 @@ if main_nav == "Job Geometric Characteristics":
 
             plt.bar(range(len(days_usage)), 100 * days_usage / (total_nodes * 86400), color=color)
             plt.plot([-10, 150], [80] * 2, color="black", linestyle="--")
-            plt.ylim(0, sys_utilization_slider_suaro)
-            plt.xlim(0, time_slider_suaro)
+            plt.ylim(0, suaro_sys_utilization_slider_jgc)
+            plt.xlim(0, suaro_time_slider_jgc)
             plt.xticks(fontsize=20)
             plt.yticks(fontsize=20)
             st.set_option('deprecation.showPyplotGlobalUse', False)
@@ -584,77 +587,96 @@ if main_nav == "Job Geometric Characteristics":
             plt.ylabel("System Utilization(%)", fontsize=26)
             st.pyplot()
 
-        with st.form("select_charts_checkbox_main_form_suaro"): 
-            st.write("### Please select one or more option(s) below to view there charts")
+        with st.form("suaro_select_charts_checkbox_main_form_jgc"): 
+            st.write(f"### **{chart_selection_form_title}**")
+            st.write(f'**{chart_selection_form_load_charts_text}**')
             col1, col2 = st.columns(2)
             with col1:
                 st.markdown('<h4 style="text-align: center;">CPU Charts</h4>', unsafe_allow_html=True)
-                for item in cpu_chart_options_suaro:
-                    chart_selected_suaro = st.checkbox(item)
-                    if chart_selected_suaro:
-                        selected_charts_list_suaro.append(item)
+                for item in suaro_cpu_chart_options_jgc:
+                    suaro_chart_selected_jgc = st.checkbox(item, True)
+                    if not suaro_chart_selected_jgc:
+                        suaro_selected_charts_list_jgc.remove(item)
             with col2:
                 st.markdown('<h4 style="text-align: center;">GPU Charts</h4>', unsafe_allow_html=True)
-                for item in gpu_chart_options_suaro:
-                    chart_selected_suaro = st.checkbox(item)
-                    if chart_selected_suaro:
-                        selected_charts_list_suaro.append(item)
-            select_charts_checkbox_main_form_button_suaro = st.form_submit_button("Load Charts")
-            if select_charts_checkbox_main_form_button_suaro:
-                if len(selected_charts_list_suaro) >= 1:
-                    st.write(f'**You have selected:** {selected_charts_list_suaro}')
+                for item in suaro_gpu_chart_options_jgc:
+                    suaro_chart_selected_jgc = st.checkbox(item, True)
+                    if not suaro_chart_selected_jgc:
+                        suaro_selected_charts_list_jgc.remove(item)
+                        
+            suaro_select_charts_checkbox_main_form_button_jgc = st.form_submit_button("Load Charts")
+            
+            if suaro_select_charts_checkbox_main_form_button_jgc:
+                if len(suaro_selected_charts_list_jgc) >= 1:
+                    st.write(f'**You have selected:** {suaro_selected_charts_list_jgc}')
                 else:
                     st.markdown("<h5 style='color: red;'>You have not selected any chart options above, please select one or more chart option(s) to load the charts.</h5>", unsafe_allow_html=True)
             else: 
                 pass
 
-        if len(selected_charts_list_suaro) >= 1:
+        if len(suaro_selected_charts_list_jgc) >= 1:
             st.sidebar.markdown("<h1 style='text-align: center;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
-            with st.sidebar.form("sidebar_form_suaro"):
+            
+            with st.sidebar.form("suaro_sidebar_form_jgc"):
                 st.write("### Alter the following settings to customize the selected chart(s):")
-                sys_utilization_slider_suaro = st.slider("**Adjust System Utilization Range (Y-axis):**", min_value = 0, max_value=100, value=100, step=10)
-                time_slider_suaro = st.slider("**Adjust Time Range (X-axis):**", min_value=0, max_value=120, value=120, step=10)
-                submit_button_sidebar_suaro = st.form_submit_button("Apply Changes")
-                if submit_button_sidebar_suaro:
-                    if len(selected_charts_list_suaro) < 1:
+                suaro_sys_utilization_slider_jgc = st.slider("**Adjust System Utilization Range (Y-axis):**", min_value = 0, max_value=100, value=100, step=10)
+                suaro_time_slider_jgc = st.slider("**Adjust Time Range (X-axis):**", min_value=0, max_value=120, value=120, step=10)
+                suaro_submit_button_sidebar_jgc = st.form_submit_button("Apply Changes")
+                if suaro_submit_button_sidebar_jgc:
+                    if len(suaro_selected_charts_list_jgc) < 1:
                         st.markdown("<h5 style='color: red;'>Please select one or more chart option(s) from the menu in the main screen to load the charts.</h5>", unsafe_allow_html=True)
                     else:
                         pass
-        else:
-            pass
+                    
+            with st.expander(f"**{chart_view_settings_title}**", expanded=True):
+                    suaro_check_box_view_side_by_side_jgc = st.checkbox("Select to view charts side by side")
 
-        with st.spinner("In Progess... Please do not change any settings now"):
+            with st.spinner("In Progess... Please do not change any settings now"):
                 st.markdown("<h1 style='text-align: center; color: black;'>The System Utilization Across Multiple Systems Charts</h1>", unsafe_allow_html=True)
-
-                col1, col2 = st.columns(2)
-                for idx, item in enumerate(selected_charts_list_suaro):
-                    col_logic_cal_suaro = col1 if idx % 2 == 0 else col2
-                    if item == "Blue Waters CPU":
-                        with col_logic_cal_suaro:
-                            st.markdown("<h4 style='text-align: center;'>Blue Waters CPU Chart</h4>", unsafe_allow_html=True)
-                            plot_util(bw_df[1000:], 22636*32, "cpu_num", color="#1f77b4")  
-                    elif item == "Mira CPU":
-                        with col_logic_cal_suaro:
-                            st.markdown("<h4 style='text-align: center;'>Mira CPU Chart</h4>", unsafe_allow_html=True)
-                            plot_util(mira_df_2, 49152, color='#ff7f0e')
-                    elif item == "Blue Waters GPU":
-                        with col_logic_cal_suaro:
-                            st.markdown("<h4 style='text-align: center;'>Blue Waters GPU Chart</h4>", unsafe_allow_html=True)
-                            plot_util(bw_df[1000:], 4228, "gpu_num", color="#1f77b4")
-                    elif item == "Philly GPU":
-                        with col_logic_cal_suaro:
-                            st.markdown("<h4 style='text-align: center;'>Philly GPU Chart</h4>", unsafe_allow_html=True)
-                            plot_util(philly_df, 2490, "gpu_num", color='#2ca02c')
-                    elif item == "Helios GPU":
-                        with col_logic_cal_suaro:
-                            st.markdown("<h4 style='text-align: center;'>Helios GPU Chart</h4>", unsafe_allow_html=True)
-                            plot_util(hl_df, 1080, "gpu_num")
-                    elif item == "Philly GPU-SchedGym":
-                        with col_logic_cal_suaro:
-                            st.markdown("<h4 style='text-align: center;'>Philly GPU-SchedGym Chart</h4>", unsafe_allow_html=True)
-                            plot_util(philly_gpu_schedule_df, 2490, "gpu_num", color='#9467bd')
-                    else:
-                        pass
+                
+                if suaro_check_box_view_side_by_side_jgc:          
+                    col1, col2 = st.columns(2)
+                    for idx, item in enumerate(suaro_selected_charts_list_jgc):
+                        suaro_col_logic_cal_jgc = col1 if idx % 2 == 0 else col2
+                        if item == "Blue Waters CPU":
+                            with suaro_col_logic_cal_jgc:
+                                plot_util_jgc(bw_df[1000:], 22636*32, "cpu_num", color="#1f77b4", side_by_side=True, chart_title="Blue Waters CPU Chart")  
+                        elif item == "Mira CPU":
+                            with suaro_col_logic_cal_jgc:
+                                plot_util_jgc(mira_df_2, 49152, color='#ff7f0e', side_by_side=True, chart_title="Mira CPU Chart")
+                        elif item == "Blue Waters GPU":
+                            with suaro_col_logic_cal_jgc:
+                                plot_util_jgc(bw_df[1000:], 4228, "gpu_num", color="#1f77b4", side_by_side=True, chart_title="Blue Waters GPU Chart")
+                        elif item == "Philly GPU":
+                            with suaro_col_logic_cal_jgc:
+                                plot_util_jgc(philly_df, 2490, "gpu_num", color='#2ca02c', side_by_side=True, chart_title="Philly GPU Chart")
+                        elif item == "Helios GPU":
+                            with suaro_col_logic_cal_jgc:
+                                plot_util_jgc(hl_df, 1080, "gpu_num", side_by_side=True, chart_title="Helios GPU Chart")
+                        elif item == "Philly GPU-SchedGym":
+                            with suaro_col_logic_cal_jgc:
+                                plot_util_jgc(philly_gpu_schedule_df, 2490, "gpu_num", color='#9467bd', side_by_side=True, chart_title="Philly GPU-SchedGym Chart")
+                        else:
+                            pass
+                else:
+                    for item in suaro_selected_charts_list_jgc:
+                        if item == "Blue Waters CPU":
+                            plot_util_jgc(bw_df[1000:], 22636*32, "cpu_num", color="#1f77b4", side_by_side=False, chart_title="Blue Waters CPU Chart")  
+                        elif item == "Mira CPU":
+                            plot_util_jgc(mira_df_2, 49152, color='#ff7f0e', side_by_side=False, chart_title="Mira CPU Chart")
+                        elif item == "Blue Waters GPU":
+                            plot_util_jgc(bw_df[1000:], 4228, "gpu_num", color="#1f77b4", side_by_side=False, chart_title="Blue Waters GPU Chart")
+                        elif item == "Philly GPU":
+                            plot_util_jgc(philly_df, 2490, "gpu_num", color='#2ca02c', side_by_side=False, chart_title="Philly GPU Chart")
+                        elif item == "Helios GPU":
+                            plot_util_jgc(hl_df, 1080, "gpu_num", side_by_side=False, chart_title="Helios GPU Chart")
+                        elif item == "Philly GPU-SchedGym":
+                            plot_util_jgc(philly_gpu_schedule_df, 2490, "gpu_num", color='#9467bd', side_by_side=False, chart_title="Philly GPU-SchedGym Chart")
+                        else:
+                            pass
+                        
+                with st.expander(f"**{chart_description_expander_title}**", expanded=True):
+                                st.write("**The System Utilization Across Multiple Systems Charts:** ADD")
 
     # Job Waiting Time Page
     elif nav_bar_horizontal == "Job Waiting Time":
@@ -1105,7 +1127,7 @@ elif main_nav == "Job Failure Characteristics":
                 jfd_job_status_list_jfc = ["Pass", "Failed", "Killed"]
                 jfd_job_status_selected_list_jfc = jfd_job_status_list_jfc.copy()
 
-                st.write("### Alter the following settings to customize the chart(s):")
+                st.write("### Alter the following settings to customize the selected chart(s):")
                 with st.expander("**Select Job Status(es)**", expanded=True):
                     for item in jfd_job_status_list_jfc:
                         jfd_job_status_checkbox_jfc = st.checkbox(item, True)
@@ -1126,8 +1148,9 @@ elif main_nav == "Job Failure Characteristics":
                 jfd_submit_parameters_button_jfc = st.form_submit_button("Apply Changes")
            
             if len(jfd_job_status_selected_list_jfc) >= 1 and len(jfd_selected_system_models_jfc) >= 1:        
-                with st.expander("**Chart View Settings**", expanded=True):
+                with st.expander(f"**{chart_view_settings_title}**", expanded=True):
                     jfd_check_box_view_side_by_side_jfc = st.checkbox("Select to view charts side by side")
+                    
                 with st.spinner(spinner_text):
                     st.markdown("<h1 style='text-align: center; color: black;'>The Distribution Of Different Job Statuses Charts</h1>", unsafe_allow_html=True)
 
@@ -1161,7 +1184,7 @@ elif main_nav == "Job Failure Characteristics":
                         else:
                             pass
             
-                with st.expander("**Chart Description:**", expanded=True):
+                with st.expander(f"**{chart_description_expander_title}**", expanded=True):
                     st.write("**Job Count w.r.t Job Status:** This depicts the total number of jobs classified according to their completion status - Pass, Failed, or Killed. It helps in analyzing job execution trends.")
                     st.write("**Core Hours w.r.t Job Status:** This quantifies the total computing resources consumed by jobs, segmented by their final status. It assists in understanding resource utilization in different scenarios.") 
             elif len(jfd_job_status_selected_list_jfc) < 1 and len(jfd_selected_system_models_jfc) >= 1:
@@ -1213,7 +1236,7 @@ elif main_nav == "Job Failure Characteristics":
                 cbjfajg_job_size_list_jfc = ["Small", "Middle", "Large"]
                 cbjfajg_job_size_selected_list_jfc = cbjfajg_job_size_list_jfc.copy()
 
-                st.write("### Alter the following settings to customize the chart(s):")
+                st.write("### Alter the following settings to customize the selected chart(s):")
                 with st.expander("**Select Job Status(es)**", expanded=True):
                     for item in cbjfajg_job_size_list_jfc:
                         cbjfajg_job_status_checkbox_jfc = st.checkbox(item, True)
@@ -1223,6 +1246,7 @@ elif main_nav == "Job Failure Characteristics":
                             pass
 
                 cbjfajg_percentage_slider_jfc = st.slider("**Adjust Percentage Range (Y-axis):**", min_value=0, max_value=100, value=100, step=20)
+                
                 with st.expander("**Select System Model(s) (X-axis)**", expanded=True):
                     for item in system_models_jfc:
                         cbjfajg_model_checkbox_jfc = st.checkbox(item, True)
@@ -1234,7 +1258,7 @@ elif main_nav == "Job Failure Characteristics":
                 cbjfajg_submit_parameters_button_jfc = st.form_submit_button("Apply Changes")
         
             if len(cbjfajg_job_size_selected_list_jfc) >= 1 and len(cbjfajg_selected_system_models_jfc) >= 1:        
-                with st.expander("**Chart View Settings**", expanded=True):
+                with st.expander(f"**{chart_view_settings_title}**", expanded=True):
                     cbjfajg_check_box_view_side_by_side_jfc = st.checkbox("Select to view charts side by side")
 
                 with st.spinner(spinner_text):
@@ -1270,7 +1294,7 @@ elif main_nav == "Job Failure Characteristics":
                         else:
                             pass
 
-                with st.expander("**Chart Description:**", expanded=True):
+                with st.expander(f"**{chart_description_expander_title}**", expanded=True):
                     st.write("**Job Status w.r.t Job Size:** This chart illustrates the status of jobs (Pass, Failed, Killed) with respect to their sizes. It provides insight into how job size may impact completion status, thereby helping to predict potential job execution outcomes.")
                     st.write("**Job Status w.r.t Job Run Time:** This visualization represents the correlation between job status and job run time. By analyzing job completion (Pass, Failed, Killed) in relation to run time, it aids in understanding the efficiency of jobs and can assist in identifying potential bottlenecks or issues in job execution.")
             elif len(cbjfajg_job_size_selected_list_jfc) < 1 and len(cbjfajg_selected_system_models_jfc) >= 1:
@@ -1321,12 +1345,12 @@ elif main_nav == "User Behavior Characteristics":
             st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
 
             with st.sidebar.form("urb_sidebar_form_ubc"):
-                st.write("### Alter the following settings to customize the chart(s):")
+                st.write("### Alter the following settings to customize the selected chart(s):")
                 urb_percentage_slider_ubc = st.slider("**Adjust Percentage Range (Y-axis):**", min_value=0, max_value=100, value=100, step=20)
                 urb_no_of_top_groups_per_user_slider_ubc = st.slider("**Adjust No Of Top Groups Per User (X-axis):**", min_value=0, max_value=10, value=10, step=1)
                 urb_submit_parameters_button_ubc = st.form_submit_button("Apply Changes")
 
-            with st.expander("**Chart View Settings**", expanded=True):
+            with st.expander(f"**{chart_view_settings_title}**", expanded=True):
                 urb_check_box_view_side_by_side_ubc = st.checkbox("Select to view charts side by side")
 
             with st.spinner(spinner_text):
@@ -1403,7 +1427,7 @@ elif main_nav == "User Behavior Characteristics":
                         plot_123(i, j, z, urb_no_of_top_groups_per_user_slider_ubc, urb_percentage_slider_ubc)
                     
 
-                with st.expander("**Chart Description:**", expanded=True):
+                with st.expander(f"**{chart_description_expander_title}**", expanded=True):
                     st.write("**The Resource-Configuration Groups per User:** This chart visualizes the repeated job submission patterns based on resource configurations (number of nodes and run time). It shows that nearly 90% of all jobs fall within the top 10 largest groups of similar job configurations, indicating high repetition in user job submissions. Additionally, it compares repetition across different systems (Philly, Helios, Blue Waters, Mira), revealing less repeated patterns in deep learning workloads on Philly and Helios.")
         else:
             pass
@@ -1446,7 +1470,7 @@ elif main_nav == "User Behavior Characteristics":
             st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
 
             with st.sidebar.form("usb_sidebar_form_ubc"):
-                st.write("### Alter the following settings to customize the chart(s):")
+                st.write("### Alter the following settings to customize the selected chart(s):")
                 usb_percentage_slider_ubc = st.slider("**Adjust Percentage (%) (Y-axis):**", min_value=0, max_value=100, value=100, step=20)
                 with st.expander("**Select Job Size(s) (X-axis)**", expanded=True):
                     for item in usb_job_size_list_ubc:
@@ -1457,13 +1481,13 @@ elif main_nav == "User Behavior Characteristics":
                             pass
                 usb_submit_parameters_button_ubc = st.form_submit_button("Apply Changes")
 
-            with st.expander("**Chart View Settings**", expanded=True):
+            with st.expander(f"**{chart_view_settings_title}**", expanded=True):
                     usb_check_box_view_side_by_side_ubc = st.checkbox("Select to view charts side by side") 
                     
             #Graph code
             
             
-            with st.expander("**Chart Description:**", expanded=True):
+            with st.expander(f"**{chart_description_expander_title}**", expanded=True):
                     st.write("**The Median Runtime Of Different Types Of Jobs Charts:** ")
             
             
@@ -1506,7 +1530,7 @@ elif main_nav == "User Behavior Characteristics":
             st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
 
             with st.sidebar.form("cbjrtajs_sidebar_form_ubc"):
-                st.write("### Alter the following settings to customize the chart(s):")
+                st.write("### Alter the following settings to customize the selected chart(s):")
                 cbjrtajs_percentage_slider_ubc = st.slider("**Adjust Job Run Time (in powers of 10) (Y-axis):**", min_value=0, max_value=6, value=6, step=1)
                 with st.expander("**Select Job Status(es) (X-axis)**", expanded=True):
                     for item in cbjrtajs_job_status_list_ubc:
@@ -1517,7 +1541,7 @@ elif main_nav == "User Behavior Characteristics":
                             pass
                 cbjrtajs_submit_parameters_button_ubc = st.form_submit_button("Apply Changes")
 
-            with st.expander("**Chart View Settings**", expanded=True):
+            with st.expander(f"**{chart_view_settings_title}**", expanded=True):
                 cbjrtajs_check_box_view_side_by_side_ubc = st.checkbox("Select to view charts side by side")
                 
             #Function to plot the charts
@@ -1654,7 +1678,7 @@ elif main_nav == "User Behavior Characteristics":
                 else:
                     st.write("## Please select one or more job status(es) from the sidebar to plot the chart(s)")
 
-                with st.expander("**Chart Description:**", expanded=True):
+                with st.expander(f"**{chart_description_expander_title}**", expanded=True):
                     st.write("**The Median Runtime Of Different Types Of Jobs Charts:** ")
     else:
         pass
