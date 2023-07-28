@@ -1,12 +1,15 @@
 import streamlit as st
 from PIL import Image
+from heapq import *
+from collections import defaultdict, Counter
+import bisect
 import numpy as np
 import pandas as pd
 import warnings
 from streamlit_option_menu import option_menu
 from matplotlib import pyplot as plt
 import matplotlib.ticker as mticker
-import seaborn
+import seaborn as sns
 from datetime import datetime
 from collections import Counter, defaultdict
 import json
@@ -1521,11 +1524,186 @@ elif main_nav == "User Behavior Characteristics":
                     usb_check_box_view_side_by_side_ubc = st.checkbox("Select to view charts side by side") 
                     
             #Alex Graph Code Here
-            
-            
+            def analyze_util_and_user_behavior(data, total_nodes, gpu=False):
+                queue = [] # waiting:0, running:1
+                util_time_user = defaultdict(list) # util, time, user
+                util_node_user = defaultdict(list)
+                util_time = []
+                cur_util = 0
+                
+                for index, row in data.iterrows():
+                    row["start_time"] = row["submit_time"] + row["wait_time"]
+                    row["end_time"] = row["start_time"] + row["run_time"]
+                    row["index"] = index
+                    # only for helios
+                    # total_nodes = gpu_num_total[bisect.bisect(gpu_date, row["submit_time"])-1]
+                    
+                    while queue and queue[0][0]<=row["submit_time"]:
+                        temp = heappop(queue)
+                        cur_time = temp[0]
+                        job_type = temp[1]
+                        job = temp[3]
+                        
+                        if job_type == "waiting":
+                            heappush(queue, (job["end_time"], "running", job["index"], job))
+                            cur_util += job["gpu_num"] if gpu else job["node_num"]
+                        elif job_type == "running":
+                            cur_util -= job["gpu_num"] if gpu else job["node_num"]
+                        else:
+                            raise NotImplementedError
+                            
+                        if util_time and util_time[-1][0] == cur_time:
+                            util_time[-1][1] = cur_util/total_nodes
+                        else:
+                            util_time.append([cur_time, cur_util/total_nodes])
+                            
+                    heappush(queue, (row["start_time"], "waiting", row["index"] , row))
+                    util_time_user[row["user"]].append([row["submit_time"], cur_util/total_nodes])
+                    util_node_user[row["user"]].append([row["gpu_num"] if gpu else row["node_num"], cur_util/total_nodes])
+                    
+                    if index % 10000 == 0:
+                        print(index)
+                        
+                return util_time, util_time_user, util_node_user
+
+
+            def analyze_queue_and_user_behavior(data, gpu=False):
+                data = data.copy()
+                data["index"] = data.index
+                queue = [] # waiting:0, running:1
+                util_time_user = defaultdict(list) # util, time, user
+                util_node_user = defaultdict(list)
+                util_time = []
+                cur_wait = 0
+                
+                for index, row in data.iterrows():
+                    start_time = row["submit_time"] + row["wait_time"]
+                    end_time = start_time + row["run_time"]
+                    # only for helios
+                    # total_nodes = gpu_num_total[bisect.bisect(gpu_date, row["submit_time"])-1]
+                    
+                    while queue and queue[0][0]<=row["submit_time"]:
+                        temp = heappop(queue)
+                        cur_time = temp[0]
+                        job_type = temp[1]
+                        job = temp[3]
+                        
+                        if job_type == "waiting":
+                            heappush(queue, (job["submit_time"] + job["wait_time"]+job["run_time"], "running", job["index"], job))
+                            cur_wait -= 1
+                        elif job_type == "running":
+                            pass
+                                # cur_util -= job["gpu_num"] if gpu else job["node_num"]
+                        else:
+                            raise NotImplementedError
+                            
+                        util_time.append([cur_time, cur_wait])
+                        
+                    heappush(queue, (start_time, "waiting", index, row))
+                    util_time_user[row["user"]].append([row["run_time"], cur_wait])
+                    util_node_user[row["user"]].append([row["gpu_num"] if gpu else row["node_num"], cur_wait])
+                    
+                    cur_wait += 1
+                    
+                    if index % 10000 == 0:
+                        print(index)
+                        
+                return util_time, util_time_user, util_node_user
+
+
+            def plot_util_node(un, data, bars, user="per", xlabel="mira"):
+                hatches= ["-", ".", "x", "-"]
+                
+                if user == "per":
+                    users = list(data.groupby("user").count().sort_values(by="job", ascending=False).index[:6])
+                    stride = 0.2
+                    fig, axes = plt.subplots(2, 3, figsize=(18, 10))
+
+                    for ui, user in enumerate(users):
+                        print(ui, user)
+
+                        x = ["{:.0%}".format((1+index)*stride)
+                                                for index in range(int(1/stride))]
+                        buckets = [Counter() for _ in range(int(1/stride))]
+                        
+                        for node, util in un[user]:
+                            b = int(min(1/stride-1, util/stride))
+                            buckets[b][node] += 1
+                            
+                        for i in buckets:
+                            s = sum(i.values())
+                            for j in i:
+                                i[j] /= s
+                                
+                        prevy = np.array([0]*len(x))
+                        prev_bar = -1
+                        
+                        for bar in bars:
+                            y = np.array([sum(i[j] for j in i.keys() if prev_bar<j <=bar) for i in buckets])
+                            axes[ui//3, ui%3].bar(x, y, bottom=prevy)
+                            prevy = y+prevy
+                            prev_bar = bar
+                            
+                        axes[ui//3, ui%3].legend(bars)
+                else:
+                    all_un = []
+                    for i in un:
+                        all_un.extend(un[i])
+                        
+                    max_wait = max(all_un, key=lambda x: x[1])[1]
+                    stride = 1/3
+                    fig, axes = plt.subplots(1, 1, figsize=(3, 5))
+
+                    x = ["{}".format((1+index)*stride*max_wait)
+                                            for index in range(int(1/stride))]
+                    buckets = [Counter() for _ in range(int(1/stride))]
+                    
+                    for node, util in all_un:
+                        b = int(min(1/stride-1, (util/max_wait)/stride))
+                        buckets[b][node] += 1
+                        
+                    for i in buckets:
+                        i[0] = 0
+                        s = sum(list(i.values()))
+                        for j in i:
+                            i[j] /= s*0.01
+                            
+                    prevy = np.array([0]*len(x))
+                    prev_bar = -1
+                    
+                    for index, bar in enumerate(bars):
+                        y = np.array([sum(i[j] for j in i.keys() if prev_bar<j <=bar) for i in buckets])
+                        axes.bar(x, y, bottom=prevy, hatch=hatches[index], edgecolor="black")
+                        prevy = y+prevy
+                        prev_bar = bar
+                        
+                    axes.set_xticks(x, ["Short Queue", "Middle Queue", "Long Queue"], rotation=45)
+                    axes.set_xlabel(xlabel, fontsize=20)
+                    axes.set_ylabel("Percentage (%)", fontsize=20)
+                    st.pyplot(fig)
+                    # axes.legend([ "Minimal", "Short", "Middle", "Long"], fontsize=30, bbox_to_anchor=(0.5, 2.05),
+                    # ncol=4, fancybox=True, shadow=True)
+                    
+            bw_queue_time, bw_queue_time_user,bw_queue_node_user = analyze_queue_and_user_behavior(bw_df, gpu=False)
+            bars = [1, 22636//10, 3*22636//10, 1000000]
+            plot_util_node(bw_queue_node_user, bw_df, bars, "all", "bw")
+                    
+            mira_queue_time, mira_queue_time_user, mira_queue_node_user = analyze_queue_and_user_behavior(mira_df_2, gpu=False)
+            bars = [ 512, 49152//10, 3*49152//10, 49152]
+            plot_util_node(mira_queue_node_user, mira_df_2, bars, "all", "mira")
+
+            phi_queue_time, phi_queue_time_user,phi_queue_node_user = analyze_queue_and_user_behavior(philly_df, gpu=True)
+            bars = [1, 1, 8, 256]
+            plot_util_node(phi_queue_node_user, philly_df, bars, "all", "philly")
+
+            queue_time, queue_time_user,queue_node_user = analyze_queue_and_user_behavior(hl_df, gpu=True)
+            bars = [1, 1, 8, 256]
+            plot_util_node(queue_node_user, hl_df, bars, "all", "helios")
+                        
+                        
             with st.expander(f"**{chart_description_expander_title}**", expanded=True):
                     st.write("**The Median Runtime Of Different Types Of Jobs Charts:** ")
-            
+                    st.write("**The Resource-configuration Groups per User:** This chart visualizes the repeated job submission patterns based on resource configurations (number of nodes and run time). It shows that nearly 90% of all jobs fall within the top 10 largest groups of similar job configurations, indicating high repetition in user job submissions. Additionally, it compares repetition across different systems (Philly, Helios, Blue Waters, Mira), revealing less repeated patterns in deep learning workloads on Philly and Helios.")    
 
     elif ubc_nav_bar == "Correlation between Job Run Time and Job Statuses":
         cbjrtajs_chart_title_ubc = "Chart Selection Form"
@@ -1634,6 +1812,7 @@ elif main_nav == "User Behavior Characteristics":
                     ax.set_xticks([y for y in range(len(status))])
                     ax.set_xticklabels(status, fontsize=24)
                     ax.set_ylabel('Job Run time (s)', fontsize=20)
+                    st.pyplot(fig)
 
                 else:
                     mean_run_time = [data.groupby(u)["run_time"].apply(list).loc[i] for i in rows]
@@ -1676,8 +1855,6 @@ elif main_nav == "User Behavior Characteristics":
 
                         if index == 0:
                             ax.set_ylabel('Job Run time (s)', fontsize=20)
-                
-                st.pyplot(fig)
 
             with st.spinner(spinner_text):
 
