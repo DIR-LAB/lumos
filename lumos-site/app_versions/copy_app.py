@@ -59,18 +59,16 @@ main_nav = option_menu(options=["Job Geometric Characteristics", "Job Failure Ch
                                  icons=["bi-1-circle", "bi-2-circle", "bi-3-circle"],
                                  styles=styles, orientation="horizontal", menu_icon="bi-segmented-nav")
 
+columns=["job", "user", "project", "state", "gpu_num", "cpu_num", "node_num", "submit_time", "wait_time", "run_time", "wall_time", "node_hour"]
+
 if main_nav == "Job Geometric Characteristics":
     nav_bar_horizontal = option_menu("Job Geometric Characteristics Model Selection Bar",
      ["Job Run Time", "Job Arrival Pattern", "Sys Util & Res Occu", "Job Waiting Time"],
      default_index=0, orientation="vertical", menu_icon="bi-list")
-
-    system_models_jrt = ["Mira", "Blue Waters", "Philly", "Helios"]
-
-    message = st.empty()
-    columns=["job", "user", "project", "state", "gpu_num", "cpu_num", "node_num", "submit_time", "wait_time", "run_time", "wall_time", "node_hour"]
-
+    
     if nav_bar_horizontal == "Job Run Time":
-        system_models_jrt = ["Mira", "Blue Waters", "Philly", "Helios"]
+        jrt_system_models_jgc = ["Mira", "Blue Waters", "Philly", "Helios"] 
+        
         with st.form("select_chart_model_jrt"):
             #cdf
             st.write("### Select a chart you want to view")
@@ -90,16 +88,16 @@ if main_nav == "Job Geometric Characteristics":
         if chart_select_radio_jrt == "CDF Run Time Chart":
             min_value_exp_run_time_slider = 0
             max_value_exp_run_time_slider = 8 
-            selected_system_models_jrt = system_models_jrt.copy() 
+            selected_system_models_jrt = jrt_system_models_jgc.copy() 
             st.markdown("<h2 style='text-align: center;'>CDF of Run Time Chart</h2>", unsafe_allow_html=True)
             st.sidebar.markdown("<h1 style='text-align: center;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
 
             with st.spinner("In progress...., Please do not change any settings now"):  
                 with st.sidebar.form("CDF_chart_form_jrt"):
                     st.write("## Alter the following settings to customize the CDF chart:")
-                    selected_system_models_jrt = system_models_jrt.copy() 
+                    selected_system_models_jrt = jrt_system_models_jgc.copy() 
                     with st.expander("**Select System Model(s)**", expanded=True):
-                        for item in system_models_jrt:
+                        for item in jrt_system_models_jgc:
                             model_checkbox_jrt = st.checkbox(item, True)
                             if not model_checkbox_jrt:
                                 selected_system_models_jrt.remove(item)
@@ -146,7 +144,7 @@ if main_nav == "Job Geometric Characteristics":
                 plt.style.use("default")
 
                 if len(selected_system_models_jrt) >= 1:
-                    for item in system_models_jrt:
+                    for item in jrt_system_models_jgc:
                         if "Blue Waters" in selected_system_models_jrt:
                             plot_cdf(bw_df["run_time"], 1000, "Time (s)", linestyle=":", color="blue")
                         if "Mira" in selected_system_models_jrt:
@@ -174,14 +172,14 @@ if main_nav == "Job Geometric Characteristics":
 
                 # drt = detailed run time
                 drt_time_ranges = ['0~30s', '30s~10min', '10min~1h', '1h~12h', "more than 12h"]
-                drt_selected_system_models_jrt = system_models_jrt.copy()
+                drt_selected_system_models_jrt = jrt_system_models_jgc.copy()
                 drt_selected_time_range_jrt = drt_time_ranges.copy()
 
                 with st.spinner("In progress...., Please do not change any settings now"): 
                     with st.sidebar.form("detailed_run_time_form_jrt"):
                         st.write("### Alter the following settings to customize the detailed run time chart:")
                         with st.expander("**Select System Model(s)**", expanded=True):
-                            for item in system_models_jrt:
+                            for item in jrt_system_models_jgc:
                                 drt_model_checkbox_jrt = st.checkbox(item, True)
                                 if not drt_model_checkbox_jrt:
                                     drt_selected_system_models_jrt.remove(item)
@@ -245,10 +243,11 @@ if main_nav == "Job Geometric Characteristics":
                             mr.append(res[1])
                             ply.append(res[2])
                             hl.append(res[3])
+                            
                     x_value_selected = np.arange(1, len(drt_selected_time_range_jrt) + 1)
 
                     if len(drt_selected_system_models_jrt) >= 1 and len(drt_selected_time_range_jrt) >= 1:
-                        for model in system_models_jrt:
+                        for model in jrt_system_models_jgc:
                                 if "Blue Waters" in drt_selected_system_models_jrt:
                                     plt.bar(x_value_selected - 3 * width / 2, bw, width, edgecolor='black', hatch="x", color="blue")
                                 if "Mira" in drt_selected_system_models_jrt:
@@ -1533,8 +1532,7 @@ elif main_nav == "User Behavior Characteristics":
                                 with cbjrtajs_col_logic_cal_ubc:
                                     plot_attribute_per_ml("user", data=hl_df, state="state", status=cbjrtajs_job_status_selected_list_ubc, all_user=True, side_by_side = True, chart_title = "Helios")
                             else:
-                                pass
-                            
+                                pass           
                     else:
                         for item in cbjrtajs_chart_selected_list_ubc:
                             if item == "Blue Waters":
@@ -1555,7 +1553,6 @@ elif main_nav == "User Behavior Characteristics":
 
                 with st.expander("**Chart Description:**", expanded=True):
                     st.write("**The Median Runtime Of Different Types Of Jobs Charts:** ")
-
     else:
         pass
 else:
