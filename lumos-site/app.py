@@ -100,6 +100,7 @@ if main_nav == "Job Geometric Characteristics":
                     jrt_chart_selection_check_box_right_option_jgc = st.checkbox(item2, True)
                     if not jrt_chart_selection_check_box_right_option_jgc:
                         jrt_chart_selected_list_jgc.remove(item2)
+
             jrt_chart_selection_check_box_submission_button_jgc = st.form_submit_button("Load Charts")
             
             if jrt_chart_selection_check_box_submission_button_jgc:
@@ -213,8 +214,7 @@ if main_nav == "Job Geometric Characteristics":
                 if side_by_side:
                     st.markdown(f"<h4 style='text-align: center;'>{chart_title}</h4>", unsafe_allow_html=True)
                 else:
-                    st.markdown(f"<h2 style='text-align: center;'>{chart_title}</h2>", unsafe_allow_html=True)
-                    
+                    st.markdown(f"<h2 style='text-align: center;'>{chart_title}</h2>", unsafe_allow_html=True)                   
                 for item in jrt_system_models_jgc:
                     if "Blue Waters" in jrt_selected_system_models_jgc:
                         plot_cdf(bw_df["run_time"], 1000, "Time (s)", linestyle=":", color="blue")
@@ -1798,7 +1798,7 @@ elif main_nav == "User Behavior Characteristics":
 
                     for index, i in enumerate(zip(*selected_run_times)):
                         k = [np.log10(np.array(j)+1) for j in i]
-                        seaborn.violinplot(data=k,ax=axes, scale="width")
+                        sns.violinplot(data=k,ax=axes, scale="width")
 
                     ax = axes
                     ax.yaxis.set_major_formatter(mticker.StrMethodFormatter("$10^{{{x:.0f}}}$"))
@@ -1840,7 +1840,7 @@ elif main_nav == "User Behavior Characteristics":
 
                     for index, i in enumerate(zip(*selected_run_times)):
                         k = [np.log10(np.array(j)+1) for j in i]
-                        seaborn.violinplot(data=k,ax=axes[index%3], scale="width")
+                        sns.violinplot(data=k,ax=axes[index%3], scale="width")
 
                     for index, ax in enumerate(axes.flatten()):
                         ax.yaxis.set_major_formatter(mticker.StrMethodFormatter("$10^{{{x:.0f}}}$"))
