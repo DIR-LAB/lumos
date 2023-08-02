@@ -314,8 +314,12 @@ if main_nav == "Job Geometric Characteristics":
 
     # Job Arrival pattern page code
     elif nav_bar_horizontal == "Job Arrival Pattern":
-        system_models_jap = ["Blue Waters", "Mira", "Philly", "Helios"]
-        chart_select_radio_jap = None;
+        jap_system_models_jgc = ["Blue Waters", "Mira", "Philly", "Helios"]
+        jap_selected_system_models_jgc = jap_system_models_jgc.copy()
+        jap_chart_selection_left_col_options_jgc = ["Daily Submit Pattern", "Weekly Submit Pattern"]
+        jap_chart_selection_right_col_options_jgc = ["Job Arrival Interval"]
+        jap_chart_selection_options_jgc = jap_chart_selection_left_col_options_jgc + jap_chart_selection_right_col_options_jgc
+        jap_chart_selected_list_jgc = jap_chart_selection_options_jgc.copy()
 
         def get_time_of_day(time, timestamp=True):
                 if timestamp:
@@ -345,238 +349,193 @@ if main_nav == "Job Geometric Characteristics":
                     n = len(set(weeks))
                 plt.plot(keys, [np.array(dd[j])/n for j in keys], marker=marker, linewidth=3, markersize=12, color=color)
 
+        with st.form("jap_select_chart_model_jgc"):
+            st.write(f"### **{chart_selection_form_title}**")
+            st.write(f'**{chart_selection_form_load_charts_text}**')
+            col1, col2 = st.columns(2)
+            with col1 :
+                for item in jap_chart_selection_left_col_options_jgc:
+                    jap_chart_selection_check_box_left_option_jgc = st.checkbox(item, True)
+                    if not jap_chart_selection_check_box_left_option_jgc:
+                        jap_chart_selected_list_jgc.remove(item)
+            with col2:
+                for item2 in jap_chart_selection_right_col_options_jgc:
+                    jap_chart_selection_check_box_right_option_jgc = st.checkbox(item2, True)
+                    if not jap_chart_selection_check_box_right_option_jgc:
+                        jap_chart_selected_list_jgc.remove(item2)
 
-        with st.form("select_chart_model_jap"):
-            st.write("#### Select a chart you want to view")
-            chart_select_radio_jap = st.radio("Chart Selection", [None, "Daily Submit Pattern", "Weekly Submit Pattern", "Job Arrival Interval"], horizontal=True)
-            submit_chart_radio_button_jap = st.form_submit_button("Select")
-            if submit_chart_radio_button_jap:
-                if chart_select_radio_jap is not None:
-                        st.write(f"**You have selected:** {chart_select_radio_jap}")
-                else:
-                    text_color = "red"
-                    st.markdown(f'<span style="color:{text_color}">You have selected "None", please select an other option to view chart.</span>', unsafe_allow_html=True)
-
-                if chart_select_radio_jap == "Daily Submit Pattern":
-                    st.markdown('<script>scrollToSection("dsp_chart_section")</script>', unsafe_allow_html=True)
-                elif chart_select_radio_jap == "Weekly Submit Pattern":
-                    st.markdown('<script>scrollToSection("wsp_chart_section")</script>', unsafe_allow_html=True)
-                elif chart_select_radio_jap == "Job Arrival Interval":
-                    st.markdown('<script>scrollToSection("jap_chart_section")</script>', unsafe_allow_html=True)
+            jap_chart_selection_check_box_submission_button_jgc = st.form_submit_button("Load Charts")
             
+            if jap_chart_selection_check_box_submission_button_jgc:
+                if len(jap_chart_selected_list_jgc) >= 1:
+                        st.write(f"**You have selected:** {jap_chart_selected_list_jgc}")
+                else:
+                    st.markdown("<h5 style='color: red'>Please select one or more charts options above and then click 'Load Charts'</h5>", unsafe_allow_html=True)           
+            else:
+                pass
+        
+        if len(jap_chart_selected_list_jgc) >= 1:
+            st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
+
+            with st.sidebar.form("jap_sidebar_form_jgc"):
+                st.write("### Alter the following settings to customize the selected chart(s):")
                 
-        #  Code for individual charts             
-        if chart_select_radio_jap == "Daily Submit Pattern":
-            st.markdown("<h2 style='text-align: center;'>Daily Submit Pattern Chart</h2>", unsafe_allow_html=True)
-            st.sidebar.markdown("<h1 style='text-align: center;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
-            
-            dsp_selected_system_models_jap = system_models_jap.copy()
-            with st.spinner("In progress...., Please do not change any settings now"):   
-                with st.sidebar.form("dsp_personal_parameters_update_form"):
-                    st.write("### Alter the following settings to customize the Daily Submit Pattern chart:")
-                    with st.expander("**Select System Model(s)**", expanded=True):
-                        for item in system_models_jap:
-                            dsp_model_checkbox_jap = st.checkbox(item, True)
-                            if not dsp_model_checkbox_jap:
-                                dsp_selected_system_models_jap.remove(item)
-                    dsp_job_count_slider_jap = st.slider("**Adjust Job Submit Count Range (Y-axis):**", min_value=0, max_value=180, step=20, value=180)
-                    dsp_hour_of_the_day_slider_jap = st.slider("**Adjust Hour of the Day Range (X-axis):**", min_value=-1, max_value=24, step=1, value=24)
-                    dap_submit_parameters_button_jap = st.form_submit_button("Apply Changes")
-                    if dap_submit_parameters_button_jap:
-                        if len(dsp_selected_system_models_jap) < 1:
-                            text_color = "red"
-                            st.markdown(f'<span style = "color: {text_color}">Please set system model(s) above first and then adjust the parameters here.</span>', unsafe_allow_html=True)
-                        else:
-                            pass;
-                            
-
-                plt.figure(figsize=(12,7))
-                plt.xticks(fontsize=16)
-                plt.yticks(fontsize=16)
-
-                if len(dsp_selected_system_models_jap) >=1 :
-
-                    for item in dsp_selected_system_models_jap:
-                        if "Blue Waters" in dsp_selected_system_models_jap:
-                            plot_time_submit(bw_df["submit_time"], xlabel="Hour of the Day", week=True,marker="^", color="blue")
-                        if "Mira" in dsp_selected_system_models_jap:
-                            plot_time_submit(mira_df_2["submit_time"], xlabel="Hour of the Day", week=True,marker="o", color="red")
-                        if "Philly" in dsp_selected_system_models_jap:
-                            plot_time_submit(philly_df["submit_time"], xlabel="Hour of the Day", week=True,marker="s", color="green")
-                        if "Helios" in dsp_selected_system_models_jap:
-                            plot_time_submit(hl_df["submit_time"], xlabel="Hour of the Day", week=True,marker="d", color="violet") 
-            
-                    plt.xlabel("Hour of the Day", fontsize=18)
-                    plt.ylabel("Job Submit Count", fontsize=18)
-                    st.set_option('deprecation.showPyplotGlobalUse', False)
-                    plt.ylim(0, dsp_job_count_slider_jap)
-                    plt.xlim(-1, dsp_hour_of_the_day_slider_jap)
-                    plt.tight_layout()
-                    plt.grid(True)
-                    plt.legend(dsp_selected_system_models_jap,  prop={'size': 14}, loc="upper right")
-                    plt.rc('legend',fontsize=20)
-                    st.pyplot()
-
-                    with st.expander("**Daily Submit Pattern Chart Description:**", expanded=True):
-                        st.write("Displays a chart presenting the job arrival counts of each job trace for each hour of the day")
-                else:
-                    st.write("## Please select one or more system model(s) from sidebar to plot the chart")
-
-        elif chart_select_radio_jap == "Weekly Submit Pattern":
-            st.markdown("<h2 style='text-align: center;'>Weekly Submit Pattern Chart</h2>", unsafe_allow_html=True)
-            st.sidebar.markdown("<h1 style='text-align: center;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
-        
-            wsp_selected_system_models_jap = system_models_jap.copy()
-            with st.spinner("In progress...., Please do not change any settings now"):   
-                with st.sidebar.form("wsp_personal_parameters_update_form"):
-                    st.write("### Alter the following settings to customize the Weekly Submit Pattern chart:")
-                    with st.expander("**Select System Model(s)**", expanded=True):
-                        for item in system_models_jap:
-                            wsp_model_checkbox_jap = st.checkbox(item, True)
-                            if not wsp_model_checkbox_jap:
-                                wsp_selected_system_models_jap.remove(item)
-                    wsp_job_count_slider_jap = st.slider("**Adjust Job Submit Count Range (Y-axis):**", min_value=0, max_value=3000, step=500, value=3000)
-                    wsp_hour_of_the_day_slider_jap = st.slider("**Adjust Day of the Week Range (X-axis):**", min_value=0, max_value=8, step=1, value=8)
-                    wsp_submit_parameters_button_jap = st.form_submit_button("Apply Changes")
-                    if wsp_submit_parameters_button_jap:
-                        if len(wsp_selected_system_models_jap) < 1:
-                            text_color = "red"
-                            st.markdown(f'<span style = "color: {text_color}">Please select one or more system model(s) and click "Apply Changes".</span>', unsafe_allow_html=True)
-                        else:
-                            pass;
-
-                plt.figure(figsize=(12,7))
-                plt.xticks(fontsize=16)
-                plt.yticks(fontsize=16) 
-
-                if len(wsp_selected_system_models_jap) >= 1:
-                    for item in wsp_selected_system_models_jap:
-                        if "Blue Waters" in wsp_selected_system_models_jap:
-                            plot_time_submit(bw_df["submit_time"], xlabel="Day of the Week", week=False,marker="^", color="blue")
-                        if "Mira" in wsp_selected_system_models_jap:
-                            plot_time_submit(mira_df_2["submit_time"], xlabel="Day of the Week", week=False,marker="o", color="red")
-                        if "Philly" in wsp_selected_system_models_jap:
-                            plot_time_submit(philly_df["submit_time"], xlabel="Day of the Week", week=False,marker="s", color="green")
-                        if "Helios" in wsp_selected_system_models_jap:
-                            plot_time_submit(hl_df["submit_time"], xlabel="Day of the Week", week=False,marker="d", color="violet")
-                    plt.xlabel("Day of the Week", fontsize=20)
-                    plt.ylabel("Job Submit Count", fontsize=20)
-                    plt.ylim(0, wsp_job_count_slider_jap)
-                    plt.tight_layout()
-                    plt.xlim(0, wsp_hour_of_the_day_slider_jap)
-                    plt.grid(True)
-                    plt.legend(wsp_selected_system_models_jap,  prop={'size': 14}, loc="upper right")
-                    st.set_option('deprecation.showPyplotGlobalUse', False)
-                    plt.rc('legend',fontsize=20)
-                    st.pyplot()
-
-                    with st.expander("**Weekly Submit Pattern Chart Description:**", expanded=True):
-                                    st.write("Displays a chart presenting the job arrival counts of each job trace for each day of the week")
-                else:
-                    st.write("## Please select one or more system model(s) from sidebar to plot the chart")
-
-        elif chart_select_radio_jap == "Job Arrival Interval":
-            st.markdown("<h2 style='text-align: center;'>Job Arrival Interval Chart</h2>", unsafe_allow_html=True)
-            st.sidebar.markdown("<h1 style='text-align: center;'>Chart Customization Panel</h1>", unsafe_allow_html=True)  
-        
-            jap_min_value_exp_arrival_interval_slider = 0
-            jap_max_value_exp_arrival_interval_slider = 8 
-            jai_selected_system_models_jap = system_models_jap.copy()
-
-            with st.spinner("In progress...., Please do not change any settings now"): 
-                with st.sidebar.form("jai_personal_parameters_update_form"):
-                    st.write("### Alter the following settings to customize the Job Arrival Interval chart:")
-                    with st.expander("**Select System Model(s)**", expanded=True):
-                        for item in system_models_jap:
-                            jai_model_checkbox_jap = st.checkbox(item, True)
-                            if not jai_model_checkbox_jap:
-                                jai_selected_system_models_jap.remove(item)
-                    jai_job_count_slider_jap = st.slider("**Adjust Frequency Range (y-axis):**", min_value=0, max_value=100, step=20, value=100)
-                    jai_hour_of_the_day_slider_jap = st.slider("**Adjust Job Arrival Interval Range (in powers of 10) (X-axis):**", jap_min_value_exp_arrival_interval_slider, jap_max_value_exp_arrival_interval_slider, step=1, value=8)
-                    jai_hour_of_the_day_slider_value_jap = int(10**jai_hour_of_the_day_slider_jap)
-                    jai_submit_parameters_button_jap = st.form_submit_button("Apply Changes")
-                    if jai_submit_parameters_button_jap:
-                        if len(jai_selected_system_models_jap) < 1:
-                            text_color = "red"
-                            st.markdown(f'<span style = "color: {text_color}">Please select one or more system model(s) and click "Apply Changes".</span>', unsafe_allow_html=True)
-                        else:
-                            pass;
+                with st.expander("**Select System Model(s)**", expanded=True):
+                        for item in jap_system_models_jgc:
+                            jap_model_checkbox_jgc = st.checkbox(item, True)
+                            if not jap_model_checkbox_jgc:
+                                jap_selected_system_models_jgc.remove(item)
+                                
+                if "Daily Submit Pattern" in jap_chart_selected_list_jgc:                
+                    with st.expander("**Daily Submit Pattern Chart (X and Y - axis)**", expanded=True):  
+                        jap_dsp_job_count_slider_jgc = st.slider("**Adjust Job Submit Count Range (Y-axis):**", min_value=0, max_value=180, step=20, value=180)
+                        jap_dsp_hour_of_the_day_slider_jgc = st.slider("**Adjust Hour of the Day Range (X-axis):**", min_value=-1, max_value=24, step=1, value=24)  
+                       
                         
-                # Alex your code here
-                # define function for plotting CDF 
-                def plot_cdf(x,bins ,xlabel, ylabel="Frequency (%)",color="", linestyle="--"):
-                    plt.xticks(fontsize=16)
-                    plt.yticks(fontsize=16) 
-                    x = np.sort(x)
-                    cdf = 100*np.arange(len(x)) / float(len(x))
-                    if color:
-                        plt.plot(x, cdf, linestyle=linestyle, linewidth=5, color=color)
-                    else:
-                        plt.plot(x, cdf, linestyle=linestyle, linewidth=5)
-                    plt.xlabel(xlabel, fontsize=20)
-                    plt.ylabel(ylabel, fontsize=20)
-                    plt.margins(0)
-                    plt.ylim(0, 100)
-                    plt.grid(True)
-
-                # Job Arrival Interval (s) Fig 2c
-                def get_interval(a, peak=False):
-                    def get_time_of_day2(time):
-                        time = datetime.fromtimestamp(time)
-                        return (time.hour + (time.minute>30))%24
-                    if peak:
-                        z = a.apply(get_time_of_day2)
-                        b = a-a.shift(1)
-                        c = b[(z>=8) & (z<=17)]
-                        return c
-                    return a-a.shift(1)
-                
-                # define function for plotting CDF
-                def plot_cdf(x,bins ,xlabel, ylabel="Frequency (%)",color="", linestyle="--"):
-                    plt.xticks(fontsize=16)
-                    plt.yticks(fontsize=16) 
+                if "Weekly Submit Pattern" in jap_chart_selected_list_jgc:
+                    with st.expander("**Weekly Submit Pattern Chart (X and Y - axis)**", expanded=True):
+                        jap_wsp_job_count_slider_jgc = st.slider("**Adjust Job Submit Count Range (Y-axis):**", min_value=0, max_value=3000, step=500, value=3000)
+                        jap_wsp_hour_of_the_day_slider_jgc = st.slider("**Adjust Day of the Week Range (X-axis):**", min_value=0, max_value=8, step=1, value=8)
+                        
+                                    
+                if "Job Arrival Interval" in jap_chart_selected_list_jgc:
+                    with st.expander("**Job Arrival Interval Chart (X and Y - axis)**", expanded=True):
+                        
+                        jap_jai_min_value_exp_arrival_interval_slider_jgc = 0
+                        jap_jai_max_value_exp_arrival_interval_slider_jgc = 8 
+                        
+                        jap_jai_job_count_slider_jgc = st.slider("**Adjust Frequency Range (y-axis):**", min_value=0, max_value=100, step=20, value=100)
+                        jap_jai_hour_of_the_day_slider_jgc = st.slider("**Adjust Job Arrival Interval Range (in powers of 10) (X-axis):**", jap_jai_min_value_exp_arrival_interval_slider_jgc, jap_jai_max_value_exp_arrival_interval_slider_jgc, step=1, value=8)
+                        jap_jai_hour_of_the_day_slider_value_jgc = int(10**jap_jai_hour_of_the_day_slider_jgc)
                     
-                    x = np.sort(x)
-                    cdf = 100*np.arange(len(x)) / float(len(x))
-
-                    if color:
-                        plt.plot(x, cdf, linestyle=linestyle, linewidth=5, color=color)
-                    else:
-                        plt.plot(x, cdf, linestyle=linestyle, linewidth=5)
-
-                    plt.xlabel(xlabel, fontsize=20)
-                    plt.ylabel(ylabel, fontsize=20)
-                    plt.margins(0)
-                    plt.ylim(0, jai_job_count_slider_jap)
-                    plt.xlim(int(10 ** jap_min_value_exp_arrival_interval_slider), jai_hour_of_the_day_slider_value_jap)
-
-                    plt.grid(True)
+                                    
+                jap_submit_parameters_button_jgc = st.form_submit_button("Apply Changes")
                 
-                plt.style.use("default")
+                def plot_daily_submit_pattern():
+                    plt.figure(figsize=(12,7))
+                    plt.xticks(fontsize=16)
+                    plt.yticks(fontsize=16)
 
-                plt.figure(figsize=[6,5])
+                    if len(jap_selected_system_models_jgc) >=1 :
+                        for item in jap_selected_system_models_jgc:
+                            if "Blue Waters" in jap_selected_system_models_jgc:
+                                plot_time_submit(bw_df["submit_time"], xlabel="Hour of the Day", week=True,marker="^", color="blue")
+                            if "Mira" in jap_selected_system_models_jgc:
+                                plot_time_submit(mira_df_2["submit_time"], xlabel="Hour of the Day", week=True,marker="o", color="red")
+                            if "Philly" in jap_selected_system_models_jgc:
+                                plot_time_submit(philly_df["submit_time"], xlabel="Hour of the Day", week=True,marker="s", color="green")
+                            if "Helios" in jap_selected_system_models_jgc:
+                                plot_time_submit(hl_df["submit_time"], xlabel="Hour of the Day", week=True,marker="d", color="violet") 
+                
+                        plt.xlabel("Hour of the Day", fontsize=18)
+                        plt.ylabel("Job Submit Count", fontsize=18)
+                        st.set_option('deprecation.showPyplotGlobalUse', False)
+                        plt.ylim(0, jap_dsp_job_count_slider_jgc)
+                        plt.xlim(-1, jap_dsp_hour_of_the_day_slider_jgc)
+                        plt.tight_layout()
+                        plt.grid(True)
+                        plt.legend(jap_selected_system_models_jgc,  prop={'size': 14}, loc="upper right")
+                        plt.rc('legend',fontsize=20)
+                        st.pyplot()
+                
+                def plot_weekly_submit_pattern():
+                    plt.figure(figsize=(12,7))
+                    plt.xticks(fontsize=16)
+                    plt.yticks(fontsize=16) 
 
-                if len(jai_selected_system_models_jap) >= 1:
-                    for item in jai_selected_system_models_jap:
-                        if "Blue Waters" in jai_selected_system_models_jap:
-                            plot_cdf(get_interval(bw_df["submit_time"]), 1000,"Time (s)", linestyle=":")
-                        if "Mira" in jai_selected_system_models_jap:
-                            plot_cdf(get_interval(mira_df_2["submit_time"]), 1000,"Time (s)", linestyle="--")
-                        if "Philly" in jai_selected_system_models_jap:
-                            plot_cdf(get_interval(philly_df["submit_time"]), 1000,"Time (s)", linestyle="-.")
-                        if "Helios" in jai_selected_system_models_jap:
-                            plot_cdf(get_interval(hl_df["submit_time"]), 10009999,"Job Arrival Interval (s)", linestyle="--")
-                        
-                    plt.rc('legend',fontsize=22)
-                    plt.legend(jai_selected_system_models_jap, loc = "upper right", prop={'size': 14})
-                    st.set_option('deprecation.showPyplotGlobalUse', False)
-                    plt.xscale("log")
-                    st.pyplot()
+                    if len(jap_selected_system_models_jgc) >= 1:
+                        for item in jap_selected_system_models_jgc:
+                            if "Blue Waters" in jap_selected_system_models_jgc:
+                                plot_time_submit(bw_df["submit_time"], xlabel="Day of the Week", week=False,marker="^", color="blue")
+                            if "Mira" in jap_selected_system_models_jgc:
+                                plot_time_submit(mira_df_2["submit_time"], xlabel="Day of the Week", week=False,marker="o", color="red")
+                            if "Philly" in jap_selected_system_models_jgc:
+                                plot_time_submit(philly_df["submit_time"], xlabel="Day of the Week", week=False,marker="s", color="green")
+                            if "Helios" in jap_selected_system_models_jgc:
+                                plot_time_submit(hl_df["submit_time"], xlabel="Day of the Week", week=False,marker="d", color="violet")
+                                
+                        plt.xlabel("Day of the Week", fontsize=20)
+                        plt.ylabel("Job Submit Count", fontsize=20)
+                        plt.ylim(0, jap_wsp_job_count_slider_jgc)
+                        plt.tight_layout()
+                        plt.xlim(0, jap_wsp_hour_of_the_day_slider_jgc)
+                        plt.grid(True)
+                        plt.legend(jap_selected_system_models_jgc,  prop={'size': 14}, loc="upper right")
+                        st.set_option('deprecation.showPyplotGlobalUse', False)
+                        plt.rc('legend',fontsize=20)
+                        st.pyplot()
+                    
+                def plot_job_arrival_interval(): 
+                    
+                    def get_interval(a, peak=False):
+                        def get_time_of_day2(time):
+                            time = datetime.fromtimestamp(time)
+                            return (time.hour + (time.minute>30))%24
+                        if peak:
+                            z = a.apply(get_time_of_day2)
+                            b = a-a.shift(1)
+                            c = b[(z>=8) & (z<=17)]
+                            return c
+                        return a-a.shift(1)
+                
+                    # define function for plotting CDF
+                    def plot_cdf(x,bins ,xlabel, ylabel="Frequency (%)",color="", linestyle="--"):
+                        plt.xticks(fontsize=16)
+                        plt.yticks(fontsize=16)      
+                        x = np.sort(x)
+                        cdf = 100*np.arange(len(x)) / float(len(x))
+                        if color:
+                            plt.plot(x, cdf, linestyle=linestyle, linewidth=5, color=color)
+                        else:
+                            plt.plot(x, cdf, linestyle=linestyle, linewidth=5)
 
-                    with st.expander("**Job Arrival Interval:**", expanded=True):
-                                st.write("Displays a Cumulative Distribution Functions (CDF) of job arrival interval(s) comparison of the four job traces (Blue Waters, Mira, Philly, and Helios).")
-                else:
-                    st.write("## Please select one or more system model(s) from sidebar to plot the chart")
+                        plt.xlabel(xlabel, fontsize=20)
+                        plt.ylabel(ylabel, fontsize=20)
+                        plt.margins(0) 
+                        plt.ylim(0, jap_jai_job_count_slider_jgc)
+                        plt.xlim(int(10 ** jap_jai_min_value_exp_arrival_interval_slider_jgc), jap_jai_hour_of_the_day_slider_value_jgc)
+
+                        plt.grid(True)
+                    
+                    plt.style.use("default")
+
+                    plt.figure(figsize=[6,5])
+                    
+                    if len(jap_selected_system_models_jgc) >= 1:
+                        for item in jap_selected_system_models_jgc:
+                            if "Blue Waters" in jap_selected_system_models_jgc:
+                                plot_cdf(get_interval(bw_df["submit_time"]), 1000,"Time (s)", linestyle=":")
+                            if "Mira" in jap_selected_system_models_jgc:
+                                plot_cdf(get_interval(mira_df_2["submit_time"]), 1000,"Time (s)", linestyle="--")
+                            if "Philly" in jap_selected_system_models_jgc:
+                                plot_cdf(get_interval(philly_df["submit_time"]), 1000,"Time (s)", linestyle="-.")
+                            if "Helios" in jap_selected_system_models_jgc:
+                                plot_cdf(get_interval(hl_df["submit_time"]), 10009999,"Job Arrival Interval (s)", linestyle="--")
+                            
+                        plt.rc('legend',fontsize=22)
+                        plt.legend(jap_selected_system_models_jgc, loc = "upper right", prop={'size': 14})
+                        st.set_option('deprecation.showPyplotGlobalUse', False)
+                        plt.xscale("log")
+                        st.pyplot()        
+                
+            with st.expander(f"**{chart_view_settings_title}**", expanded=True):
+                jap_check_box_view_side_by_side_jgc = st.checkbox("Select to view charts side by side")   
+                
+            with st.spinner(spinner_text):
+                # Calling functions to plot charts
+                plot_daily_submit_pattern()
+                plot_weekly_submit_pattern()
+                plot_job_arrival_interval()
+               
+              
+            with st.expander(f"**{chart_description_expander_title}**", expanded=True):
+                
+                st.write("**Daily Submit Pattern Chart Description:** Displays a chart presenting the job arrival counts of each job trace for each hour of the day")
+
+                st.write("**Weekly Submit Pattern Chart Description:** Displays a chart presenting the job arrival counts of each job trace for each day of the week")
+
+                st.write("**Job Arrival Interval:** Displays a Cumulative Distribution Functions (CDF) of job arrival interval(s) comparison of the four job traces (Blue Waters, Mira, Philly, and Helios).")          
+
 
     # System Utilization and Resource Occupation page
     elif nav_bar_horizontal == "Sys Util & Res Occu":
