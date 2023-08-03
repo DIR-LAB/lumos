@@ -570,7 +570,9 @@ if main_nav == "Job Geometric Characteristics":
                 st.write("**Daily Submit Pattern Chart Description:** Displays a chart presenting the job arrival counts of each job trace for each hour of the day")
                 st.write("**Weekly Submit Pattern Chart Description:** Displays a chart presenting the job arrival counts of each job trace for each day of the week")
                 st.write("**Job Arrival Interval:** Displays a Cumulative Distribution Functions (CDF) of job arrival interval(s) comparison of the four job traces (Blue Waters, Mira, Philly, and Helios).")          
-
+        else:
+            st.markdown("<h2 style='color: red'>Please select one or more system model(s) from sidebar to plot the chart</h2>", unsafe_allow_html=True)  
+             
     # System Utilization and Resource Occupation page
     elif nav_bar_horizontal == "Sys Util & Res Occu":
         suaro_cpu_chart_options_jgc = ["Blue Waters CPU", "Mira CPU"]
@@ -708,7 +710,6 @@ if main_nav == "Job Geometric Characteristics":
 
     # Job Waiting Time Page
     elif nav_bar_horizontal == "Job Waiting Time":
-        chart_select_radio_jwt = None
         system_models_jwt = ["Blue Waters", "Mira", "Philly", "Helios"]
 
         def plot_cdf(x,bins ,xlabel, ylabel="Frequency (%)",color="", linestyle="--"):
