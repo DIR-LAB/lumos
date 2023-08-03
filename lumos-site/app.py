@@ -79,7 +79,7 @@ if main_nav == "Job Geometric Characteristics":
         jrt_chart_selection_left_col_options_jgc = ["CDF Run Time"]
         jrt_chart_selection_right_col_options_jgc = ["Detailed Run Time Distribution"]
         jrt_chart_selection_options_jgc = jrt_chart_selection_left_col_options_jgc + jrt_chart_selection_right_col_options_jgc
-        jrt_chart_selected_list_jgc = jrt_chart_selection_options_jgc.copy()
+        jrt_charts_selected_list_jgc = jrt_chart_selection_options_jgc.copy()
         x_value_selected = None
         
         
@@ -94,25 +94,25 @@ if main_nav == "Job Geometric Characteristics":
                 for item in jrt_chart_selection_left_col_options_jgc:
                     jrt_chart_selection_check_box_left_option_jgc = st.checkbox(item, True)
                     if not jrt_chart_selection_check_box_left_option_jgc:
-                        jrt_chart_selected_list_jgc.remove(item)
+                        jrt_charts_selected_list_jgc.remove(item)
             with col2:
                 for item2 in jrt_chart_selection_right_col_options_jgc:
                     jrt_chart_selection_check_box_right_option_jgc = st.checkbox(item2, True)
                     if not jrt_chart_selection_check_box_right_option_jgc:
-                        jrt_chart_selected_list_jgc.remove(item2)
+                        jrt_charts_selected_list_jgc.remove(item2)
 
             jrt_chart_selection_check_box_submission_button_jgc = st.form_submit_button("Load Charts")
             
             if jrt_chart_selection_check_box_submission_button_jgc:
-                if len(jrt_chart_selected_list_jgc) >= 1:
-                    st.write(f"**You Have Selected:** {jrt_chart_selected_list_jgc}")
+                if len(jrt_charts_selected_list_jgc) >= 1:
+                    st.write(f"**You Have Selected:** {jrt_charts_selected_list_jgc}")
                 else:
                     st.markdown("<h5 style='color: red'>Please select one or more charts options above and then click 'Load Charts'</h5>", unsafe_allow_html=True)
             else:
                 pass
             
         
-        if len(jrt_chart_selected_list_jgc) >= 1:
+        if len(jrt_charts_selected_list_jgc) >= 1:
             st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
             
             min_value_exp_run_time_slider = 0
@@ -127,13 +127,13 @@ if main_nav == "Job Geometric Characteristics":
                             if not jrt_model_checkbox_jpc:
                                 jrt_selected_system_models_jgc.remove(item)
                                 
-                if "CDF Run Time" in jrt_chart_selected_list_jgc:                
+                if "CDF Run Time" in jrt_charts_selected_list_jgc:                
                     with st.expander("**CDF Run Time Chart (X and Y - axis)**", expanded=True):       
                         jrt_cdf_frequency_slider_jgc = st.slider("**Adjust frequency range (Y-axis):**", min_value=0, max_value=100, step=20, value=100)
                         jrt_cdf_run_time_slider_jgc = st.slider("**Adjust run time range (in powers of 10) (X-axis):**", min_value_exp_run_time_slider, max_value_exp_run_time_slider, step=1, value=8)
                         jrt_cdf_run_time_slider_value_jgc = int(10**jrt_cdf_run_time_slider_jgc)
                         
-                if "Detailed Run Time Distribution" in jrt_chart_selected_list_jgc:
+                if "Detailed Run Time Distribution" in jrt_charts_selected_list_jgc:
                     with st.expander("**Detailed Run Time Distribution Chart (X and Y - axis)**", expanded=True):
                         jrt_drt_frequency_slider_jgc = st.slider("**Adjust frequency range (Y-axis):**", min_value=0.0, max_value=0.6, step=0.1, value=0.6)
                         st.write("##### **Select Run Time Range (X-axis):**")
@@ -278,7 +278,7 @@ if main_nav == "Job Geometric Characteristics":
                 if len(jrt_selected_system_models_jgc) >= 1:
                     if jrt_check_box_view_side_by_side_jgc:
                         col1, col2 = st.columns(2)
-                        for idx, item in enumerate(jrt_chart_selected_list_jgc):
+                        for idx, item in enumerate(jrt_charts_selected_list_jgc):
                             jrt_col_logic_cal_jgc = col1 if idx % 2 == 0 else col2
                             if item == "CDF Run Time":
                                 with jrt_col_logic_cal_jgc:
@@ -292,11 +292,11 @@ if main_nav == "Job Geometric Characteristics":
                             else:
                                 pass
                     else:
-                        if "CDF Run Time" in jrt_chart_selected_list_jgc:
+                        if "CDF Run Time" in jrt_charts_selected_list_jgc:
                             polt_cdf_job_run_time(False, "CDF Run Time")
                         else:
                             pass
-                        if "Detailed Run Time Distribution" in jrt_chart_selected_list_jgc:
+                        if "Detailed Run Time Distribution" in jrt_charts_selected_list_jgc:
                             if len(jrt_drt_selected_time_range_jgc) >= 1:
                                     plot_detailed_run_time(False, "Detailed Run Time Distribution")
                             else:
@@ -319,7 +319,7 @@ if main_nav == "Job Geometric Characteristics":
         jap_chart_selection_left_col_options_jgc = ["Daily Submit Pattern", "Weekly Submit Pattern"]
         jap_chart_selection_right_col_options_jgc = ["Job Arrival Interval"]
         jap_chart_selection_options_jgc = jap_chart_selection_left_col_options_jgc + jap_chart_selection_right_col_options_jgc
-        jap_chart_selected_list_jgc = jap_chart_selection_options_jgc.copy()
+        jap_charts_selected_list_jgc = jap_chart_selection_options_jgc.copy()
 
         def get_time_of_day(time, timestamp=True):
                 if timestamp:
@@ -357,24 +357,24 @@ if main_nav == "Job Geometric Characteristics":
                 for item in jap_chart_selection_left_col_options_jgc:
                     jap_chart_selection_check_box_left_option_jgc = st.checkbox(item, True)
                     if not jap_chart_selection_check_box_left_option_jgc:
-                        jap_chart_selected_list_jgc.remove(item)
+                        jap_charts_selected_list_jgc.remove(item)
             with col2:
                 for item2 in jap_chart_selection_right_col_options_jgc:
                     jap_chart_selection_check_box_right_option_jgc = st.checkbox(item2, True)
                     if not jap_chart_selection_check_box_right_option_jgc:
-                        jap_chart_selected_list_jgc.remove(item2)
+                        jap_charts_selected_list_jgc.remove(item2)
 
             jap_chart_selection_check_box_submission_button_jgc = st.form_submit_button("Load Charts")
             
             if jap_chart_selection_check_box_submission_button_jgc:
-                if len(jap_chart_selected_list_jgc) >= 1:
-                        st.write(f"**You have selected:** {jap_chart_selected_list_jgc}")
+                if len(jap_charts_selected_list_jgc) >= 1:
+                        st.write(f"**You have selected:** {jap_charts_selected_list_jgc}")
                 else:
                     st.markdown("<h5 style='color: red'>Please select one or more charts options above and then click 'Load Charts'</h5>", unsafe_allow_html=True)           
             else:
                 pass
         
-        if len(jap_chart_selected_list_jgc) >= 1:
+        if len(jap_charts_selected_list_jgc) >= 1:
             st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
 
             with st.sidebar.form("jap_sidebar_form_jgc"):
@@ -386,19 +386,19 @@ if main_nav == "Job Geometric Characteristics":
                             if not jap_model_checkbox_jgc:
                                 jap_selected_system_models_jgc.remove(item)
                                 
-                if "Daily Submit Pattern" in jap_chart_selected_list_jgc:                
+                if "Daily Submit Pattern" in jap_charts_selected_list_jgc:                
                     with st.expander("**Daily Submit Pattern Chart (X and Y - axis)**", expanded=True):  
                         jap_dsp_job_count_slider_jgc = st.slider("**Adjust Job Submit Count Range (Y-axis):**", min_value=0, max_value=180, step=20, value=180)
                         jap_dsp_hour_of_the_day_slider_jgc = st.slider("**Adjust Hour of the Day Range (X-axis):**", min_value=-1, max_value=24, step=1, value=24)  
                        
                         
-                if "Weekly Submit Pattern" in jap_chart_selected_list_jgc:
+                if "Weekly Submit Pattern" in jap_charts_selected_list_jgc:
                     with st.expander("**Weekly Submit Pattern Chart (X and Y - axis)**", expanded=True):
                         jap_wsp_job_count_slider_jgc = st.slider("**Adjust Job Submit Count Range (Y-axis):**", min_value=0, max_value=3000, step=500, value=3000)
                         jap_wsp_hour_of_the_day_slider_jgc = st.slider("**Adjust Day of the Week Range (X-axis):**", min_value=0, max_value=8, step=1, value=8)
                         
                                     
-                if "Job Arrival Interval" in jap_chart_selected_list_jgc:
+                if "Job Arrival Interval" in jap_charts_selected_list_jgc:
                     with st.expander("**Job Arrival Interval Chart (X and Y - axis)**", expanded=True):
                         
                         jap_jai_min_value_exp_arrival_interval_slider_jgc = 0
@@ -411,7 +411,13 @@ if main_nav == "Job Geometric Characteristics":
                                     
                 jap_submit_parameters_button_jgc = st.form_submit_button("Apply Changes")
                 
-                def plot_daily_submit_pattern():
+                def plot_daily_submit_pattern(side_by_side ,chart_title):
+                    
+                    if side_by_side:
+                        st.markdown(f"<h4 style='text-align: center;'>{chart_title}</h4>", unsafe_allow_html=True)
+                    else:
+                        st.markdown(f"<h2 style='text-align: center;'>{chart_title}</h2>", unsafe_allow_html=True)
+                        
                     plt.figure(figsize=(12,7))
                     plt.xticks(fontsize=16)
                     plt.yticks(fontsize=16)
@@ -438,7 +444,12 @@ if main_nav == "Job Geometric Characteristics":
                         plt.rc('legend',fontsize=20)
                         st.pyplot()
                 
-                def plot_weekly_submit_pattern():
+                def plot_weekly_submit_pattern(side_by_side ,chart_title):
+                    if side_by_side:
+                        st.markdown(f"<h4 style='text-align: center;'>{chart_title}</h4>", unsafe_allow_html=True)
+                    else:
+                        st.markdown(f"<h2 style='text-align: center;'>{chart_title}</h2>", unsafe_allow_html=True)
+                    
                     plt.figure(figsize=(12,7))
                     plt.xticks(fontsize=16)
                     plt.yticks(fontsize=16) 
@@ -465,7 +476,11 @@ if main_nav == "Job Geometric Characteristics":
                         plt.rc('legend',fontsize=20)
                         st.pyplot()
                     
-                def plot_job_arrival_interval(): 
+                def plot_job_arrival_interval(side_by_side ,chart_title): 
+                    if side_by_side:
+                        st.markdown(f"<h4 style='text-align: center;'>{chart_title}</h4>", unsafe_allow_html=True)
+                    else:
+                        st.markdown(f"<h2 style='text-align: center;'>{chart_title}</h2>", unsafe_allow_html=True)
                     
                     def get_interval(a, peak=False):
                         def get_time_of_day2(time):
@@ -522,20 +537,39 @@ if main_nav == "Job Geometric Characteristics":
                 jap_check_box_view_side_by_side_jgc = st.checkbox("Select to view charts side by side")   
                 
             with st.spinner(spinner_text):
+                st.markdown("<h1 style='text-align: center; color: black;'>Comparisons Of Job Arrival Patterns</h1>", unsafe_allow_html=True)
+                
                 # Calling functions to plot charts
-                plot_daily_submit_pattern()
-                plot_weekly_submit_pattern()
-                plot_job_arrival_interval()
-               
+                if jap_check_box_view_side_by_side_jgc:          
+                    col1, col2 = st.columns(2)
+                    for idx, item in enumerate(jap_charts_selected_list_jgc):
+                        jap_col_logic_cal_jgc = col1 if idx % 2 == 0 else col2
+                        if item == "Daily Submit Pattern":
+                            with jap_col_logic_cal_jgc:
+                                plot_daily_submit_pattern(True, "Daily Submit Pattern")  
+                        elif item == "Weekly Submit Pattern":
+                            with jap_col_logic_cal_jgc:
+                                plot_weekly_submit_pattern(True, "Weekly Submit Pattern")    
+                        elif item == "Job Arrival Interval":
+                            with jap_col_logic_cal_jgc:
+                                plot_job_arrival_interval(True, "Job Arrival Interval")
+                        else:
+                            pass
+                else:
+                    for item in jap_charts_selected_list_jgc:
+                        if item == "Daily Submit Pattern":
+                            plot_daily_submit_pattern(False, "Daily Submit Pattern")  
+                        elif item == "Weekly Submit Pattern":
+                            plot_weekly_submit_pattern(False, "Weekly Submit Pattern")    
+                        elif item == "Job Arrival Interval":
+                            plot_job_arrival_interval(False, "Job Arrival Interval")
+                        else:
+                            pass
               
             with st.expander(f"**{chart_description_expander_title}**", expanded=True):
-                
                 st.write("**Daily Submit Pattern Chart Description:** Displays a chart presenting the job arrival counts of each job trace for each hour of the day")
-
                 st.write("**Weekly Submit Pattern Chart Description:** Displays a chart presenting the job arrival counts of each job trace for each day of the week")
-
                 st.write("**Job Arrival Interval:** Displays a Cumulative Distribution Functions (CDF) of job arrival interval(s) comparison of the four job traces (Blue Waters, Mira, Philly, and Helios).")          
-
 
     # System Utilization and Resource Occupation page
     elif nav_bar_horizontal == "Sys Util & Res Occu":
@@ -543,7 +577,7 @@ if main_nav == "Job Geometric Characteristics":
         suaro_gpu_chart_options_jgc = ["Blue Waters GPU", 
                     "Philly GPU", "Helios GPU", "Philly GPU-SchedGym"]
         suaro_chart_options_jgc = suaro_cpu_chart_options_jgc + suaro_gpu_chart_options_jgc
-        suaro_selected_charts_list_jgc = suaro_chart_options_jgc.copy()
+        suaro_charts_selected_list_jgc = suaro_chart_options_jgc.copy()
 
         def plot_util_jgc(data, total_nodes, key="node_num", color='b', side_by_side=False, chart_title=None):
             data = data.copy()
@@ -590,25 +624,25 @@ if main_nav == "Job Geometric Characteristics":
                 for item in suaro_cpu_chart_options_jgc:
                     suaro_chart_selected_jgc = st.checkbox(item, True)
                     if not suaro_chart_selected_jgc:
-                        suaro_selected_charts_list_jgc.remove(item)
+                        suaro_charts_selected_list_jgc.remove(item)
             with col2:
                 st.markdown('<h4 style="text-align: center;">GPU Charts</h4>', unsafe_allow_html=True)
                 for item in suaro_gpu_chart_options_jgc:
                     suaro_chart_selected_jgc = st.checkbox(item, True)
                     if not suaro_chart_selected_jgc:
-                        suaro_selected_charts_list_jgc.remove(item)
+                        suaro_charts_selected_list_jgc.remove(item)
                         
             suaro_select_charts_checkbox_main_form_button_jgc = st.form_submit_button("Load Charts")
             
             if suaro_select_charts_checkbox_main_form_button_jgc:
-                if len(suaro_selected_charts_list_jgc) >= 1:
-                    st.write(f'**You have selected:** {suaro_selected_charts_list_jgc}')
+                if len(suaro_charts_selected_list_jgc) >= 1:
+                    st.write(f'**You have selected:** {suaro_charts_selected_list_jgc}')
                 else:
                     st.markdown("<h5 style='color: red;'>You have not selected any chart options above, please select one or more chart option(s) to load the charts.</h5>", unsafe_allow_html=True)
             else: 
                 pass
 
-        if len(suaro_selected_charts_list_jgc) >= 1:
+        if len(suaro_charts_selected_list_jgc) >= 1:
             st.sidebar.markdown("<h1 style='text-align: center;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
             
             with st.sidebar.form("suaro_sidebar_form_jgc"):
@@ -617,7 +651,7 @@ if main_nav == "Job Geometric Characteristics":
                 suaro_time_slider_jgc = st.slider("**Adjust Time Range (X-axis):**", min_value=0, max_value=120, value=120, step=10)
                 suaro_submit_button_sidebar_jgc = st.form_submit_button("Apply Changes")
                 if suaro_submit_button_sidebar_jgc:
-                    if len(suaro_selected_charts_list_jgc) < 1:
+                    if len(suaro_charts_selected_list_jgc) < 1:
                         st.markdown("<h5 style='color: red;'>Please select one or more chart option(s) from the menu in the main screen to load the charts.</h5>", unsafe_allow_html=True)
                     else:
                         pass
@@ -630,7 +664,7 @@ if main_nav == "Job Geometric Characteristics":
                 
                 if suaro_check_box_view_side_by_side_jgc:          
                     col1, col2 = st.columns(2)
-                    for idx, item in enumerate(suaro_selected_charts_list_jgc):
+                    for idx, item in enumerate(suaro_charts_selected_list_jgc):
                         suaro_col_logic_cal_jgc = col1 if idx % 2 == 0 else col2
                         if item == "Blue Waters CPU":
                             with suaro_col_logic_cal_jgc:
@@ -653,7 +687,7 @@ if main_nav == "Job Geometric Characteristics":
                         else:
                             pass
                 else:
-                    for item in suaro_selected_charts_list_jgc:
+                    for item in suaro_charts_selected_list_jgc:
                         if item == "Blue Waters CPU":
                             plot_util_jgc(bw_df[1000:], 22636*32, "cpu_num", color="#1f77b4", side_by_side=False, chart_title="Blue Waters CPU Chart")  
                         elif item == "Mira CPU":
@@ -1088,7 +1122,7 @@ elif main_nav == "Job Failure Characteristics":
 
     if nav_bar_jfc == "Job Failures Distribution":
         jfd_chart_selection_options_jfc = ["Job Count w.r.t Job Status", "Core Hours w.r.t Job Status"] 
-        jfd_chart_selected_list_jfc = jfd_chart_selection_options_jfc.copy()
+        jfd_charts_selected_list_jfc = jfd_chart_selection_options_jfc.copy()
 
         with st.form("jfd_chart_selection_form_jfc"):
             st.write(f"### **{chart_selection_form_title}**")
@@ -1097,22 +1131,22 @@ elif main_nav == "Job Failure Characteristics":
             with col1 :
                 jfd_chart_selection_check_box_left_option_jfc = st.checkbox(jfd_chart_selection_options_jfc[0], True)
                 if not jfd_chart_selection_check_box_left_option_jfc:
-                     jfd_chart_selected_list_jfc.remove(jfd_chart_selection_options_jfc[0])
+                     jfd_charts_selected_list_jfc.remove(jfd_chart_selection_options_jfc[0])
             with col2:
                 jfd_chart_selection_check_box_right_option_jfc = st.checkbox(jfd_chart_selection_options_jfc[1], True)
                 if not jfd_chart_selection_check_box_right_option_jfc:
-                     jfd_chart_selected_list_jfc.remove(jfd_chart_selection_options_jfc[1])
+                     jfd_charts_selected_list_jfc.remove(jfd_chart_selection_options_jfc[1])
 
             jfd_chart_selection_check_box_submission_button_jfc = st.form_submit_button("Load Charts")
             if jfd_chart_selection_check_box_submission_button_jfc:
-                if len(jfd_chart_selected_list_jfc) >= 1:
-                    st.write(f"**You Have Selected:** {jfd_chart_selected_list_jfc}")
+                if len(jfd_charts_selected_list_jfc) >= 1:
+                    st.write(f"**You Have Selected:** {jfd_charts_selected_list_jfc}")
                 else:
                     st.markdown("<h5 style='color: red'>Please select one or more charts options above and then click 'Load Charts'</h5>", unsafe_allow_html=True)
             else:
                 pass
         
-        if len(jfd_chart_selected_list_jfc) >= 1:
+        if len(jfd_charts_selected_list_jfc) >= 1:
             st.sidebar.markdown("<h1 style='text-align: center;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
 
             with st.sidebar.form("jfd_sidebar_form_jfc"):
@@ -1149,9 +1183,9 @@ elif main_nav == "Job Failure Characteristics":
                     st.markdown("<h1 style='text-align: center; color: black;'>The Distribution Of Different Job Statuses Charts</h1>", unsafe_allow_html=True)
 
                     if jfd_check_box_view_side_by_side_jfc:
-                        if len(jfd_chart_selected_list_jfc) >= 1:
+                        if len(jfd_charts_selected_list_jfc) >= 1:
                             col1, col2 = st.columns(2)
-                            for idx, item in enumerate(jfd_chart_selected_list_jfc):
+                            for idx, item in enumerate(jfd_charts_selected_list_jfc):
                                 jfd_col_logic_cal_jfc = col1 if idx % 2 == 0 else col2
                                 if item == "Job Count w.r.t Job Status":
                                     with jfd_col_logic_cal_jfc:
@@ -1166,12 +1200,12 @@ elif main_nav == "Job Failure Characteristics":
                         else:
                             pass
                     else:
-                        if "Job Count w.r.t Job Status" in jfd_chart_selected_list_jfc:
+                        if "Job Count w.r.t Job Status" in jfd_charts_selected_list_jfc:
                             st.markdown("<h2 style='text-align: center;'>Job Count w.r.t Job Status</h2>", unsafe_allow_html=True)
                             plot_percentage_status(jfd_job_status_selected_list_jfc, jfd_percentage_slider_jfc, jfd_selected_system_models_jfc, True)
                         else:
                             pass
-                        if "Core Hours w.r.t Job Status" in jfd_chart_selected_list_jfc:
+                        if "Core Hours w.r.t Job Status" in jfd_charts_selected_list_jfc:
                             st.markdown("<h2 style='text-align: center;'>Core Hours w.r.t Job Status</h2>", unsafe_allow_html=True)
                             plot_percentage_status(jfd_job_status_selected_list_jfc, jfd_percentage_slider_jfc, jfd_selected_system_models_jfc, False)
                         else:
@@ -1198,7 +1232,7 @@ elif main_nav == "Job Failure Characteristics":
         cbjfajg_chart_title_jfc = "Chart Selection Form"
         cbjfajg_chart_checkbox_title_jfc = "Select one or more charts"
         cbjfajg_chart_selection_options_jfc = ["Job Status w.r.t Job Size", "Job Status w.r.t Job Run Time"]
-        cbjfajg_chart_selected_list_jfc = cbjfajg_chart_selection_options_jfc.copy()
+        cbjfajg_charts_selected_list_jfc = cbjfajg_chart_selection_options_jfc.copy()
 
         with st.form("cbjfajg_chart_selection_form_jfc"):
             st.write(f"### **{chart_selection_form_title}**")
@@ -1207,22 +1241,22 @@ elif main_nav == "Job Failure Characteristics":
             with col1 :
                 cbjfajg_chart_selection_check_box_left_option_jfc = st.checkbox(cbjfajg_chart_selection_options_jfc[0], True)
                 if not cbjfajg_chart_selection_check_box_left_option_jfc:
-                    cbjfajg_chart_selected_list_jfc.remove(cbjfajg_chart_selection_options_jfc[0])
+                    cbjfajg_charts_selected_list_jfc.remove(cbjfajg_chart_selection_options_jfc[0])
             with col2:
                 cbjfajg_chart_selection_check_box_right_option_jfc = st.checkbox(cbjfajg_chart_selection_options_jfc[1], True)
                 if not cbjfajg_chart_selection_check_box_right_option_jfc:
-                    cbjfajg_chart_selected_list_jfc.remove(cbjfajg_chart_selection_options_jfc[1])
+                    cbjfajg_charts_selected_list_jfc.remove(cbjfajg_chart_selection_options_jfc[1])
 
             cbjfajg_chart_selection_check_box_submission_button_jfc = st.form_submit_button("Load Charts")
             if cbjfajg_chart_selection_check_box_submission_button_jfc:
-                if len(cbjfajg_chart_selected_list_jfc) >= 1:
-                    st.write(f"**You Have Selected:** {cbjfajg_chart_selected_list_jfc}")
+                if len(cbjfajg_charts_selected_list_jfc) >= 1:
+                    st.write(f"**You Have Selected:** {cbjfajg_charts_selected_list_jfc}")
                 else:
                     st.markdown("<h5 style='color: red'>Please select one or more charts options above and then click 'Load Charts'</h5>", unsafe_allow_html=True)
             else:
                 pass
 
-        if len(cbjfajg_chart_selected_list_jfc) >= 1:
+        if len(cbjfajg_charts_selected_list_jfc) >= 1:
             st.sidebar.markdown("<h1 style='text-align: center;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
 
             with st.sidebar.form("cbjfajg_sidebar_form_jfc"):
@@ -1259,9 +1293,9 @@ elif main_nav == "Job Failure Characteristics":
                 with st.spinner(spinner_text):
                     st.markdown("<h1 style='text-align: center; color: black;'>Job Failure v.s Job Runtime And Job Requested Resources Charts</h1>", unsafe_allow_html=True)
                     if cbjfajg_check_box_view_side_by_side_jfc:
-                        if len(cbjfajg_chart_selected_list_jfc) >= 1:
+                        if len(cbjfajg_charts_selected_list_jfc) >= 1:
                             col1, col2 = st.columns(2)
-                            for idx, item in enumerate(cbjfajg_chart_selected_list_jfc):
+                            for idx, item in enumerate(cbjfajg_charts_selected_list_jfc):
                                 cbjfajg_col_logic_cal_jfc = col1 if idx % 2 == 0 else col2
                                 if item == "Job Status w.r.t Job Size":
                                     with cbjfajg_col_logic_cal_jfc:
@@ -1276,13 +1310,13 @@ elif main_nav == "Job Failure Characteristics":
                         else:
                             pass
                     else:
-                        if "Job Status w.r.t Job Size" in cbjfajg_chart_selected_list_jfc:
+                        if "Job Status w.r.t Job Size" in cbjfajg_charts_selected_list_jfc:
                             st.markdown("<h2 style='text-align: center;'>Job Status w.r.t Job Size</h2>", unsafe_allow_html=True)
                             #Alex - call function with the parameters to plot Job Status w.r.t Job Size
                             plot_status_over()
                         else:
                             pass
-                        if "Job Status w.r.t Job Run Time" in cbjfajg_chart_selected_list_jfc:
+                        if "Job Status w.r.t Job Run Time" in cbjfajg_charts_selected_list_jfc:
                             st.markdown("<h2 style='text-align: center;'>Job Status w.r.t Job Run Time</h2>", unsafe_allow_html=True)
                             #Alex - call function with the parameters to plot Job Status w.r.t Job Run Time
                             plot_status_over(True)
@@ -1313,7 +1347,7 @@ elif main_nav == "User Behavior Characteristics":
         urb_chart_selection_left_col_options_ubc = ["Blue Waters", "Mira"]
         urb_chart_selection_right_col_options_ubc = ["Philly", "Helios"]
         urb_chart_selection_options_ubc = urb_chart_selection_left_col_options_ubc + urb_chart_selection_right_col_options_ubc
-        urb_chart_selected_list_ubc = urb_chart_selection_options_ubc.copy()
+        urb_charts_selected_list_ubc = urb_chart_selection_options_ubc.copy()
 
         with st.form("urb_chart_selection_form_ubc"):
             st.write(f"### **{chart_selection_form_title}**")
@@ -1323,23 +1357,23 @@ elif main_nav == "User Behavior Characteristics":
                 for item in urb_chart_selection_left_col_options_ubc:
                     urb_chart_selection_check_box_left_option_ubc = st.checkbox(item, True)
                     if not urb_chart_selection_check_box_left_option_ubc:
-                        urb_chart_selected_list_ubc.remove(item)
+                        urb_charts_selected_list_ubc.remove(item)
             with col2:
                 for item2 in urb_chart_selection_right_col_options_ubc:
                     urb_chart_selection_check_box_right_option_ubc = st.checkbox(item2, True)
                     if not urb_chart_selection_check_box_right_option_ubc:
-                        urb_chart_selected_list_ubc.remove(item2)
+                        urb_charts_selected_list_ubc.remove(item2)
             urb_chart_selection_check_box_submission_button_ubc = st.form_submit_button("Load Charts")
 
             if urb_chart_selection_check_box_submission_button_ubc:
-                if len(urb_chart_selected_list_ubc) >= 1:
-                    st.write(f"**You Have Selected:** {urb_chart_selected_list_ubc}")
+                if len(urb_charts_selected_list_ubc) >= 1:
+                    st.write(f"**You Have Selected:** {urb_charts_selected_list_ubc}")
                 else:
                     st.markdown("<h5 style='color: red'>Please select one or more charts options above and then click 'Load Charts'</h5>", unsafe_allow_html=True)
             else:
                 pass
 
-        if len(urb_chart_selected_list_ubc) >= 1:
+        if len(urb_charts_selected_list_ubc) >= 1:
             st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
 
             with st.sidebar.form("urb_sidebar_form_ubc"):
@@ -1382,7 +1416,7 @@ elif main_nav == "User Behavior Characteristics":
                 urb_chart_titles_ubc = []
                 urb_x_axis_slice_end_value_ubc = urb_no_of_top_groups_per_user_slider_ubc
 
-                for item in urb_chart_selected_list_ubc:
+                for item in urb_charts_selected_list_ubc:
                     if "Blue Waters" == item:
                         x.append(a[:urb_x_axis_slice_end_value_ubc])
                         urb_chart_titles_ubc.append("Blue Waters")
@@ -1404,7 +1438,7 @@ elif main_nav == "User Behavior Characteristics":
 
                 if urb_check_box_view_side_by_side_ubc:
                         col1, col2 = st.columns(2)
-                        for idx, item in enumerate(urb_chart_selected_list_ubc):
+                        for idx, item in enumerate(urb_charts_selected_list_ubc):
                             urb_col_logic_cal_ubc = col1 if idx % 2 == 0 else col2
                             if item == "Blue Waters":
                                 with urb_col_logic_cal_ubc:
@@ -1436,7 +1470,7 @@ elif main_nav == "User Behavior Characteristics":
         usb_chart_selection_left_col_options_ubc = ["Blue Waters", "Mira"]
         usb_chart_selection_right_col_options_ubc = ["Philly", "Helios"]
         usb_chart_selection_options_ubc = usb_chart_selection_left_col_options_ubc + usb_chart_selection_right_col_options_ubc
-        usb_chart_selected_list_ubc = usb_chart_selection_options_ubc.copy()
+        usb_charts_selected_list_ubc = usb_chart_selection_options_ubc.copy()
         usb_job_size_list_ubc = ["Short Queue", "Middle Queue", "Long Queue"]
         usb_job_size_selected_list_ubc = usb_job_size_list_ubc.copy()
 
@@ -1448,23 +1482,23 @@ elif main_nav == "User Behavior Characteristics":
                 for item in usb_chart_selection_left_col_options_ubc:
                     usb_chart_selection_check_box_left_option_ubc = st.checkbox(item, True)
                     if not usb_chart_selection_check_box_left_option_ubc:
-                        usb_chart_selected_list_ubc.remove(item)
+                        usb_charts_selected_list_ubc.remove(item)
             with col2:
                 for item2 in usb_chart_selection_right_col_options_ubc:
                     usb_chart_selection_check_box_right_option_ubc = st.checkbox(item2, True)
                     if not usb_chart_selection_check_box_right_option_ubc:
-                        usb_chart_selected_list_ubc.remove(item2)
+                        usb_charts_selected_list_ubc.remove(item2)
             usb_chart_selection_check_box_submission_button_ubc = st.form_submit_button("Load Charts")
 
             if usb_chart_selection_check_box_submission_button_ubc:
-                if len(usb_chart_selected_list_ubc) >= 1:
-                    st.write(f"**You Have Selected:** {usb_chart_selected_list_ubc}")
+                if len(usb_charts_selected_list_ubc) >= 1:
+                    st.write(f"**You Have Selected:** {usb_charts_selected_list_ubc}")
                 else:
                     st.markdown("<h5 style='color: red'>Please select one or more charts options above and then click 'Load Charts'</h5>", unsafe_allow_html=True)
             else:
                 pass
 
-        if len(usb_chart_selected_list_ubc) >= 1:
+        if len(usb_charts_selected_list_ubc) >= 1:
             st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
 
             with st.sidebar.form("usb_sidebar_form_ubc"):
@@ -1670,7 +1704,7 @@ elif main_nav == "User Behavior Characteristics":
         cbjrtajs_chart_selection_left_col_options_ubc = ["Blue Waters", "Mira"]
         cbjrtajs_chart_selection_right_col_options_ubc = ["Philly", "Helios"]
         cbjrtajs_chart_selection_options_ubc = cbjrtajs_chart_selection_left_col_options_ubc + cbjrtajs_chart_selection_right_col_options_ubc
-        cbjrtajs_chart_selected_list_ubc = cbjrtajs_chart_selection_options_ubc.copy()
+        cbjrtajs_charts_selected_list_ubc = cbjrtajs_chart_selection_options_ubc.copy()
         cbjrtajs_job_status_list_ubc = ["Pass", "Failed", "Killed"]
         cbjrtajs_job_status_selected_list_ubc = cbjrtajs_job_status_list_ubc.copy()
         
@@ -1686,23 +1720,23 @@ elif main_nav == "User Behavior Characteristics":
                 for item in cbjrtajs_chart_selection_left_col_options_ubc:
                     cbjrtajs_chart_selection_check_box_left_option_ubc = st.checkbox(item, True)
                     if not cbjrtajs_chart_selection_check_box_left_option_ubc:
-                        cbjrtajs_chart_selected_list_ubc.remove(item)
+                        cbjrtajs_charts_selected_list_ubc.remove(item)
             with col2:
                 for item2 in cbjrtajs_chart_selection_right_col_options_ubc:
                     cbjrtajs_chart_selection_check_box_right_option_ubc = st.checkbox(item2, True)
                     if not cbjrtajs_chart_selection_check_box_right_option_ubc:
-                        cbjrtajs_chart_selected_list_ubc.remove(item2)
+                        cbjrtajs_charts_selected_list_ubc.remove(item2)
             cbjrtajs_chart_selection_check_box_submission_button_ubc = st.form_submit_button("Load Charts")
 
             if cbjrtajs_chart_selection_check_box_submission_button_ubc:
-                if len(cbjrtajs_chart_selected_list_ubc) >= 1:
-                    st.write(f"**You Have Selected:** {cbjrtajs_chart_selected_list_ubc}")
+                if len(cbjrtajs_charts_selected_list_ubc) >= 1:
+                    st.write(f"**You Have Selected:** {cbjrtajs_charts_selected_list_ubc}")
                 else:
                     st.markdown("<h5 style='color: red'>Please select one or more charts options above and then click 'Load Charts'</h5>", unsafe_allow_html=True)
             else:
                 pass
 
-        if len(cbjrtajs_chart_selected_list_ubc) >= 1:
+        if len(cbjrtajs_charts_selected_list_ubc) >= 1:
             st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
 
             with st.sidebar.form("cbjrtajs_sidebar_form_ubc"):
@@ -1821,7 +1855,7 @@ elif main_nav == "User Behavior Characteristics":
                     st.markdown("<h1 style='text-align: center; color: black;'>The Median Runtime Of Different Types Of Jobs Charts</h1>", unsafe_allow_html=True)
                     if cbjrtajs_check_box_view_side_by_side_ubc:
                         col1, col2 = st.columns(2)
-                        for idx, item in enumerate(cbjrtajs_chart_selected_list_ubc):
+                        for idx, item in enumerate(cbjrtajs_charts_selected_list_ubc):
                             cbjrtajs_col_logic_cal_ubc = col1 if idx % 2 == 0 else col2
                             if item == "Blue Waters":
                                 with cbjrtajs_col_logic_cal_ubc:
@@ -1838,7 +1872,7 @@ elif main_nav == "User Behavior Characteristics":
                             else:
                                 pass                           
                     else:
-                        for item in cbjrtajs_chart_selected_list_ubc:
+                        for item in cbjrtajs_charts_selected_list_ubc:
                             if item == "Blue Waters":
                                 plot_attribute_per_ml("user", data=bw_df, state="new_status", status=cbjrtajs_job_status_selected_list_ubc, all_user=True, side_by_side = False, chart_title = "Blue Waters")                          
                             elif item == "Mira":
