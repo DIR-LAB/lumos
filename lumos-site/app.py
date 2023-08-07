@@ -113,7 +113,7 @@ if main_nav == "Job Geometric Characteristics":
             
         
         if len(jrt_charts_selected_list_jgc) >= 1:
-            st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
+            st.sidebar.markdown("<h1 style='text-align: center;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
             
             min_value_exp_run_time_slider = 0
             max_value_exp_run_time_slider = 8 
@@ -128,13 +128,13 @@ if main_nav == "Job Geometric Characteristics":
                                 jrt_selected_system_models_jgc.remove(item)
                                 
                 if "CDF Run Time" in jrt_charts_selected_list_jgc:                
-                    with st.expander("**CDF Run Time Chart (X and Y - axis)**", expanded=True):       
+                    with st.expander("**CDF Run Time Chart (Y and X - axis)**", expanded=True):       
                         jrt_cdf_frequency_slider_jgc = st.slider("**Adjust frequency range (Y-axis):**", min_value=0, max_value=100, step=20, value=100)
                         jrt_cdf_run_time_slider_jgc = st.slider("**Adjust run time range (in powers of 10) (X-axis):**", min_value_exp_run_time_slider, max_value_exp_run_time_slider, step=1, value=8)
                         jrt_cdf_run_time_slider_value_jgc = int(10**jrt_cdf_run_time_slider_jgc)
                         
                 if "Detailed Run Time Distribution" in jrt_charts_selected_list_jgc:
-                    with st.expander("**Detailed Run Time Distribution Chart (X and Y - axis)**", expanded=True):
+                    with st.expander("**Detailed Run Time Distribution Chart (Y and X - axis)**", expanded=True):
                         jrt_drt_frequency_slider_jgc = st.slider("**Adjust frequency range (Y-axis):**", min_value=0.0, max_value=0.6, step=0.1, value=0.6)
                         st.write("##### **Select Run Time Range (X-axis):**")
                         for item in jrt_drt_time_ranges_jgc:
@@ -274,7 +274,7 @@ if main_nav == "Job Geometric Characteristics":
                 st.pyplot()
 
             with st.spinner(spinner_text):   
-                st.markdown("<h1 style='text-align: center; color: black;'>Comparisons Of Run Time Among Four DataSets Charts</h1>", unsafe_allow_html=True) 
+                st.markdown("<h1 style='text-align: center;'>Comparisons Of Run Time Among Four DataSets Charts</h1>", unsafe_allow_html=True) 
                 if len(jrt_selected_system_models_jgc) >= 1:
                     if jrt_check_box_view_side_by_side_jgc:
                         col1, col2 = st.columns(2)
@@ -375,7 +375,7 @@ if main_nav == "Job Geometric Characteristics":
                 pass
         
         if len(jap_charts_selected_list_jgc) >= 1:
-            st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
+            st.sidebar.markdown("<h1 style='text-align: center;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
 
             with st.sidebar.form("jap_sidebar_form_jgc"):
                 st.write("### Alter the following settings to customize the selected chart(s):")
@@ -387,19 +387,19 @@ if main_nav == "Job Geometric Characteristics":
                                 jap_selected_system_models_jgc.remove(item)
                                 
                 if "Daily Submit Pattern" in jap_charts_selected_list_jgc:                
-                    with st.expander("**Daily Submit Pattern Chart (X and Y - axis)**", expanded=True):  
+                    with st.expander("**Daily Submit Pattern Chart (Y and X - axis)**", expanded=True):  
                         jap_dsp_job_count_slider_jgc = st.slider("**Adjust Job Submit Count Range (Y-axis):**", min_value=0, max_value=180, step=20, value=180)
                         jap_dsp_hour_of_the_day_slider_jgc = st.slider("**Adjust Hour of the Day Range (X-axis):**", min_value=-1, max_value=24, step=1, value=24)  
                        
                         
                 if "Weekly Submit Pattern" in jap_charts_selected_list_jgc:
-                    with st.expander("**Weekly Submit Pattern Chart (X and Y - axis)**", expanded=True):
+                    with st.expander("**Weekly Submit Pattern Chart (Y and X - axis)**", expanded=True):
                         jap_wsp_job_count_slider_jgc = st.slider("**Adjust Job Submit Count Range (Y-axis):**", min_value=0, max_value=3000, step=500, value=3000)
                         jap_wsp_hour_of_the_day_slider_jgc = st.slider("**Adjust Day of the Week Range (X-axis):**", min_value=0, max_value=8, step=1, value=8)
                         
                                     
                 if "Job Arrival Interval" in jap_charts_selected_list_jgc:
-                    with st.expander("**Job Arrival Interval Chart (X and Y - axis)**", expanded=True):
+                    with st.expander("**Job Arrival Interval Chart (Y and X - axis)**", expanded=True):
                         
                         jap_jai_min_value_exp_arrival_interval_slider_jgc = 0
                         jap_jai_max_value_exp_arrival_interval_slider_jgc = 8 
@@ -537,7 +537,7 @@ if main_nav == "Job Geometric Characteristics":
                 jap_check_box_view_side_by_side_jgc = st.checkbox("Select to view charts side by side")   
                 
             with st.spinner(spinner_text):
-                st.markdown("<h1 style='text-align: center; color: black;'>Comparisons Of Job Arrival Patterns</h1>", unsafe_allow_html=True)
+                st.markdown("<h1 style='text-align: center;'>Comparisons Of Job Arrival Patterns</h1>", unsafe_allow_html=True)
                 
                 # Calling functions to plot charts
                 if jap_check_box_view_side_by_side_jgc:          
@@ -662,7 +662,7 @@ if main_nav == "Job Geometric Characteristics":
                     suaro_check_box_view_side_by_side_jgc = st.checkbox("Select to view charts side by side")
 
             with st.spinner("In Progess... Please do not change any settings now"):
-                st.markdown("<h1 style='text-align: center; color: black;'>The System Utilization Across Multiple Systems Charts</h1>", unsafe_allow_html=True)
+                st.markdown("<h1 style='text-align: center;'>The System Utilization Across Multiple Systems Charts</h1>", unsafe_allow_html=True)
                 
                 if suaro_check_box_view_side_by_side_jgc:          
                     col1, col2 = st.columns(2)
@@ -710,286 +710,293 @@ if main_nav == "Job Geometric Characteristics":
 
     # Job Waiting Time Page
     elif nav_bar_horizontal == "Job Waiting Time":
-        system_models_jwt = ["Blue Waters", "Mira", "Philly", "Helios"]
-
-        def plot_cdf(x,bins ,xlabel, ylabel="Frequency (%)",color="", linestyle="--"):
-            plt.xticks(fontsize=16)
-            plt.yticks(fontsize=16) 
-            x = np.sort(x)
-            cdf = 100*np.arange(len(x)) / float(len(x))
-            if color:
-                plt.plot(x, cdf, linestyle=linestyle, linewidth=5, color=color)
-            else:
-                plt.plot(x, cdf, linestyle=linestyle, linewidth=5)
-            plt.xlabel(xlabel, fontsize=20)
-            plt.ylabel(ylabel, fontsize=20)
-            plt.margins(0)
-            plt.ylim(0, 100)
-            plt.grid(True)
-
-        #Function to calculate Average Wait Time charts
-        def plot_percentage_corehour(selected_job_sizes, frequency_value, selected_models, run_time=False):
-                plt.style.use("default")
-                traces = selected_models
-                # Chart - Average Waiting Time w.r.t Job Run Time
-                short_job_size_dic = {'Blue Waters': 1.74, 'Mira': 4.70, 'Philly': 1.17, 'Helios': 1.97}
-                middle_job_size_dic = {'Blue Waters': 62.07, 'Mira': 81.24, 'Philly': 14.32, 'Helios': 22.28}
-                long_job_size_dic = {'Blue Waters': 36.18, 'Mira': 14.05, 'Philly': 84.51, 'Helios': 75.75}
-
-                small_job_size_dic = {'Blue Waters': 86.21, 'Mira': 34.12, 'Philly': 18.48, 'Helios': 4.57}
-                middle2_job_size_dic = {'Blue Waters': 4.48, 'Mira': 46.63, 'Philly': 68.87, 'Helios': 37.93}
-                large_job_size_dic = {'Blue Waters': 9.31, 'Mira': 19.25, 'Philly': 12.65, 'Helios': 57.50}
-
-                if run_time:
-                    status = {}
-                    if "Short" in selected_job_sizes:
-                        status['Short'] = [short_job_size_dic[system_model] for system_model in short_job_size_dic if system_model in selected_models]
-                    else:
-                        pass
-                    if "Middle" in selected_job_sizes:
-                        status['Middle'] = [middle_job_size_dic[system_model] for system_model in middle_job_size_dic if system_model in selected_models]
-                    else:
-                        pass
-                    if "Long" in selected_job_sizes:
-                        status['Long'] = [long_job_size_dic[system_model] for system_model in long_job_size_dic if system_model in selected_models]
-                    else:
-                        pass
+        jwt_system_models_jgc = ["Blue Waters", "Mira", "Philly", "Helios"]
+        jwt_selected_system_models_jgc = jwt_system_models_jgc.copy()
+        jwt_cdf_chart_options_jgc = ["CDF of Wait Time", "CDF of Turnaround Time"]
+        jwt_avg_wait_time_chart_options_jgc = ["Avg waiting Time w.r.t Job Size",  "Avg Waiting Time w.r.t Job Run Time"]
+        jwt_chart_options_jgc = jwt_cdf_chart_options_jgc + jwt_avg_wait_time_chart_options_jgc
+        jwt_charts_selected_list_jgc = jwt_chart_options_jgc.copy()
+                
+        with st.form("jwt_select_charts_checkbox_main_form_jgc"): 
+            st.write(f"### **{chart_selection_form_title}**")
+            st.write(f'**{chart_selection_form_load_charts_text}**')
+            col1, col2 = st.columns(2)
+            with col1:
+                st.markdown('<h4 style="text-align: center;">CDF Charts</h4>', unsafe_allow_html=True)
+                for item in jwt_cdf_chart_options_jgc:
+                    jwt_chart_selected_jgc = st.checkbox(item, True)
+                    if not jwt_chart_selected_jgc:
+                        jwt_charts_selected_list_jgc.remove(item)
+            with col2:
+                st.markdown('<h4 style="text-align: center;">Avg Wait Time Charts</h4>', unsafe_allow_html=True)
+                for item in jwt_avg_wait_time_chart_options_jgc:
+                    jwt_chart_selected_jgc = st.checkbox(item, True)
+                    if not jwt_chart_selected_jgc:
+                        jwt_charts_selected_list_jgc.remove(item)
+                        
+            jwt_select_charts_checkbox_main_form_button_jgc = st.form_submit_button("Load Charts")
+            
+            if jwt_select_charts_checkbox_main_form_button_jgc:
+                if len(jwt_charts_selected_list_jgc) >= 1:
+                    st.write(f'**You have selected:** {jwt_charts_selected_list_jgc}')
                 else:
-                    status = {}
-                    if "Small" in selected_job_sizes:
-                        status['Small'] = [small_job_size_dic[system_model] for system_model in small_job_size_dic if system_model in selected_models]
-                    else:
-                        pass
-                    if "Middle" in selected_job_sizes:
-                        status['Middle'] = [middle2_job_size_dic[system_model] for system_model in middle2_job_size_dic if system_model in selected_models]
-                    else:
-                        pass
-                    if "Large" in selected_job_sizes:
-                        status['Large'] = [large_job_size_dic[system_model] for system_model in large_job_size_dic if system_model in selected_models]
-                    else:
-                        pass
-
-                x = np.arange(len(traces))  # the label locations
-                width = 0.25  # the width of the bars
-                multiplier = 0
-
-                fig, ax = plt.subplots()
-                hatches= ["-", ".", "x", "-"]
-                for i, (attribute, measurement) in enumerate(status.items()):
-                    offset = width * multiplier
-                    rects = ax.bar(x + offset, measurement, width, label=attribute, hatch=hatches[i], edgecolor='black')
-                    ax.bar_label(rects, padding=3)
-                    multiplier += 1
-
-                # Add some text for labels, title and custom x-axis tick labels, etc.
-                ax.set_ylabel('Percentage (%)', fontsize=18)
-                ax.set_xlabel('Traces', fontsize=18)
-                ax.set_xticks(x + width, traces, fontsize=15)
-                ax.legend(fontsize=14, loc="upper right")
-                ax.set_ylim(0, frequency_value)
-                plt.grid(axis="y")
-                st.pyplot(fig)
-
-        with st.form("select_chart_model_jwt"):
-            st.write("### Select a chart you want to view")
-            chart_select_radio_jwt = st.radio("Chart Selection", [None, "CDF of Wait Time", "CDF of Turnaround Time", "Avg waiting Time w.r.t Job Size", "Avg Waiting Time w.r.t Job Run Time"])
-            chart_selection_submit_button_jwt = st.form_submit_button("Select")
-            if chart_selection_submit_button_jwt:
-                if not chart_select_radio_jwt is None:
-                    st.write(f"**You have selected:** {chart_select_radio_jwt}")
-                else:
-                    st.markdown('<h6 style="color: red;">You have selected "None", please select an other option to view chart.</h6>', unsafe_allow_html=True)
-            else:
+                    st.markdown("<h5 style='color: red;'>You have not selected any chart options above, please select one or more chart option(s) to load the charts.</h5>", unsafe_allow_html=True)
+            else: 
                 pass
-        
-        if chart_select_radio_jwt == "CDF of Wait Time":
-            #cdfowt - CDF of Wait Time
-            cdfowt_selected_system_models_jwt = system_models_jwt.copy()
-            cdfowt_min_value_exp_arrival_interval_slider = 0
-            cdfowt_max_value_exp_arrival_interval_slider = 8 
-
-            st.sidebar.markdown("<h1 style='text-align: center;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
-            st.markdown("<h2 style='text-align: center;'>CDF of Wait Time</h2>", unsafe_allow_html=True)
             
+        if len(jwt_charts_selected_list_jgc) >= 1:
+            st.sidebar.markdown("<h1 style='text-align: center;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
 
-            with st.spinner("In progress...., Please do not change any settings now"):
-                with st.sidebar.form("cdfowt_personal_parameters_update_form"):
-                    st.write("### Alter the following settings to customize the CDF of Wait Time Chart:")
-
-                    with st.expander("**Select System Model(s)**", expanded=True):
-                        for item in system_models_jwt:
-                            cdfowt_model_checkbox_jwt = st.checkbox(item, True)
-                            if not cdfowt_model_checkbox_jwt:
-                                cdfowt_selected_system_models_jwt.remove(item)
-                            else:
-                                pass
+            with st.sidebar.form("jwt_sidebar_form_jgc"):
+                    st.write("### Alter the following settings to customize the selected chart(s):")
                     
-                    cdfowt_frequency_slider_jwt = st.slider("**Adjust Frequency(%) Range (Y-axis):**", min_value=0, max_value=100, value=100, step=20)
-                    cdfowt_job_wait_time_slider_jwt = st.slider("**Adjust Job Wait Time Range (in powers of 10) (X-axis):**", cdfowt_min_value_exp_arrival_interval_slider, cdfowt_max_value_exp_arrival_interval_slider, value=cdfowt_max_value_exp_arrival_interval_slider, step=1)
-                    cdfowt_job_wait_time_slider_value_jwt = int(10 ** cdfowt_job_wait_time_slider_jwt)         
-                    cdfowt_submit_parameters_button_jwt = st.form_submit_button("Apply Changes")
-
-                #Graph Code
-                if len(cdfowt_selected_system_models_jwt) >= 1:
-                    for items in system_models_jwt:
-                        if "Blue Waters" in cdfowt_selected_system_models_jwt:
-                            plot_cdf(bw_df["wait_time"], 100000, "Job Wait Time (s)")
-                        if "Mira" in cdfowt_selected_system_models_jwt:
-                            plot_cdf(mira_df_2["wait_time"], 100000, "Job Wait Time (s)")
-                        if "Philly" in cdfowt_selected_system_models_jwt:
-                            plot_cdf(philly_df[10000:130000]["wait_time"], 100000, "Job Wait Time (s)")
-                        if "Helios" in cdfowt_selected_system_models_jwt:
-                            plot_cdf(hl_df["wait_time"], 100000, "Job Wait Time (s)")
-
-                    plt.ylabel('Frequency (%)', fontsize=18)
-                    plt.xlabel('Time Range', fontsize=18)
-                    plt.ylim(0, cdfowt_frequency_slider_jwt)
-                    plt.xlim(int(10**cdfowt_min_value_exp_arrival_interval_slider), cdfowt_job_wait_time_slider_value_jwt)
-                    plt.rc('legend', fontsize=12)
-                    plt.legend(cdfowt_selected_system_models_jwt, loc="lower right")
-                    st.set_option('deprecation.showPyplotGlobalUse', False)
-                    plt.xscale("log")
-                    st.pyplot()
-
-                with st.expander("**CDF of wait Time Chart Description:**", expanded=True):
-                                st.write("Compares the CDF of the waiting time of each job across the four traces")
-
-        
-        elif chart_select_radio_jwt == "CDF of Turnaround Time":
-            cdfott_selected_system_models_jwt = system_models_jwt.copy()
-            cdfott_min_value_exp_arrival_interval_slider = 0
-            cdfott_max_value_exp_arrival_interval_slider = 8 
-
-            st.sidebar.markdown("<h1 style='text-align: center;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
-            st.markdown("<h2 style='text-align: center;'>CDF of Turnaround Time</h2>", unsafe_allow_html=True)
-
-            
-            with st.spinner("In progress...., Please do not change any settings now"):
-                with st.sidebar.form("cdfott_personal_parameters_update_form"):
-                    st.write("### Alter the following settings to customize the CDF of Turnaround Time Chart:")
-
                     with st.expander("**Select System Model(s)**", expanded=True):
-                        for item in system_models_jwt:
-                            cdfott_model_checkbox_jwt = st.checkbox(item, True)
-                            if not cdfott_model_checkbox_jwt:
-                                cdfott_selected_system_models_jwt.remove(item)
-                            else:
-                                pass
+                        st.write("##### Pick the models below to change the legend of CDF's charts and X-axis of the Avg Wait Time charts")
+                        for item in jwt_system_models_jgc:
+                            jwt_model_checkbox_jpc = st.checkbox(item, True)
+                            if not jwt_model_checkbox_jpc:
+                                jwt_selected_system_models_jgc.remove(item)
+                                    
+                    if "CDF of Wait Time" in jwt_charts_selected_list_jgc:                
+                        with st.expander("**CDF of Wait Time Controls (Y and X - axis)**", expanded=True): 
+                            jwt_cdfowt_min_value_exp_arrival_interval_slider_jgc = 0
+                            jwt_cdfowt_max_value_exp_arrival_interval_slider_jgc = 8 
+                            jwt_cdfowt_frequency_slider_jgc = st.slider("**Adjust Frequency(%) Range (Y-axis):**", min_value=0, max_value=100, value=100, step=20)
+                            jwt_cdfowt_job_wait_time_slider_jgc = st.slider("**Adjust Job Wait Time Range (in powers of 10) (X-axis):**", jwt_cdfowt_min_value_exp_arrival_interval_slider_jgc, jwt_cdfowt_max_value_exp_arrival_interval_slider_jgc, value=jwt_cdfowt_max_value_exp_arrival_interval_slider_jgc, step=1)
+                            jwt_cdfowt_job_wait_time_slider_value_jgc = int(10 ** jwt_cdfowt_job_wait_time_slider_jgc)       
+                    
+                    if "CDF of Turnaround Time" in jwt_charts_selected_list_jgc:
+                        with st.expander("**CDF of Turnaround Time Controls (Y and X - axis)**", expanded=True): 
+                            jwt_cdfott_min_value_exp_arrival_interval_slider_jgc = 0
+                            jwt_cdfott_max_value_exp_arrival_interval_slider_jgc = 8
+                            jwt_cdfott_frequency_slider_jgc = st.slider("**Adjust Frequency(%) Range (Y-axis) :**", min_value=0, max_value=100, value=100, step=20)
+                            jwt_cdfott_turnaround_time_slider_jgc = st.slider("**Adjust Turnaround Time Range (in powers of 10) (X-axis) :**", jwt_cdfott_min_value_exp_arrival_interval_slider_jgc, jwt_cdfott_max_value_exp_arrival_interval_slider_jgc, value=8, step=1)
+                            jwt_cdfott_turnaround_time_slider_value_jgc = int(10 ** jwt_cdfott_turnaround_time_slider_jgc) 
+                        
+                    if "Avg waiting Time w.r.t Job Size" in jwt_charts_selected_list_jgc:
+                        jwt_awtjs_job_sizes_list_jgc = ["Small", "Middle", "Large"]
+                        jwt_awtjs_job_sizes_selected_list_jgc = jwt_awtjs_job_sizes_list_jgc.copy()
+                        
+                        with st.expander("**Avg waiting Time w.r.t Job Size Chart Controls (legend and Y-axis)**", expanded=True): 
+                            st.write("##### **Select Job Size(s) (Legend):**")             
+                            for item in jwt_awtjs_job_sizes_list_jgc:
+                                awtjs_job_size_checkbox_jwt = st.checkbox(item, True)
+                                if not awtjs_job_size_checkbox_jwt:
+                                    jwt_awtjs_job_sizes_selected_list_jgc.remove(item)
+                                else:
+                                    pass
+                        
+                            awtjs_avg_wait_time_slider_jwt = st.slider("**Adjust Average Wait Time (hours) Range (Y-axis):**", min_value=0, max_value=100, value=100, step=10)
+                    
+                    if "Avg Waiting Time w.r.t Job Run Time" in jwt_charts_selected_list_jgc:
+                            awtjrt_job_run_time_list_jwt = ["Short", "Medium", "Long"]
+                            awtjrt_job_run_time_selected_list_jwt = awtjrt_job_run_time_list_jwt.copy()
+                            
+                            with st.expander("**Avg waiting Time w.r.t Job Run Time Chart Controls (legend and Y-axis)**", expanded=True):  
+                                st.write("##### **Select Job Run Time(s) (Legend):**") 
+                                for item in awtjrt_job_run_time_list_jwt:
+                                    awtjrt_job_run_time_checkbox_jwt = st.checkbox(item, True)
+                                    if not awtjrt_job_run_time_checkbox_jwt:
+                                        awtjrt_job_run_time_selected_list_jwt.remove(item)
+                                    else:
+                                        pass
 
-                    cdfott_frequency_slider_jwt = st.slider("**Adjust Frequency(%) Range (Y-axis):**", min_value=0, max_value=100, value=100, step=20)
-                    cdfott_turnaround_time_slider_jwt = st.slider("**Adjust Turnaround Time Range (in powers of 10) (X-axis):**", cdfott_min_value_exp_arrival_interval_slider, cdfott_max_value_exp_arrival_interval_slider, value=8, step=1)
-                    cdfott_turnaround_time_slider_value_jwt = int(10 ** cdfott_turnaround_time_slider_jwt)         
-                    cdfott_submit_parameters_button_jwt = st.form_submit_button("Apply Changes")
+                                awtjrt_avg_wait_time_slider_jwt = st.slider("**Adjust Average Wait Time (hours) Range (Y-axis) :**", min_value=0, max_value=100, value=100, step=10)
+                        
+                                        
+                    jwt_submit_parameters_button_jgc = st.form_submit_button("Apply Changes")
+                
+            
+            def plot_cdf(x,bins ,xlabel, ylabel="Frequency (%)",color="", linestyle="--"):
+                plt.xticks(fontsize=16)
+                plt.yticks(fontsize=16) 
+                x = np.sort(x)
+                cdf = 100*np.arange(len(x)) / float(len(x))
+                if color:
+                    plt.plot(x, cdf, linestyle=linestyle, linewidth=5, color=color)
+                else:
+                    plt.plot(x, cdf, linestyle=linestyle, linewidth=5)
+                plt.xlabel(xlabel, fontsize=20)
+                plt.ylabel(ylabel, fontsize=20)
+                plt.margins(0)
+                plt.ylim(0, 100)
+                plt.grid(True)
 
-                #Graph Code
-                if len(cdfott_selected_system_models_jwt) >= 1:
-                    for items in system_models_jwt:
-                        if "Blue Waters" in cdfott_selected_system_models_jwt:
-                            plot_cdf(bw_df["wait_time"]+bw_df["run_time"], 100000, "Job Wait Time (s)", linestyle=":")
-                        if "Mira" in cdfott_selected_system_models_jwt:
-                            plot_cdf(mira_df_2["wait_time"]+mira_df_2["run_time"], 100000, "Job Wait Time (s)", linestyle="--")
-                        if "Philly" in cdfott_selected_system_models_jwt:
-                            plot_cdf(philly_df["wait_time"]+philly_df["run_time"], 100000, "Job Wait Time (s)", linestyle="-.")
-                        if "Helios" in cdfott_selected_system_models_jwt:
-                            plot_cdf(hl_df["wait_time"]+hl_df["run_time"], 100000, "Job Turnaround Time (s)", linestyle="--")
+            #Function to calculate Average Wait Time charts
+            def plot_percentage_corehour(selected_job_sizes, frequency_value, selected_models, run_time=False):
+                    plt.style.use("default")
+                    traces = selected_models
+                    # Chart - Average Waiting Time w.r.t Job Run Time
+                    short_job_size_dic = {'Blue Waters': 1.74, 'Mira': 4.70, 'Philly': 1.17, 'Helios': 1.97}
+                    medium_job_size_dic = {'Blue Waters': 62.07, 'Mira': 81.24, 'Philly': 14.32, 'Helios': 22.28}
+                    long_job_size_dic = {'Blue Waters': 36.18, 'Mira': 14.05, 'Philly': 84.51, 'Helios': 75.75}
+
+                    small_job_size_dic = {'Blue Waters': 86.21, 'Mira': 34.12, 'Philly': 18.48, 'Helios': 4.57}
+                    middle_job_size_dic = {'Blue Waters': 4.48, 'Mira': 46.63, 'Philly': 68.87, 'Helios': 37.93}
+                    large_job_size_dic = {'Blue Waters': 9.31, 'Mira': 19.25, 'Philly': 12.65, 'Helios': 57.50}
+
+                    if run_time:
+                        status = {}
+                        if "Short" in selected_job_sizes:
+                            status['Short'] = [short_job_size_dic[system_model] for system_model in short_job_size_dic if system_model in selected_models]
+                        else:
+                            pass
+                        if "Medium" in selected_job_sizes:
+                            status['Medium'] = [medium_job_size_dic[system_model] for system_model in medium_job_size_dic if system_model in selected_models]
+                        else:
+                            pass
+                        if "Long" in selected_job_sizes:
+                            status['Long'] = [long_job_size_dic[system_model] for system_model in long_job_size_dic if system_model in selected_models]
+                        else:
+                            pass
+                    else:
+                        status = {}
+                        if "Small" in selected_job_sizes:
+                            status['Small'] = [small_job_size_dic[system_model] for system_model in small_job_size_dic if system_model in selected_models]
+                        else:
+                            pass
+                        if "Middle" in selected_job_sizes:
+                            status['Middle'] = [middle_job_size_dic[system_model] for system_model in middle_job_size_dic if system_model in selected_models]
+                        else:
+                            pass
+                        if "Large" in selected_job_sizes:
+                            status['Large'] = [large_job_size_dic[system_model] for system_model in large_job_size_dic if system_model in selected_models]
+                        else:
+                            pass
+
+                    x = np.arange(len(traces))  # the label locations
+                    width = 0.25  # the width of the bars
+                    multiplier = 0
+
+                    fig, ax = plt.subplots()
+                    hatches= ["-", ".", "x", "-"]
+                    for i, (attribute, measurement) in enumerate(status.items()):
+                        offset = width * multiplier
+                        rects = ax.bar(x + offset, measurement, width, label=attribute, hatch=hatches[i], edgecolor='black')
+                        ax.bar_label(rects, padding=3)
+                        multiplier += 1
+
+                    # Add some text for labels, title and custom x-axis tick labels, etc.
+                    ax.set_ylabel('Percentage (%)', fontsize=18)
+                    ax.set_xlabel('Traces', fontsize=18)
+                    ax.set_xticks(x + width, traces, fontsize=15)
+                    ax.legend(fontsize=14, loc="upper right")
+                    ax.set_ylim(0, frequency_value)
+                    plt.grid(axis="y")
+                    st.pyplot(fig)
+                    
+            def plot_cdf_wait_time(side_by_side, chart_title):
+                if side_by_side:
+                    st.markdown(f"<h5 style='text-align: center;'>{chart_title}</h5>", unsafe_allow_html=True)
+                else:
+                    st.markdown(f"<h2 style='text-align: center;'>{chart_title}</h2>", unsafe_allow_html=True)
+                
+                
+                for items in jwt_system_models_jgc:
+                    if "Blue Waters" in jwt_selected_system_models_jgc:
+                        plot_cdf(bw_df["wait_time"], 100000, "Job Wait Time (s)")
+                    if "Mira" in jwt_selected_system_models_jgc:
+                        plot_cdf(mira_df_2["wait_time"], 100000, "Job Wait Time (s)")
+                    if "Philly" in jwt_selected_system_models_jgc:
+                        plot_cdf(philly_df[10000:130000]["wait_time"], 100000, "Job Wait Time (s)")
+                    if "Helios" in jwt_selected_system_models_jgc:
+                        plot_cdf(hl_df["wait_time"], 100000, "Job Wait Time (s)")
+
+                plt.ylabel('Frequency (%)', fontsize=18)
+                plt.xlabel('Time Range', fontsize=18)
+                plt.ylim(0, jwt_cdfowt_frequency_slider_jgc)
+                plt.xlim(int(10**jwt_cdfowt_min_value_exp_arrival_interval_slider_jgc), jwt_cdfowt_job_wait_time_slider_value_jgc)
+                plt.rc('legend', fontsize=12)
+                plt.legend(jwt_selected_system_models_jgc, loc="lower right")
+                st.set_option('deprecation.showPyplotGlobalUse', False)
+                plt.xscale("log")
+                st.pyplot()
+            
+            def plot_cdf_turnaround_time(side_by_side, chart_title):
+                if side_by_side:
+                    st.markdown(f"<h5 style='text-align: center;'>{chart_title}</h5>", unsafe_allow_html=True)
+                else:
+                    st.markdown(f"<h2 style='text-align: center;'>{chart_title}</h2>", unsafe_allow_html=True)
+                
+                for items in jwt_system_models_jgc:
+                    if "Blue Waters" in jwt_selected_system_models_jgc:
+                        plot_cdf(bw_df["wait_time"]+bw_df["run_time"], 100000, "Job Wait Time (s)", linestyle=":")
+                    if "Mira" in jwt_selected_system_models_jgc:
+                        plot_cdf(mira_df_2["wait_time"]+mira_df_2["run_time"], 100000, "Job Wait Time (s)", linestyle="--")
+                    if "Philly" in jwt_selected_system_models_jgc:
+                        plot_cdf(philly_df["wait_time"]+philly_df["run_time"], 100000, "Job Wait Time (s)", linestyle="-.")
+                    if "Helios" in jwt_selected_system_models_jgc:
+                        plot_cdf(hl_df["wait_time"]+hl_df["run_time"], 100000, "Job Turnaround Time (s)", linestyle="--")
                 plt.xscale("log")
                 plt.ylabel('Frequency (%)', fontsize=18)
                 plt.xlabel('Time Range', fontsize=18)
                 st.set_option('deprecation.showPyplotGlobalUse', False)
-                plt.xlim(int(10 ** cdfott_min_value_exp_arrival_interval_slider), cdfott_turnaround_time_slider_value_jwt)
-                plt.ylim(0, cdfott_frequency_slider_jwt)
+                plt.xlim(int(10 ** jwt_cdfott_min_value_exp_arrival_interval_slider_jgc), jwt_cdfott_turnaround_time_slider_value_jgc)
+                plt.ylim(0, jwt_cdfott_frequency_slider_jgc)
                 plt.rc('legend', fontsize=12)
-                plt.legend(cdfott_selected_system_models_jwt, loc="upper left")
+                plt.legend(jwt_selected_system_models_jgc, loc="upper left")
                 st.pyplot()
-
-                with st.expander("**CDF of Turnaround Time Chart Description:**", expanded=True):
-                                st.write("Description Goes Here")
-
-        elif chart_select_radio_jwt == "Avg waiting Time w.r.t Job Size":
-            # AWTJS: Avg waiting Time w.r.t Job Size
-            awtjs_selected_system_models_jwt = system_models_jwt.copy()
-            awtjs_job_sizes_list_jwt = ["Small", "Middle", "Large"]
-            awtjs_job_sizes_selected_list_jwt = awtjs_job_sizes_list_jwt.copy()
-
-            st.sidebar.markdown("<h1 style='text-align: center;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
-            st.markdown("<h2 style='text-align: center;'>Avg Waiting Time w.r.t Job Size Chart</h2>", unsafe_allow_html=True)
-
-            with st.spinner("In progress...., Please do not change any settings now"):
-                with st.sidebar.form("awtjs_personal_parameters_update_form"):
-                    st.write("### Alter the following settings to customize the Avg Waiting Time w.r.t Job Size chart:")
-                    with st.expander("**Select Job Size(s)**", expanded=True):
-                        for item in awtjs_job_sizes_list_jwt:
-                            awtjs_job_size_checkbox_jwt = st.checkbox(item, True)
-                            if not awtjs_job_size_checkbox_jwt:
-                                awtjs_job_sizes_selected_list_jwt.remove(item)
-                            else:
-                                pass
                     
-                    awtjs_avg_wait_time_slider_jwt = st.slider("**Adjust Average Wait Time (hours) Range (Y-axis):**", min_value=0, max_value=100, value=100, step=10)
-                
-                    with st.expander("**Select System Model(s) (X-axis)**", expanded=True):
-                        for item in system_models_jwt:
-                            awtjs_model_checkbox_jwt = st.checkbox(item, True)
-                            if not awtjs_model_checkbox_jwt:
-                                awtjs_selected_system_models_jwt.remove(item)
-                            else:
-                                pass
-                    awtjs_submit_parameters_button_jwt = st.form_submit_button("Apply Changes")
-                
-                if len(awtjs_job_sizes_selected_list_jwt) >= 1 and len(awtjs_selected_system_models_jwt) >= 1:
-                    plot_percentage_corehour(awtjs_job_sizes_selected_list_jwt, awtjs_avg_wait_time_slider_jwt, awtjs_selected_system_models_jwt)
-                    with st.expander("**Avg Waiting Time w.r.t Job Size Chart Description:**", expanded=True):
-                        st.write("Description Goes Here")
-                elif len(awtjs_job_sizes_selected_list_jwt) < 1 and len(awtjs_selected_system_models_jwt) >= 1:
-                    st.write("## Please select one or more job size(s) from sidebar to plot the chart")
-                elif len(awtjs_job_sizes_selected_list_jwt) >= 1 and len(awtjs_selected_system_models_jwt) < 1:
-                    st.write("## Please select one or more system model(s) from sidebar to plot the chart")
+            def plot_avg_wait_wrt_time_job_size(side_by_side, chart_title):
+                if side_by_side:
+                    st.markdown(f"<h5 style='text-align: center;'>{chart_title}</h5>", unsafe_allow_html=True)
                 else:
-                    st.write("## Please select one or more system model(s) and job size(s) from sidebar to plot the chart")
-
-        
-        elif chart_select_radio_jwt == "Avg Waiting Time w.r.t Job Run Time":
-            # AWTJRT: Average Waiting Time w.r.t Job Run Time
-            awtjrt_selected_system_models_jwt = system_models_jwt.copy()
-            awtjrt_job_run_time_list_jwt = ["Short", "Middle", "Long"]
-            awtjrt_job_run_time_selected_list_jwt = awtjrt_job_run_time_list_jwt.copy()
-
-            st.sidebar.markdown("<h1 style='text-align: center;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
-            st.markdown("<h2 style='text-align: center;'>Avg Waiting Time w.r.t Job Run Time Chart</h2>", unsafe_allow_html=True)
-        
-            with st.spinner("In progress...., Please do not change any settings now"):
-                with st.sidebar.form("awtjrt_personal_parameters_update_form"):
-                    st.write("### Alter the following settings to customize the Avg Waiting Time w.r.t Job Run Time chart:")
-                    with st.expander("**Select Job Run Time(s)**", expanded=True):
-                        for item in awtjrt_job_run_time_list_jwt:
-                            awtjrt_job_run_time_checkbox_jwt = st.checkbox(item, True)
-                            if not awtjrt_job_run_time_checkbox_jwt:
-                                awtjrt_job_run_time_selected_list_jwt.remove(item)
-                            else:
-                                pass
-
-                    awtjrt_avg_wait_time_slider_jwt = st.slider("**Adjust Average Wait Time (hours) Range (Y-axis):**", min_value=0, max_value=100, value=100, step=10)
-
-                    with st.expander("**Select System Model(s) (X-axis)**", expanded=True):
-                        for item in system_models_jwt:
-                            awtjrt_model_checkbox_jwt = st.checkbox(item, True)
-                            if not awtjrt_model_checkbox_jwt:
-                                awtjrt_selected_system_models_jwt.remove(item)
-                            else:
-                                pass
-                            
-                    awtjrt_submit_parameters_button_jwt = st.form_submit_button("Apply Changes")
+                    st.markdown(f"<h2 style='text-align: center;'>{chart_title}</h2>", unsafe_allow_html=True)
+                    
+                plot_percentage_corehour(jwt_awtjs_job_sizes_selected_list_jgc, awtjs_avg_wait_time_slider_jwt, jwt_selected_system_models_jgc)
             
-                if len(awtjrt_job_run_time_selected_list_jwt) >= 1 and len(awtjrt_selected_system_models_jwt) >= 1:
-                    plot_percentage_corehour(awtjrt_job_run_time_selected_list_jwt, awtjrt_avg_wait_time_slider_jwt, awtjrt_selected_system_models_jwt, True)
-                    with st.expander("**Avg Waiting Time w.r.t Job Run Time Chart Description:**", expanded=True):
-                        st.write("Description Goes Here")
-                elif len(awtjrt_job_run_time_selected_list_jwt) < 1 and len(awtjrt_selected_system_models_jwt) >= 1:
-                    st.write("## Please select one or more job run time(s) from sidebar to plot the chart")
-                elif len(awtjrt_job_run_time_selected_list_jwt) >= 1 and len(awtjrt_selected_system_models_jwt) < 1:
-                    st.write("## Please select one or more system model(s) from sidebar to plot the chart")
+            def plot_avg_wait_time_wrt_job_run_time(side_by_side, chart_title):
+                if side_by_side:
+                    st.markdown(f"<h5 style='text-align: center;'>{chart_title}</h5>", unsafe_allow_html=True)
                 else:
-                    st.write("## Please select one or more system model(s) and job run time(s) from sidebar to plot the chart")
+                    st.markdown(f"<h2 style='text-align: center;'>{chart_title}</h2>", unsafe_allow_html=True)
+                    
+                plot_percentage_corehour(awtjrt_job_run_time_selected_list_jwt, awtjrt_avg_wait_time_slider_jwt, jwt_selected_system_models_jgc, True)
+                
+            with st.expander(f"**{chart_view_settings_title}**", expanded=True):
+                    jwt_check_box_view_side_by_side_jgc = st.checkbox("Select to view charts side by side")
+
+            with st.spinner(spinner_text):    
+                st.markdown("<h1 style='text-align: center;'>The Job Wait Time Charts</h1>", unsafe_allow_html=True)
+                
+                if jwt_check_box_view_side_by_side_jgc:          
+                    col1, col2 = st.columns(2)
+                    for idx, item in enumerate(jwt_charts_selected_list_jgc):
+                        jwt_col_logic_cal_jgc = col1 if idx % 2 == 0 else col2
+                        if item == "CDF of Wait Time":
+                            with jwt_col_logic_cal_jgc:
+                                plot_cdf_wait_time(True, "CDF of Wait Time")  
+                        elif item == "CDF of Turnaround Time":
+                            with jwt_col_logic_cal_jgc:
+                                plot_cdf_turnaround_time(True, "CDF of Turnaround Time")
+                        elif item == "Avg waiting Time w.r.t Job Size":
+                            with jwt_col_logic_cal_jgc:
+                                plot_avg_wait_wrt_time_job_size(True, "Avg waiting Time w.r.t Job Size")
+                        elif item == "Avg Waiting Time w.r.t Job Run Time":
+                            with jwt_col_logic_cal_jgc:
+                                plot_avg_wait_time_wrt_job_run_time(True, "Avg Waiting Time w.r.t Job Run Time")
+                        else:
+                            pass
+                else:
+                    for item in jwt_charts_selected_list_jgc:
+                        if item == "CDF of Wait Time":
+                             plot_cdf_wait_time(False, "CDF of Wait Time")  
+                        elif item == "CDF of Turnaround Time":
+                            plot_cdf_turnaround_time(False, "CDF of Turnaround Time")
+                        elif item == "Avg waiting Time w.r.t Job Size":
+                            plot_avg_wait_wrt_time_job_size(False, "Avg waiting Time w.r.t Job Size")
+                        elif item == "Avg Waiting Time w.r.t Job Run Time":
+                            plot_avg_wait_time_wrt_job_run_time(False, "Avg Waiting Time w.r.t Job Run Time")
+                        else:
+                            pass
+                    
+                with st.expander(f"**{chart_description_expander_title}**", expanded=True):
+                    st.write("**CDF of Wait Time Chart Description:**")
+                    st.write("**CDF of Turnaround Time Chart Description:**")
+                    st.write("**Avg Waiting Time w.r.t Job Size Chart Description:**")
+                    st.write("**Avg Waiting Time w.r.t Job Run Time Chart Description:**")
+                    
+
         else:
             pass
     else:
@@ -1085,7 +1092,9 @@ elif main_nav == "Job Failure Characteristics":
             hl = [[57.48994568597371, 21.9826692648949, 20.527385049131393],
                 [45.79295637720701, 22.9936964907329, 31.213347132060086],
                 [36.688236653570605, 13.173099144904091, 50.13866420152531]]
+            
             z = ["Small", "Middle", "Large"]
+            
             status = {
                 'Small': (15.61, 12.22, 5.68, 0.3),
                 'Middle': (143.62, 50.96, 15.84, 0.4),
@@ -1111,10 +1120,7 @@ elif main_nav == "Job Failure Characteristics":
 
         # Add some text for labels, title and custom x-axis tick labels, etc.
         ax.set_ylabel('Percentage (%)', fontsize=20)
-        # ax.set_xlabel('Traces', fontsize=20)
-        # ax.set_title('Penguin attributes by species')
-        ax.set_xticks(np.delete(np.arange(16) * 0.25, [3, 7, 11, 15]), 4 * z, fontsize=10, rotation=45)
-        # ax.set_xticks(x + width, traces, fontsize=15)
+        ax.set_xticks(np.delete(np.arange(16) * 0.25, [3, 7, 11, 15]), 4 * z, fontsize=10, rotation=45) 
         ax.set_ylim(0, 100)
         plt.grid(axis="y")
         st.pyplot(fig)
@@ -1181,7 +1187,7 @@ elif main_nav == "Job Failure Characteristics":
                     jfd_check_box_view_side_by_side_jfc = st.checkbox("Select to view charts side by side")
                     
                 with st.spinner(spinner_text):
-                    st.markdown("<h1 style='text-align: center; color: black;'>The Distribution Of Different Job Statuses Charts</h1>", unsafe_allow_html=True)
+                    st.markdown("<h1 style='text-align: center;'>The Distribution Of Different Job Statuses Charts</h1>", unsafe_allow_html=True)
 
                     if jfd_check_box_view_side_by_side_jfc:
                         if len(jfd_charts_selected_list_jfc) >= 1:
@@ -1292,7 +1298,7 @@ elif main_nav == "Job Failure Characteristics":
                     cbjfajg_check_box_view_side_by_side_jfc = st.checkbox("Select to view charts side by side")
 
                 with st.spinner(spinner_text):
-                    st.markdown("<h1 style='text-align: center; color: black;'>Job Failure v.s Job Runtime And Job Requested Resources Charts</h1>", unsafe_allow_html=True)
+                    st.markdown("<h1 style='text-align: center;'>Job Failure v.s Job Runtime And Job Requested Resources Charts</h1>", unsafe_allow_html=True)
                     if cbjfajg_check_box_view_side_by_side_jfc:
                         if len(cbjfajg_charts_selected_list_jfc) >= 1:
                             col1, col2 = st.columns(2)
@@ -1375,7 +1381,7 @@ elif main_nav == "User Behavior Characteristics":
                 pass
 
         if len(urb_charts_selected_list_ubc) >= 1:
-            st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
+            st.sidebar.markdown("<h1 style='text-align: center;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
 
             with st.sidebar.form("urb_sidebar_form_ubc"):
                 st.write("### Alter the following settings to customize the selected chart(s):")
@@ -1387,7 +1393,7 @@ elif main_nav == "User Behavior Characteristics":
                 urb_check_box_view_side_by_side_ubc = st.checkbox("Select to view charts side by side")
 
             with st.spinner(spinner_text):
-                st.markdown("<h2 style='text-align: center; color: black;'>The Resource-Configuration Group Per User Charts</h2>", unsafe_allow_html=True)
+                st.markdown("<h2 style='text-align: center;'>The Resource-Configuration Group Per User Charts</h2>", unsafe_allow_html=True)
 
                 def plot_123(a, color, chart_title, x_axis_value, y_axis_value):
                     fig, ax = plt.subplots()
@@ -1500,7 +1506,7 @@ elif main_nav == "User Behavior Characteristics":
                 pass
 
         if len(usb_charts_selected_list_ubc) >= 1:
-            st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
+            st.sidebar.markdown("<h1 style='text-align: center;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
 
             with st.sidebar.form("usb_sidebar_form_ubc"):
                 st.write("### Alter the following settings to customize the selected chart(s):")
@@ -1738,7 +1744,7 @@ elif main_nav == "User Behavior Characteristics":
                 pass
 
         if len(cbjrtajs_charts_selected_list_ubc) >= 1:
-            st.sidebar.markdown("<h1 style='text-align: center; color: Black;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
+            st.sidebar.markdown("<h1 style='text-align: center;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
 
             with st.sidebar.form("cbjrtajs_sidebar_form_ubc"):
                 st.write("### Alter the following settings to customize the selected chart(s):")
@@ -1853,7 +1859,7 @@ elif main_nav == "User Behavior Characteristics":
             with st.spinner(spinner_text):
 
                 if len(cbjrtajs_job_status_selected_list_ubc) >= 1:
-                    st.markdown("<h1 style='text-align: center; color: black;'>The Median Runtime Of Different Types Of Jobs Charts</h1>", unsafe_allow_html=True)
+                    st.markdown("<h1 style='text-align: center;'>The Median Runtime Of Different Types Of Jobs Charts</h1>", unsafe_allow_html=True)
                     if cbjrtajs_check_box_view_side_by_side_ubc:
                         col1, col2 = st.columns(2)
                         for idx, item in enumerate(cbjrtajs_charts_selected_list_ubc):
