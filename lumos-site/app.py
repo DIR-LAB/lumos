@@ -522,24 +522,23 @@ if main_nav == "Job Geometric Characteristics":
 
                     plt.figure(figsize=[6,5])
                     
-                    if len(jap_selected_system_models_jgc) >= 1:
-                        for item in jap_selected_system_models_jgc:
-                            if "Blue Waters" in jap_selected_system_models_jgc:
-                                plot_cdf(get_interval(bw_df["submit_time"]), 1000,"Time (s)", linestyle=":")
-                            if "Mira" in jap_selected_system_models_jgc:
-                                plot_cdf(get_interval(mira_df_2["submit_time"]), 1000,"Time (s)", linestyle="--")
-                            if "Philly" in jap_selected_system_models_jgc:
-                                plot_cdf(get_interval(philly_df["submit_time"]), 1000,"Time (s)", linestyle="-.")
-                            if "Helios" in jap_selected_system_models_jgc:
-                                plot_cdf(get_interval(hl_df["submit_time"]), 10009999,"Job Arrival Interval (s)", linestyle="--")
-                            
-                        plt.rc('legend',fontsize=22)
-                        plt.legend(jap_selected_system_models_jgc, loc = "upper right", prop={'size': 14})
-                        st.set_option('deprecation.showPyplotGlobalUse', False)
-                        plt.xscale("log")
-                        st.pyplot()   
-                    else:
-                        st.write()     
+        
+                    for item in jap_selected_system_models_jgc:
+                        if "Blue Waters" in jap_selected_system_models_jgc:
+                            plot_cdf(get_interval(bw_df["submit_time"]), 1000,"Time (s)", linestyle=":")
+                        if "Mira" in jap_selected_system_models_jgc:
+                            plot_cdf(get_interval(mira_df_2["submit_time"]), 1000,"Time (s)", linestyle="--")
+                        if "Philly" in jap_selected_system_models_jgc:
+                            plot_cdf(get_interval(philly_df["submit_time"]), 1000,"Time (s)", linestyle="-.")
+                        if "Helios" in jap_selected_system_models_jgc:
+                            plot_cdf(get_interval(hl_df["submit_time"]), 10009999,"Job Arrival Interval (s)", linestyle="--")
+                        
+                    plt.rc('legend',fontsize=22)
+                    plt.legend(jap_selected_system_models_jgc, loc = "upper right", prop={'size': 14})
+                    st.set_option('deprecation.showPyplotGlobalUse', False)
+                    plt.xscale("log")
+                    st.pyplot()   
+                       
                 
             with st.expander(f"**{chart_view_settings_title}**", expanded=True):
                 jap_check_box_view_side_by_side_jgc = st.checkbox("Select to view charts side by side")   
@@ -547,7 +546,6 @@ if main_nav == "Job Geometric Characteristics":
             with st.spinner(spinner_text):
                 st.markdown("<h1 style='text-align: center;'>Comparisons Of Job Arrival Patterns</h1>", unsafe_allow_html=True)
                 
-                # Calling functions to plot charts
                 if len(jap_selected_system_models_jgc) >= 1:
                     if jap_check_box_view_side_by_side_jgc:          
                         col1, col2 = st.columns(2)
@@ -582,7 +580,6 @@ if main_nav == "Job Geometric Characteristics":
                 else:
                     st.markdown("<h2 style='color: red'>Please select one or more system model(s) from sidebar to plot the chart</h2>", unsafe_allow_html=True)  
              
-    # System Utilization and Resource Occupation page
     elif nav_bar_horizontal == "Sys Util & Res Occu":
         suaro_cpu_chart_options_jgc = ["Blue Waters CPU", "Mira CPU"]
         suaro_gpu_chart_options_jgc = ["Blue Waters GPU", 
@@ -717,7 +714,6 @@ if main_nav == "Job Geometric Characteristics":
                 with st.expander(f"**{chart_description_expander_title}**", expanded=True):
                                 st.write("**The System Utilization Across Multiple Systems Charts:** ADD")
 
-    # Job Waiting Time Page
     elif nav_bar_horizontal == "Job Waiting Time":
         jwt_system_models_jgc = ["Blue Waters", "Mira", "Philly", "Helios"]
         jwt_selected_system_models_jgc = jwt_system_models_jgc.copy()
@@ -967,45 +963,46 @@ if main_nav == "Job Geometric Characteristics":
 
             with st.spinner(spinner_text):    
                 st.markdown("<h1 style='text-align: center;'>The Job Wait Time Charts</h1>", unsafe_allow_html=True)
-                
-                if jwt_check_box_view_side_by_side_jgc:          
-                    col1, col2 = st.columns(2)
-                    for idx, item in enumerate(jwt_charts_selected_list_jgc):
-                        jwt_col_logic_cal_jgc = col1 if idx % 2 == 0 else col2
-                        if item == "CDF of Wait Time":
-                            with jwt_col_logic_cal_jgc:
-                                plot_cdf_wait_time(True, "CDF of Wait Time")  
-                        elif item == "CDF of Turnaround Time":
-                            with jwt_col_logic_cal_jgc:
-                                plot_cdf_turnaround_time(True, "CDF of Turnaround Time")
-                        elif item == "Avg waiting Time w.r.t Job Size":
-                            with jwt_col_logic_cal_jgc:
-                                plot_avg_wait_wrt_time_job_size(True, "Avg waiting Time w.r.t Job Size")
-                        elif item == "Avg Waiting Time w.r.t Job Run Time":
-                            with jwt_col_logic_cal_jgc:
-                                plot_avg_wait_time_wrt_job_run_time(True, "Avg Waiting Time w.r.t Job Run Time")
-                        else:
-                            pass
+                if len(jwt_selected_system_models_jgc) >= 1:
+                    if jwt_check_box_view_side_by_side_jgc:          
+                        col1, col2 = st.columns(2)
+                        for idx, item in enumerate(jwt_charts_selected_list_jgc):
+                            jwt_col_logic_cal_jgc = col1 if idx % 2 == 0 else col2
+                            if item == "CDF of Wait Time":
+                                with jwt_col_logic_cal_jgc:
+                                    plot_cdf_wait_time(True, "CDF of Wait Time")  
+                            elif item == "CDF of Turnaround Time":
+                                with jwt_col_logic_cal_jgc:
+                                    plot_cdf_turnaround_time(True, "CDF of Turnaround Time")
+                            elif item == "Avg waiting Time w.r.t Job Size":
+                                with jwt_col_logic_cal_jgc:
+                                    plot_avg_wait_wrt_time_job_size(True, "Avg waiting Time w.r.t Job Size")
+                            elif item == "Avg Waiting Time w.r.t Job Run Time":
+                                with jwt_col_logic_cal_jgc:
+                                    plot_avg_wait_time_wrt_job_run_time(True, "Avg Waiting Time w.r.t Job Run Time")
+                            else:
+                                pass
+                    else:
+                        for item in jwt_charts_selected_list_jgc:
+                            if item == "CDF of Wait Time":
+                                plot_cdf_wait_time(False, "CDF of Wait Time")  
+                            elif item == "CDF of Turnaround Time":
+                                plot_cdf_turnaround_time(False, "CDF of Turnaround Time")
+                            elif item == "Avg waiting Time w.r.t Job Size":
+                                plot_avg_wait_wrt_time_job_size(False, "Avg waiting Time w.r.t Job Size")
+                            elif item == "Avg Waiting Time w.r.t Job Run Time":
+                                plot_avg_wait_time_wrt_job_run_time(False, "Avg Waiting Time w.r.t Job Run Time")
+                            else:
+                                pass
+                              
+                    with st.expander(f"**{chart_description_expander_title}**", expanded=True):
+                        st.write("**CDF of Wait Time Chart Description:**")
+                        st.write("**CDF of Turnaround Time Chart Description:**")
+                        st.write("**Avg Waiting Time w.r.t Job Size Chart Description:**")
+                        st.write("**Avg Waiting Time w.r.t Job Run Time Chart Description:**")
                 else:
-                    for item in jwt_charts_selected_list_jgc:
-                        if item == "CDF of Wait Time":
-                             plot_cdf_wait_time(False, "CDF of Wait Time")  
-                        elif item == "CDF of Turnaround Time":
-                            plot_cdf_turnaround_time(False, "CDF of Turnaround Time")
-                        elif item == "Avg waiting Time w.r.t Job Size":
-                            plot_avg_wait_wrt_time_job_size(False, "Avg waiting Time w.r.t Job Size")
-                        elif item == "Avg Waiting Time w.r.t Job Run Time":
-                            plot_avg_wait_time_wrt_job_run_time(False, "Avg Waiting Time w.r.t Job Run Time")
-                        else:
-                            pass
+                    st.markdown("<h2 style='color: red'>Please select one or more system model(s) from the sidebar to plot the chart</h2>", unsafe_allow_html=True)
                     
-                with st.expander(f"**{chart_description_expander_title}**", expanded=True):
-                    st.write("**CDF of Wait Time Chart Description:**")
-                    st.write("**CDF of Turnaround Time Chart Description:**")
-                    st.write("**Avg Waiting Time w.r.t Job Size Chart Description:**")
-                    st.write("**Avg Waiting Time w.r.t Job Run Time Chart Description:**")
-                    
-
         else:
             pass
     else:
@@ -1068,8 +1065,6 @@ elif main_nav == "Job Failure Characteristics":
         plt.grid(axis="y")
         st.pyplot(fig)
     
-    # Alex - Correlation between Job Failure and Job Geometries charts function here (only function)
-    # Creates bar plot to compare percentage distribution of run time across Blue Water, Mira, Philly, and Helios
     def plot_status_over(run_time=False):
 
         plt.style.use("default")
@@ -1835,11 +1830,10 @@ elif main_nav == "User Behavior Characteristics":
                                 plot_attribute_per_ml("user", data=hl_df, state="state", status=cbjrtajs_job_status_selected_list_ubc, all_user=True, side_by_side = False, chart_title = "Helios")
                             else:
                                 pass
+                    with st.expander(f"**{chart_description_expander_title}**", expanded=True):
+                            st.write("**The Median Runtime Of Different Types Of Jobs Charts:** ")
                 else:
                     st.markdown("<h2 style='color: red'>Please select one or more job status(es) from the sidebar to plot the chart(s)</h2>", unsafe_allow_html=True)
-
-                with st.expander(f"**{chart_description_expander_title}**", expanded=True):
-                    st.write("**The Median Runtime Of Different Types Of Jobs Charts:** ")
     else:
         pass
 else:
