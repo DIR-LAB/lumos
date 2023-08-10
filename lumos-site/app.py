@@ -1508,17 +1508,19 @@ elif main_nav == "User Behavior Characteristics":
                     usb_check_box_view_side_by_side_ubc = st.checkbox("Select to view charts side by side") 
 
             def analyze_queue_and_user_behavior(data, gpu=False):
-                
                 waiting_queue = deque()  
                 running_queue = deque()
                 util_node_user = defaultdict(list)
+                
                 cur_wait = 0
                 data_sorted = data.sort_values(by="submit_time").itertuples(index=True)
+                
                 for row in data_sorted:
                     if gpu:
                         resource = row.gpu_num
                     else:
                         resource = row.node_num
+                        
                     start_time = row.submit_time + row.wait_time
                     while waiting_queue and waiting_queue[0][0] <= row.submit_time:
                         temp = waiting_queue.popleft()
@@ -1530,6 +1532,7 @@ elif main_nav == "User Behavior Characteristics":
                     waiting_queue.append((start_time, "waiting", row.Index, row))
                     util_node_user[row.user].append([resource, cur_wait])
                     cur_wait += 1
+                    
                 return util_node_user
 
             def calculate_buckets(un, stride, max_util=None):
@@ -1591,14 +1594,21 @@ elif main_nav == "User Behavior Characteristics":
                     axes.set_ylabel("Percentage (%)", fontsize=20)
                     st.pyplot(fig)
             
-            # These are causing the slow loading 
-            bw_queue_node_user = analyze_queue_and_user_behavior(bw_df, gpu=False)
+            # These are causing the slow loading
+            @st.cache_data
+            def system_queue_node_user():
+                bw_queue_node_user = analyze_queue_and_user_behavior(bw_df, gpu=False)
+                mira_queue_node_user = analyze_queue_and_user_behavior(mira_df_2, gpu=False)
+                phi_queue_node_user = analyze_queue_and_user_behavior(philly_df, gpu=True)
+                hl_queue_node_user = analyze_queue_and_user_behavior(hl_df, gpu=True)
+                
+                return bw_queue_node_user, mira_queue_node_user, phi_queue_node_user, hl_queue_node_user
+            
+            bw_queue_node_user, mira_queue_node_user, phi_queue_node_user, hl_queue_node_user = system_queue_node_user()
+            
             bw_bars = [1, 22636//10, 3*22636//10, 1000000]
-            mira_queue_node_user = analyze_queue_and_user_behavior(mira_df_2, gpu=False)
             mira_bars = [ 512, 49152//10, 3*49152//10, 49152]
-            phi_queue_node_user = analyze_queue_and_user_behavior(philly_df, gpu=True)
             phi_bars = [1, 1, 8, 256]
-            queue_node_user = analyze_queue_and_user_behavior(hl_df, gpu=True)
             hl_bars = [1, 1, 8, 256]
             
             with st.spinner(spinner_text):
@@ -1619,7 +1629,7 @@ elif main_nav == "User Behavior Characteristics":
                                     plot_util_node(phi_queue_node_user, philly_df, phi_bars, "all", "Philly", True)
                             elif item == "Helios":
                                 with usb_col_logic_cal_ubc:
-                                    plot_util_node(queue_node_user, hl_df, hl_bars, "all", "Helios", True)
+                                    plot_util_node(hl_queue_node_user, hl_df, hl_bars, "all", "Helios", True)
                             else:
                                 pass
                     else:
@@ -1631,7 +1641,7 @@ elif main_nav == "User Behavior Characteristics":
                             elif item == "Philly":
                                 plot_util_node(phi_queue_node_user, philly_df, phi_bars, "all", "Philly", False)
                             elif item == "Helios":
-                                plot_util_node(queue_node_user, hl_df, hl_bars, "all", "Helios", False)
+                                plot_util_node(hl_queue_node_user, hl_df, hl_bars, "all", "Helios", False)
                             else:
                                 pass   
                     with st.expander(f"**{chart_description_expander_title}**", expanded=True):
