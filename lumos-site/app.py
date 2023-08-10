@@ -669,7 +669,6 @@ if main_nav == "Job Geometric Characteristics":
 
             with st.spinner("In Progess... Please do not change any settings now"):
                 st.markdown("<h1 style='text-align: center;'>The System Utilization Across Multiple Systems Charts</h1>", unsafe_allow_html=True)
-                
                 if suaro_check_box_view_side_by_side_jgc:          
                     col1, col2 = st.columns(2)
                     for idx, item in enumerate(suaro_charts_selected_list_jgc):
@@ -810,8 +809,7 @@ if main_nav == "Job Geometric Characteristics":
                         
                                         
                     jwt_submit_parameters_button_jgc = st.form_submit_button("Apply Changes")
-                
-            
+                    
             def plot_cdf(x,bins ,xlabel, ylabel="Frequency (%)",color="", linestyle="--"):
                 plt.xticks(fontsize=16)
                 plt.yticks(fontsize=16) 
@@ -826,7 +824,6 @@ if main_nav == "Job Geometric Characteristics":
                 plt.margins(0)
                 plt.ylim(0, 100)
                 plt.grid(True)
-
             #Function to calculate Average Wait Time charts
             def plot_percentage_corehour(selected_job_sizes, frequency_value, selected_models, run_time=False):
                     plt.style.use("default")
@@ -895,7 +892,6 @@ if main_nav == "Job Geometric Characteristics":
                     st.markdown(f"<h5 style='text-align: center;'>{chart_title}</h5>", unsafe_allow_html=True)
                 else:
                     st.markdown(f"<h2 style='text-align: center;'>{chart_title}</h2>", unsafe_allow_html=True)
-                
                 
                 for items in jwt_system_models_jgc:
                     if "Blue Waters" in jwt_selected_system_models_jgc:
@@ -1020,7 +1016,6 @@ elif main_nav == "Job Failure Characteristics":
         pass_dict = {'Blue Waters': 64.99, 'Mira': 70.05, 'Philly': 59.58, 'Helios': 64.72}
         failed_dict = {'Blue Waters': 7.26, 'Mira': 9.01, 'Philly': 30.90, 'Helios': 14.06}
         killed_dict = {'Blue Waters': 27.74, 'Mira': 20.94, 'Philly': 9.52, 'Helios': 21.15}
-
         pass_dict_2 = {'Blue Waters': 53.64, 'Mira': 56.94, 'Philly': 33.78, 'Helios': 52.42}
         failed_dict_2 = {'Blue Waters': 4.91, 'Mira': 5.78, 'Philly': 33.40, 'Helios': 6.64}
         killed_dict_2 = {'Blue Waters': 41.45, 'Mira': 37.28, 'Philly': 32.82, 'Helios': 40.94}
@@ -1042,7 +1037,6 @@ elif main_nav == "Job Failure Characteristics":
             if "Killed" in selected_status:
                 status['Killed'] = [killed_dict_2[system_model] for system_model in killed_dict_2 if system_model in selected_models]
 
-
         x = np.arange(len(traces))  # the label locations
         width = 0.25  # the width of the bars
         multiplier = 0
@@ -1055,10 +1049,7 @@ elif main_nav == "Job Failure Characteristics":
             ax.bar_label(rects, padding=3)
             multiplier += 1
 
-
-        # Add some text for labels, title and custom x-axis tick labels, etc.
         ax.set_ylabel('Percentage (%)', fontsize=18)
-        ax.set_xlabel('Traces', fontsize=18)
         ax.set_xticks(x + width, traces, fontsize=12)
         ax.legend(fontsize=15)
         ax.set_ylim(0, frequency_value)
@@ -1066,7 +1057,6 @@ elif main_nav == "Job Failure Characteristics":
         st.pyplot(fig)
     
     def plot_status_over(run_time=False):
-
         plt.style.use("default")
         traces = ("bw", "mira", "philly", "helios")
         if run_time:
@@ -1105,8 +1095,8 @@ elif main_nav == "Job Failure Characteristics":
                 'Large': (53.33, 42.83, 13.26, 0.53),
             }
 
-        x = np.arange(len(traces))  # the label locations
-        width = 0.25  # the width of the bars
+        x = np.arange(len(traces))
+        width = 0.25  
         multiplier = 0
 
         fig, ax = plt.subplots()
@@ -1115,21 +1105,18 @@ elif main_nav == "Job Failure Characteristics":
         for i, measurement in enumerate(zip(bw, mira, philly, hl)):
             offset = width * multiplier
             prev = np.array([0.0] * 4)
-            # print(*zip(*measurement))
             for k, j in enumerate(zip(*measurement)):
                 rects = ax.bar(x + offset, j, width, hatch=hatches[k], color=colors[k], edgecolor='black', bottom=prev)
                 prev += np.array(j)
-            # ax.bar_label(rects, padding=3)
             multiplier += 1
 
-        # Add some text for labels, title and custom x-axis tick labels, etc.
         ax.set_ylabel('Percentage (%)', fontsize=20)
         ax.set_xticks(np.delete(np.arange(16) * 0.25, [3, 7, 11, 15]), 4 * z, fontsize=10, rotation=45) 
         ax.set_ylim(0, 100)
+        categories = ["Pass", "Failed", "Killed"]
+        ax.legend(categories, fontsize=15, loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=len(categories))
         plt.grid(axis="y")
         st.pyplot(fig)
-
-    
 
     if nav_bar_jfc == "Job Failures Distribution":
         jfd_chart_selection_options_jfc = ["Job Count w.r.t Job Status", "Core Hours w.r.t Job Status"] 
@@ -1230,7 +1217,6 @@ elif main_nav == "Job Failure Characteristics":
 
             else: # len(jfd_job_status_selected_list_jfc) < 1 and len(jfd_selected_system_models_jfc) < 1
                 st.markdown("<h2 style='color: red'>Please select one or more job status(es) and system model(s) from the sidebar to plot the chart</h2>", unsafe_allow_html=True)
-
         else:
             pass
         
@@ -1261,22 +1247,22 @@ elif main_nav == "Job Failure Characteristics":
                     st.markdown("<h5 style='color: red'>Please select one or more charts options above and then click 'Load Charts'</h5>", unsafe_allow_html=True)
             else:
                 pass
-
+            
         if len(cbjfajg_charts_selected_list_jfc) >= 1:
             st.sidebar.markdown("<h1 style='text-align: center;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
 
             with st.sidebar.form("cbjfajg_sidebar_form_jfc"):
                 # jfd: Job Failures Distribution
                 cbjfajg_selected_system_models_jfc = system_models_jfc.copy()
-                cbjfajg_job_size_list_jfc = ["Small", "Middle", "Large"]
-                cbjfajg_job_size_selected_list_jfc = cbjfajg_job_size_list_jfc.copy()
+                cbjfajg_job_status_list_jfc = ["Pass", "Failed", "Killed"]
+                cbjfajg_job_status_selected_list_jfc = cbjfajg_job_status_list_jfc.copy()
 
                 st.write("### Alter the following settings to customize the selected chart(s):")
                 with st.expander("**Select Job Status(es)**", expanded=True):
-                    for item in cbjfajg_job_size_list_jfc:
+                    for item in cbjfajg_job_status_list_jfc:
                         cbjfajg_job_status_checkbox_jfc = st.checkbox(item, True)
                         if not cbjfajg_job_status_checkbox_jfc:
-                            cbjfajg_job_size_selected_list_jfc.remove(item)
+                            cbjfajg_job_status_selected_list_jfc.remove(item)
                         else:
                             pass
 
@@ -1292,7 +1278,7 @@ elif main_nav == "Job Failure Characteristics":
 
                 cbjfajg_submit_parameters_button_jfc = st.form_submit_button("Apply Changes")
             
-            if len(cbjfajg_job_size_selected_list_jfc) >= 1 and len(cbjfajg_selected_system_models_jfc) >= 1:        
+            if len(cbjfajg_job_status_selected_list_jfc) >= 1 and len(cbjfajg_selected_system_models_jfc) >= 1:        
                 with st.expander(f"**{chart_view_settings_title}**", expanded=True):
                     cbjfajg_check_box_view_side_by_side_jfc = st.checkbox("Select to view charts side by side")
 
@@ -1333,10 +1319,10 @@ elif main_nav == "Job Failure Characteristics":
                     st.write("**Job Status w.r.t Job Size:** This chart illustrates the status of jobs (Pass, Failed, Killed) with respect to their sizes. It provides insight into how job size may impact completion status, thereby helping to predict potential job execution outcomes.")
                     st.write("**Job Status w.r.t Job Run Time:** This visualization represents the correlation between job status and job run time. By analyzing job completion (Pass, Failed, Killed) in relation to run time, it aids in understanding the efficiency of jobs and can assist in identifying potential bottlenecks or issues in job execution.")
            
-            elif len(cbjfajg_job_size_selected_list_jfc) < 1 and len(cbjfajg_selected_system_models_jfc) >= 1:
+            elif len(cbjfajg_job_status_selected_list_jfc) < 1 and len(cbjfajg_selected_system_models_jfc) >= 1:
                 st.markdown("<h2 style='color: red'>Please select one or more job status(es) from the sidebar to plot the chart</h2>", unsafe_allow_html=True)         
 
-            elif len(cbjfajg_job_size_selected_list_jfc) >= 1 and len(cbjfajg_selected_system_models_jfc) < 1:
+            elif len(cbjfajg_job_status_selected_list_jfc) >= 1 and len(cbjfajg_selected_system_models_jfc) < 1:
                 st.markdown("<h2 style='color: red'>Please select one or more system model(s) from the sidebar to plot the chart</h2>", unsafe_allow_html=True)
 
             else: 
@@ -1505,10 +1491,8 @@ elif main_nav == "User Behavior Characteristics":
             else:
                 pass
             
-
         if len(usb_charts_selected_list_ubc) >= 1:
             st.sidebar.markdown("<h1 style='text-align: center;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
-
             with st.sidebar.form("usb_sidebar_form_ubc"):
                 st.write("### Alter the following settings to customize the selected chart(s):")
                 usb_percentage_slider_ubc = st.slider("**Adjust Percentage (%) (Y-axis):**", min_value=0, max_value=100, value=100, step=20)
@@ -1520,18 +1504,16 @@ elif main_nav == "User Behavior Characteristics":
                         else:
                             pass
                 usb_submit_parameters_button_ubc = st.form_submit_button("Apply Changes")
-
             with st.expander(f"**{chart_view_settings_title}**", expanded=True):
                     usb_check_box_view_side_by_side_ubc = st.checkbox("Select to view charts side by side") 
 
             def analyze_queue_and_user_behavior(data, gpu=False):
+                
                 waiting_queue = deque()  
                 running_queue = deque()
                 util_node_user = defaultdict(list)
                 cur_wait = 0
-
                 data_sorted = data.sort_values(by="submit_time").itertuples(index=True)
-                
                 for row in data_sorted:
                     if gpu:
                         resource = row.gpu_num
@@ -1548,7 +1530,6 @@ elif main_nav == "User Behavior Characteristics":
                     waiting_queue.append((start_time, "waiting", row.Index, row))
                     util_node_user[row.user].append([resource, cur_wait])
                     cur_wait += 1
-                    
                 return util_node_user
 
             def calculate_buckets(un, stride, max_util=None):
@@ -1571,9 +1552,14 @@ elif main_nav == "User Behavior Characteristics":
                         i[j] /= s
                 return x, buckets
 
-            def plot_util_node(un, data, bars, user="per", xlabel="mira"):
+            def plot_util_node(un, data, bars, user="per", chart_title="mira", side_by_side=False):
+                
+                if side_by_side:
+                    st.markdown(f"<h4 style='text-align: center;'>{chart_title}</h4>", unsafe_allow_html=True)
+                else:
+                    st.markdown(f"<h1 style='text-align: center;'>{chart_title}</h1>", unsafe_allow_html=True) 
+                
                 hatches= ["-", ".", "x", "-"]
-
                 if user == "per":
                     users = data["user"].value_counts().index[:6]
                     stride = 0.2
@@ -1588,28 +1574,24 @@ elif main_nav == "User Behavior Characteristics":
                             prevy += y
                             prev_bar = bar
                         axes[ui//3, ui%3].legend(bars)
-
                 else:
                     all_un = sum([list(un[i]) for i in un], [])
                     max_wait = max(all_un, key=lambda x: x[1])[1]
                     stride = 1/3
-
                     x, buckets = calculate_buckets(all_un, stride, max_wait)
                     fig, axes = plt.subplots(1, 1, figsize=(3, 5))
                     prevy = np.zeros(len(x))
                     prev_bar = -1
-
                     for index, bar in enumerate(bars):
                         y = np.array([sum(i[j] for j in i.keys() if prev_bar < j <= bar) for i in buckets])
                         axes.bar(x, y, bottom=prevy, hatch=hatches[index], edgecolor="black")
                         prevy += y
                         prev_bar = bar
-
                     axes.set_xticks(x, ["Short Queue", "Middle Queue", "Long Queue"], rotation=45)
-                    axes.set_xlabel(xlabel, fontsize=20)
                     axes.set_ylabel("Percentage (%)", fontsize=20)
                     st.pyplot(fig)
             
+            # These are causing the slow loading 
             bw_queue_node_user = analyze_queue_and_user_behavior(bw_df, gpu=False)
             bw_bars = [1, 22636//10, 3*22636//10, 1000000]
             mira_queue_node_user = analyze_queue_and_user_behavior(mira_df_2, gpu=False)
@@ -1619,8 +1601,6 @@ elif main_nav == "User Behavior Characteristics":
             queue_node_user = analyze_queue_and_user_behavior(hl_df, gpu=True)
             hl_bars = [1, 1, 8, 256]
             
-            
-                    
             with st.spinner(spinner_text):
                 st.markdown("<h1 style='text-align: center;'>Submitted Jobs' Sizes Impacted By Queue Length Charts</h1>", unsafe_allow_html=True)
                 if len(usb_job_size_selected_list_ubc) >= 1:
@@ -1630,37 +1610,35 @@ elif main_nav == "User Behavior Characteristics":
                             usb_col_logic_cal_ubc = col1 if idx % 2 == 0 else col2
                             if item == "Blue Waters":
                                 with usb_col_logic_cal_ubc:
-                                    plot_util_node(bw_queue_node_user, bw_df, bw_bars, "all", "bw")
+                                    plot_util_node(bw_queue_node_user, bw_df, bw_bars, "all", "Blue Waters", True)
                             elif item == "Mira":
                                 with usb_col_logic_cal_ubc:
-                                    plot_util_node(mira_queue_node_user, mira_df_2, mira_bars, "all", "mira")
+                                    plot_util_node(mira_queue_node_user, mira_df_2, mira_bars, "all", "Mira", True)
                             elif item == "Philly":
                                 with usb_col_logic_cal_ubc:
-                                    plot_util_node(phi_queue_node_user, philly_df, phi_bars, "all", "philly")
+                                    plot_util_node(phi_queue_node_user, philly_df, phi_bars, "all", "Philly", True)
                             elif item == "Helios":
                                 with usb_col_logic_cal_ubc:
-                                    plot_util_node(queue_node_user, hl_df, hl_bars, "all", "helios")
+                                    plot_util_node(queue_node_user, hl_df, hl_bars, "all", "Helios", True)
                             else:
                                 pass
                     else:
                         for item in usb_charts_selected_list_ubc:
                             if item == "Blue Waters":
-                                plot_util_node(bw_queue_node_user, bw_df, bw_bars, "all", "bw")
+                                plot_util_node(bw_queue_node_user, bw_df, bw_bars, "all", "Blue Waters", False)
                             elif item == "Mira":
-                                plot_util_node(mira_queue_node_user, mira_df_2, mira_bars, "all", "mira")
+                                plot_util_node(mira_queue_node_user, mira_df_2, mira_bars, "all", "Mira", False)
                             elif item == "Philly":
-                                plot_util_node(phi_queue_node_user, philly_df, phi_bars, "all", "philly")
+                                plot_util_node(phi_queue_node_user, philly_df, phi_bars, "all", "Philly", False)
                             elif item == "Helios":
-                                plot_util_node(queue_node_user, hl_df, hl_bars, "all", "helios")
+                                plot_util_node(queue_node_user, hl_df, hl_bars, "all", "Helios", False)
                             else:
-                                pass
-                                
+                                pass   
                     with st.expander(f"**{chart_description_expander_title}**", expanded=True):
                             st.write("**The Median Runtime Of Different Types Of Jobs Charts:** ")
                 else:
                     st.markdown("<h2 style='color: red'>Please select one or more job size(s) from the sidebar to plot the chart(s)</h2>", unsafe_allow_html=True)
                     
-
     elif ubc_nav_bar == "Correlation between Job Run Time and Job Statuses":
         cbjrtajs_chart_title_ubc = "Chart Selection Form"
         cbjrtajs_chart_checkbox_title_ubc = "Select one or more charts"
@@ -1669,12 +1647,9 @@ elif main_nav == "User Behavior Characteristics":
         cbjrtajs_chart_selection_options_ubc = cbjrtajs_chart_selection_left_col_options_ubc + cbjrtajs_chart_selection_right_col_options_ubc
         cbjrtajs_charts_selected_list_ubc = cbjrtajs_chart_selection_options_ubc.copy()
         cbjrtajs_job_status_list_ubc = ["Pass", "Failed", "Killed"]
-        cbjrtajs_job_status_selected_list_ubc = cbjrtajs_job_status_list_ubc.copy()
-        
-        #Y-axis min and max 
+        cbjrtajs_job_status_selected_list_ubc = cbjrtajs_job_status_list_ubc.copy() 
         cbjrtajs_min_value_exp_run_time_slider_ubc = 0
         cbjrtajs_max_value_exp_run_time_slider_ubc = 6 
-
         with st.form("cbjrtajs_chart_selection_form_ubc"):
             st.write(f"### **{chart_selection_form_title}**")
             st.write(f'**{chart_selection_form_load_charts_text}**')
@@ -1698,16 +1673,12 @@ elif main_nav == "User Behavior Characteristics":
                     st.markdown("<h5 style='color: red'>Please select one or more charts options above and then click 'Load Charts'</h5>", unsafe_allow_html=True)
             else:
                 pass
-
         if len(cbjrtajs_charts_selected_list_ubc) >= 1:
             st.sidebar.markdown("<h1 style='text-align: center;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
-
             with st.sidebar.form("cbjrtajs_sidebar_form_ubc"):
                 st.write("### Alter the following settings to customize the selected chart(s):")
-                
                 cbjrtajs_percentage_slider_ubc = st.slider("**Adjust Job Run Time (in powers of 10) (Y-axis):**", min_value=cbjrtajs_min_value_exp_run_time_slider_ubc, max_value=cbjrtajs_max_value_exp_run_time_slider_ubc, value=6, step=1)
                 cbjrtajs_percentage_slider_value_ubc = int(10**cbjrtajs_percentage_slider_ubc)
-                
                 with st.expander("**Select Job Status(es) (X-axis)**", expanded=True):
                     for item in cbjrtajs_job_status_list_ubc:
                         cbjrtajs_job_status_checkbox_ubc = st.checkbox(item, True)
@@ -1716,26 +1687,20 @@ elif main_nav == "User Behavior Characteristics":
                         else:
                             pass
                 cbjrtajs_submit_parameters_button_ubc = st.form_submit_button("Apply Changes")
-
+                
             with st.expander(f"**{chart_view_settings_title}**", expanded=True):
                 cbjrtajs_check_box_view_side_by_side_ubc = st.checkbox("Select to view charts side by side")
                 
-            #Function to plot the charts
             def plot_attribute_per_ml(u, data, state="state", status=None ,all_user=False, side_by_side = False, chart_title=None):
                 plt.style.use("default")
                 rows = list(data.groupby(u).sum().sort_values(by="node_hour", ascending=False).index[:3])
-
                 if all_user:
                     mean_run_time = [data["run_time"]]
                     selected_run_times = []
-
-
                     if side_by_side:
                         st.markdown(f"<h4 style='text-align: center;'>{chart_title}</h4>", unsafe_allow_html=True)
                     else:
                         st.markdown(f"<h2 style='text-align: center;'>{chart_title}</h2>", unsafe_allow_html=True)
-
-
                     for idx, item in enumerate(status):
                         if item == "Pass":
                             st0_run_time = [data.groupby([state])["run_time"].apply(list).get(status[idx],0)]
@@ -1748,37 +1713,29 @@ elif main_nav == "User Behavior Characteristics":
                             selected_run_times.append(st2_run_time)
                         else:
                             pass
-
-
+                        
                     fig, axes = plt.subplots(1, 1, figsize=(4, 3))
-
                     for index, i in enumerate(zip(*selected_run_times)):
                         k = [np.log10(np.array(j)+1) for j in i]
                         sns.violinplot(data=k,ax=axes, scale="width")
-
                     ax = axes
                     ax.yaxis.set_major_formatter(mticker.StrMethodFormatter("$10^{{{x:.0f}}}$"))
-
                     ymin, ymax = ax.get_ylim()
                     tick_range = np.arange(np.floor(ymin), ymax)
                     ax.yaxis.set_ticks(tick_range)
                     ax.yaxis.set_ticks([np.log10(x) for p in tick_range for x in np.linspace(10 ** p, 10 ** (p + 1), 10)], minor=True)
                     ax.yaxis.grid(True)
-
                     ax.set_xticks([y for y in range(len(status))])
                     ax.set_xticklabels(status, fontsize=24)
                     ax.set_ylabel('Job Run time (s)', fontsize=20)
                     st.pyplot(fig)
-
                 else:
                     mean_run_time = [data.groupby(u)["run_time"].apply(list).loc[i] for i in rows]
                     selected_run_times = []
-
                     if side_by_side:
                         st.markdown(f"<h4 style='text-align: center;'>{chart_title}</h4>", unsafe_allow_html=True)
                     else:
                         st.markdown(f"<h2 style='text-align: center;'>{chart_title}</h2>", unsafe_allow_html=True)
-
                     for idx, item in enumerate(status):
                         if item == "Pass":
                             st0_run_time = [data.groupby([u, state])["run_time"].apply(list).loc[i].get(status[0],0) for i in rows]
@@ -1791,13 +1748,13 @@ elif main_nav == "User Behavior Characteristics":
                             selected_run_times.append(st2_run_time)
                         else:
                             pass
-
+                        
                     fig, axes = plt.subplots(1, 3, figsize=(12, 3))
-
+                    
                     for index, i in enumerate(zip(*selected_run_times)):
                         k = [np.log10(np.array(j)+1) for j in i]
                         sns.violinplot(data=k,ax=axes[index%3], scale="width")
-
+                        
                     for index, ax in enumerate(axes.flatten()):
                         ax.yaxis.set_major_formatter(mticker.StrMethodFormatter("$10^{{{x:.0f}}}$"))
                         ymin, ymax = ax.get_ylim()
@@ -1808,12 +1765,10 @@ elif main_nav == "User Behavior Characteristics":
                         ax.set_xticks([y for y in range(status)])
                         ax.set_xticklabels(status, fontsize=15)
                         ax.set_xlabel('User '+str(index+1), fontsize=20)
-
                         if index == 0:
                             ax.set_ylabel('Job Run time (s)', fontsize=20)
-
+                            
             with st.spinner(spinner_text):
-
                 if len(cbjrtajs_job_status_selected_list_ubc) >= 1:
                     st.markdown("<h1 style='text-align: center;'>The Median Runtime Of Different Types Of Jobs Charts</h1>", unsafe_allow_html=True)
                     if cbjrtajs_check_box_view_side_by_side_ubc:
