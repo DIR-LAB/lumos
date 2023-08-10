@@ -16,6 +16,8 @@ import json
 import time 
 import matplotlib
 import os 
+from collections import deque
+
 
 st.set_page_config(page_title="Job Trace Visualization Application", page_icon="📊")
 curr_dir = os.path.dirname(__file__)
@@ -320,34 +322,40 @@ if main_nav == "Job Geometric Characteristics":
         jap_chart_selection_right_col_options_jgc = ["Job Arrival Interval"]
         jap_chart_selection_options_jgc = jap_chart_selection_left_col_options_jgc + jap_chart_selection_right_col_options_jgc
         jap_charts_selected_list_jgc = jap_chart_selection_options_jgc.copy()
-
+        
         def get_time_of_day(time, timestamp=True):
-                if timestamp:
-                    time = datetime.fromtimestamp(time)
-                else:
-                    time = datetime.strptime(time, '%Y-%m-%d %H:%M:%S')
-                return (time.hour + (time.minute>30))%24, datetime.strftime(time, '%Y-%m-%d')
+            if timestamp:
+                time = datetime.fromtimestamp(time)
+            else:
+                time = datetime.strptime(time, '%Y-%m-%d %H:%M:%S')
+            
+            return (time.hour + (time.minute > 30)) % 24, time.strftime('%Y-%m-%d')
 
         def get_day_of_week(time):
-                time = datetime.fromtimestamp(time)
-                return time.isocalendar()[2], time.isocalendar()[1]
-                
+            time = datetime.fromtimestamp(time)
+            iso_calendar = time.isocalendar()
+            return iso_calendar[2], iso_calendar[1]
+
         def plot_time_submit(submit_time, xlabel, ylabel="Number of Submitted Jobs", week=False, marker="o", color=""):
-                if week == True:
-                    time, days = list(zip(*[get_time_of_day(i) for i in submit_time]))
-                    dd = Counter()
-                    for i in time:
-                        dd[i] += 1
-                    keys = sorted(dd.keys())
-                    n = len(set(days))
-                else:
-                    days, weeks = list(zip(*[get_day_of_week(i) for i in submit_time]))
-                    dd = Counter()
-                    for i in days:
-                        dd[i] += 1
-                    keys = sorted(dd.keys())
-                    n = len(set(weeks))
-                plt.plot(keys, [np.array(dd[j])/n for j in keys], marker=marker, linewidth=3, markersize=12, color=color)
+            if week:
+                times_and_days = [get_time_of_day(i) for i in submit_time]
+                times = [td[0] for td in times_and_days]
+                dd = Counter(times)
+                days = {td[1] for td in times_and_days}
+                n = len(days)
+            else:
+                days_and_weeks = [get_day_of_week(i) for i in submit_time]
+                days = [dw[0] for dw in days_and_weeks]
+                dd = Counter(days)
+                weeks = {dw[1] for dw in days_and_weeks}
+                n = len(weeks)
+            
+            keys = sorted(dd.keys())
+            avg_values = [np.array(dd[key])/n for key in keys]
+            
+            plt.plot(keys, avg_values, marker=marker, linewidth=3, markersize=12, color=color)
+
+                
 
         with st.form("jap_select_chart_model_jgc"):
             st.write(f"### **{chart_selection_form_title}**")
@@ -411,38 +419,37 @@ if main_nav == "Job Geometric Characteristics":
                                     
                 jap_submit_parameters_button_jgc = st.form_submit_button("Apply Changes")
                 
-                def plot_daily_submit_pattern(side_by_side ,chart_title):
-                    
+                def plot_daily_submit_pattern(side_by_side, chart_title):
                     if side_by_side:
                         st.markdown(f"<h4 style='text-align: center;'>{chart_title}</h4>", unsafe_allow_html=True)
                     else:
                         st.markdown(f"<h2 style='text-align: center;'>{chart_title}</h2>", unsafe_allow_html=True)
-                        
+
                     plt.figure(figsize=(12,7))
                     plt.xticks(fontsize=16)
                     plt.yticks(fontsize=16)
 
-                    if len(jap_selected_system_models_jgc) >=1 :
-                        for item in jap_selected_system_models_jgc:
-                            if "Blue Waters" in jap_selected_system_models_jgc:
-                                plot_time_submit(bw_df["submit_time"], xlabel="Hour of the Day", week=True,marker="^", color="blue")
-                            if "Mira" in jap_selected_system_models_jgc:
-                                plot_time_submit(mira_df_2["submit_time"], xlabel="Hour of the Day", week=True,marker="o", color="red")
-                            if "Philly" in jap_selected_system_models_jgc:
-                                plot_time_submit(philly_df["submit_time"], xlabel="Hour of the Day", week=True,marker="s", color="green")
-                            if "Helios" in jap_selected_system_models_jgc:
-                                plot_time_submit(hl_df["submit_time"], xlabel="Hour of the Day", week=True,marker="d", color="violet") 
-                
-                        plt.xlabel("Hour of the Day", fontsize=18)
-                        plt.ylabel("Job Submit Count", fontsize=18)
-                        st.set_option('deprecation.showPyplotGlobalUse', False)
-                        plt.ylim(0, jap_dsp_job_count_slider_jgc)
-                        plt.xlim(-1, jap_dsp_hour_of_the_day_slider_jgc)
-                        plt.tight_layout()
-                        plt.grid(True)
-                        plt.legend(jap_selected_system_models_jgc,  prop={'size': 14}, loc="upper right")
-                        plt.rc('legend',fontsize=20)
-                        st.pyplot()
+                    system_data = {
+                        "Blue Waters": (bw_df["submit_time"], "^", "blue"),
+                        "Mira": (mira_df_2["submit_time"], "o", "red"),
+                        "Philly": (philly_df["submit_time"], "s", "green"),
+                        "Helios": (hl_df["submit_time"], "d", "violet")
+                    }
+
+                    for system, (data, marker, color) in system_data.items():
+                        if system in jap_selected_system_models_jgc:
+                            plot_time_submit(data, xlabel="Hour of the Day", week=True, marker=marker, color=color)
+
+                    plt.xlabel("Hour of the Day", fontsize=18)
+                    plt.ylabel("Job Submit Count", fontsize=18)
+                    st.set_option('deprecation.showPyplotGlobalUse', False)
+                    plt.ylim(0, jap_dsp_job_count_slider_jgc)
+                    plt.xlim(-1, jap_dsp_hour_of_the_day_slider_jgc)
+                    plt.tight_layout()
+                    plt.grid(True)
+                    plt.legend(jap_selected_system_models_jgc, prop={'size': 14}, loc="upper right")
+                    plt.rc('legend', fontsize=20)
+                    st.pyplot()
                 
                 def plot_weekly_submit_pattern(side_by_side ,chart_title):
                     if side_by_side:
@@ -454,27 +461,26 @@ if main_nav == "Job Geometric Characteristics":
                     plt.xticks(fontsize=16)
                     plt.yticks(fontsize=16) 
 
-                    if len(jap_selected_system_models_jgc) >= 1:
-                        for item in jap_selected_system_models_jgc:
-                            if "Blue Waters" in jap_selected_system_models_jgc:
-                                plot_time_submit(bw_df["submit_time"], xlabel="Day of the Week", week=False,marker="^", color="blue")
-                            if "Mira" in jap_selected_system_models_jgc:
-                                plot_time_submit(mira_df_2["submit_time"], xlabel="Day of the Week", week=False,marker="o", color="red")
-                            if "Philly" in jap_selected_system_models_jgc:
-                                plot_time_submit(philly_df["submit_time"], xlabel="Day of the Week", week=False,marker="s", color="green")
-                            if "Helios" in jap_selected_system_models_jgc:
-                                plot_time_submit(hl_df["submit_time"], xlabel="Day of the Week", week=False,marker="d", color="violet")
+                    for item in jap_selected_system_models_jgc:
+                        if "Blue Waters" in jap_selected_system_models_jgc:
+                            plot_time_submit(bw_df["submit_time"], xlabel="Day of the Week", week=False,marker="^", color="blue")
+                        if "Mira" in jap_selected_system_models_jgc:
+                            plot_time_submit(mira_df_2["submit_time"], xlabel="Day of the Week", week=False,marker="o", color="red")
+                        if "Philly" in jap_selected_system_models_jgc:
+                            plot_time_submit(philly_df["submit_time"], xlabel="Day of the Week", week=False,marker="s", color="green")
+                        if "Helios" in jap_selected_system_models_jgc:
+                            plot_time_submit(hl_df["submit_time"], xlabel="Day of the Week", week=False,marker="d", color="violet")
                                 
-                        plt.xlabel("Day of the Week", fontsize=20)
-                        plt.ylabel("Job Submit Count", fontsize=20)
-                        plt.ylim(0, jap_wsp_job_count_slider_jgc)
-                        plt.tight_layout()
-                        plt.xlim(0, jap_wsp_hour_of_the_day_slider_jgc)
-                        plt.grid(True)
-                        plt.legend(jap_selected_system_models_jgc,  prop={'size': 14}, loc="upper right")
-                        st.set_option('deprecation.showPyplotGlobalUse', False)
-                        plt.rc('legend',fontsize=20)
-                        st.pyplot()
+                    plt.xlabel("Day of the Week", fontsize=20)
+                    plt.ylabel("Job Submit Count", fontsize=20)
+                    plt.ylim(0, jap_wsp_job_count_slider_jgc)
+                    plt.tight_layout()
+                    plt.xlim(0, jap_wsp_hour_of_the_day_slider_jgc)
+                    plt.grid(True)
+                    plt.legend(jap_selected_system_models_jgc,  prop={'size': 14}, loc="upper right")
+                    st.set_option('deprecation.showPyplotGlobalUse', False)
+                    plt.rc('legend',fontsize=20)
+                    st.pyplot()
                     
                 def plot_job_arrival_interval(side_by_side ,chart_title): 
                     if side_by_side:
@@ -531,7 +537,9 @@ if main_nav == "Job Geometric Characteristics":
                         plt.legend(jap_selected_system_models_jgc, loc = "upper right", prop={'size': 14})
                         st.set_option('deprecation.showPyplotGlobalUse', False)
                         plt.xscale("log")
-                        st.pyplot()        
+                        st.pyplot()   
+                    else:
+                        st.write()     
                 
             with st.expander(f"**{chart_view_settings_title}**", expanded=True):
                 jap_check_box_view_side_by_side_jgc = st.checkbox("Select to view charts side by side")   
@@ -540,38 +548,39 @@ if main_nav == "Job Geometric Characteristics":
                 st.markdown("<h1 style='text-align: center;'>Comparisons Of Job Arrival Patterns</h1>", unsafe_allow_html=True)
                 
                 # Calling functions to plot charts
-                if jap_check_box_view_side_by_side_jgc:          
-                    col1, col2 = st.columns(2)
-                    for idx, item in enumerate(jap_charts_selected_list_jgc):
-                        jap_col_logic_cal_jgc = col1 if idx % 2 == 0 else col2
-                        if item == "Daily Submit Pattern":
-                            with jap_col_logic_cal_jgc:
-                                plot_daily_submit_pattern(True, "Daily Submit Pattern")  
-                        elif item == "Weekly Submit Pattern":
-                            with jap_col_logic_cal_jgc:
-                                plot_weekly_submit_pattern(True, "Weekly Submit Pattern")    
-                        elif item == "Job Arrival Interval":
-                            with jap_col_logic_cal_jgc:
-                                plot_job_arrival_interval(True, "Job Arrival Interval")
-                        else:
-                            pass
+                if len(jap_selected_system_models_jgc) >= 1:
+                    if jap_check_box_view_side_by_side_jgc:          
+                        col1, col2 = st.columns(2)
+                        for idx, item in enumerate(jap_charts_selected_list_jgc):
+                            jap_col_logic_cal_jgc = col1 if idx % 2 == 0 else col2
+                            if item == "Daily Submit Pattern":
+                                with jap_col_logic_cal_jgc:
+                                    plot_daily_submit_pattern(True, "Daily Submit Pattern")  
+                            elif item == "Weekly Submit Pattern":
+                                with jap_col_logic_cal_jgc:
+                                    plot_weekly_submit_pattern(True, "Weekly Submit Pattern")    
+                            elif item == "Job Arrival Interval":
+                                with jap_col_logic_cal_jgc:
+                                    plot_job_arrival_interval(True, "Job Arrival Interval")
+                            else:
+                                pass
+                    else:
+                        for item in jap_charts_selected_list_jgc:
+                            if item == "Daily Submit Pattern":
+                                plot_daily_submit_pattern(False, "Daily Submit Pattern")  
+                            elif item == "Weekly Submit Pattern":
+                                plot_weekly_submit_pattern(False, "Weekly Submit Pattern")    
+                            elif item == "Job Arrival Interval":
+                                plot_job_arrival_interval(False, "Job Arrival Interval")
+                            else:
+                                pass
+                
+                    with st.expander(f"**{chart_description_expander_title}**", expanded=True):
+                        st.write("**Daily Submit Pattern Chart Description:** Displays a chart presenting the job arrival counts of each job trace for each hour of the day")
+                        st.write("**Weekly Submit Pattern Chart Description:** Displays a chart presenting the job arrival counts of each job trace for each day of the week")
+                        st.write("**Job Arrival Interval:** Displays a Cumulative Distribution Functions (CDF) of job arrival interval(s) comparison of the four job traces (Blue Waters, Mira, Philly, and Helios).")          
                 else:
-                    for item in jap_charts_selected_list_jgc:
-                        if item == "Daily Submit Pattern":
-                            plot_daily_submit_pattern(False, "Daily Submit Pattern")  
-                        elif item == "Weekly Submit Pattern":
-                            plot_weekly_submit_pattern(False, "Weekly Submit Pattern")    
-                        elif item == "Job Arrival Interval":
-                            plot_job_arrival_interval(False, "Job Arrival Interval")
-                        else:
-                            pass
-              
-            with st.expander(f"**{chart_description_expander_title}**", expanded=True):
-                st.write("**Daily Submit Pattern Chart Description:** Displays a chart presenting the job arrival counts of each job trace for each hour of the day")
-                st.write("**Weekly Submit Pattern Chart Description:** Displays a chart presenting the job arrival counts of each job trace for each day of the week")
-                st.write("**Job Arrival Interval:** Displays a Cumulative Distribution Functions (CDF) of job arrival interval(s) comparison of the four job traces (Blue Waters, Mira, Philly, and Helios).")          
-        else:
-            st.markdown("<h2 style='color: red'>Please select one or more system model(s) from sidebar to plot the chart</h2>", unsafe_allow_html=True)  
+                    st.markdown("<h2 style='color: red'>Please select one or more system model(s) from sidebar to plot the chart</h2>", unsafe_allow_html=True)  
              
     # System Utilization and Resource Occupation page
     elif nav_bar_horizontal == "Sys Util & Res Occu":
@@ -1000,7 +1009,7 @@ if main_nav == "Job Geometric Characteristics":
         else:
             pass
     else:
-        st.write("Please select a section from the navigation bar.")
+        pass
 
 elif main_nav == "Job Failure Characteristics":
     nav_bar_jfc = option_menu("Job Failure: Pick a model to load related charts", ["Job Failures Distribution", "Correlation between Job Failure and Job Geometries"], 
@@ -1190,7 +1199,6 @@ elif main_nav == "Job Failure Characteristics":
                     st.markdown("<h1 style='text-align: center;'>The Distribution Of Different Job Statuses Charts</h1>", unsafe_allow_html=True)
 
                     if jfd_check_box_view_side_by_side_jfc:
-                        if len(jfd_charts_selected_list_jfc) >= 1:
                             col1, col2 = st.columns(2)
                             for idx, item in enumerate(jfd_charts_selected_list_jfc):
                                 jfd_col_logic_cal_jfc = col1 if idx % 2 == 0 else col2
@@ -1202,10 +1210,6 @@ elif main_nav == "Job Failure Characteristics":
                                     with jfd_col_logic_cal_jfc:
                                         st.markdown("<h4 style='text-align: center;'>Core Hours w.r.t Job Status</h4>", unsafe_allow_html=True)
                                         plot_percentage_status(jfd_job_status_selected_list_jfc, jfd_percentage_slider_jfc, jfd_selected_system_models_jfc, False)
-                                else:
-                                    pass
-                        else:
-                            pass
                     else:
                         if "Job Count w.r.t Job Status" in jfd_charts_selected_list_jfc:
                             st.markdown("<h2 style='text-align: center;'>Job Count w.r.t Job Status</h2>", unsafe_allow_html=True)
@@ -1342,7 +1346,8 @@ elif main_nav == "Job Failure Characteristics":
 
             else: 
                 st.markdown("<h2 style='color: red'>Please select one or more job status(es) and system model(s) from the sidebar to plot the chart</h2>", unsafe_allow_html=True)
-
+    else:
+        pass
 
 elif main_nav == "User Behavior Characteristics":
     ubc_nav_bar = option_menu("User Behavior: Pick a model to load related charts", ["Users’ Repeated Behaviors", "Users’ Submission Behaviors", "Correlation between Job Run Time and Job Statuses"], 
@@ -1504,6 +1509,7 @@ elif main_nav == "User Behavior Characteristics":
                     st.markdown("<h5 style='color: red'>Please select one or more charts options above and then click 'Load Charts'</h5>", unsafe_allow_html=True)
             else:
                 pass
+            
 
         if len(usb_charts_selected_list_ubc) >= 1:
             st.sidebar.markdown("<h1 style='text-align: center;'>Chart Customization Panel</h1>", unsafe_allow_html=True)
@@ -1522,188 +1528,127 @@ elif main_nav == "User Behavior Characteristics":
 
             with st.expander(f"**{chart_view_settings_title}**", expanded=True):
                     usb_check_box_view_side_by_side_ubc = st.checkbox("Select to view charts side by side") 
-                    
-            #Alex Graph Code Here
-            def analyze_util_and_user_behavior(data, total_nodes, gpu=False):
-                queue = [] # waiting:0, running:1
-                util_time_user = defaultdict(list) # util, time, user
-                util_node_user = defaultdict(list)
-                util_time = []
-                cur_util = 0
-                
-                for index, row in data.iterrows():
-                    row["start_time"] = row["submit_time"] + row["wait_time"]
-                    row["end_time"] = row["start_time"] + row["run_time"]
-                    row["index"] = index
-                    # only for helios
-                    # total_nodes = gpu_num_total[bisect.bisect(gpu_date, row["submit_time"])-1]
-                    
-                    while queue and queue[0][0]<=row["submit_time"]:
-                        temp = heappop(queue)
-                        cur_time = temp[0]
-                        job_type = temp[1]
-                        job = temp[3]
-                        
-                        if job_type == "waiting":
-                            heappush(queue, (job["end_time"], "running", job["index"], job))
-                            cur_util += job["gpu_num"] if gpu else job["node_num"]
-                        elif job_type == "running":
-                            cur_util -= job["gpu_num"] if gpu else job["node_num"]
-                        else:
-                            raise NotImplementedError
-                            
-                        if util_time and util_time[-1][0] == cur_time:
-                            util_time[-1][1] = cur_util/total_nodes
-                        else:
-                            util_time.append([cur_time, cur_util/total_nodes])
-                            
-                    heappush(queue, (row["start_time"], "waiting", row["index"] , row))
-                    util_time_user[row["user"]].append([row["submit_time"], cur_util/total_nodes])
-                    util_node_user[row["user"]].append([row["gpu_num"] if gpu else row["node_num"], cur_util/total_nodes])
-                    
-                    if index % 10000 == 0:
-                        print(index)
-                        
-                return util_time, util_time_user, util_node_user
-
 
             def analyze_queue_and_user_behavior(data, gpu=False):
-                data = data.copy()
-                data["index"] = data.index
-                queue = [] # waiting:0, running:1
-                util_time_user = defaultdict(list) # util, time, user
+                waiting_queue = deque()  
+                running_queue = deque()
                 util_node_user = defaultdict(list)
-                util_time = []
                 cur_wait = 0
+
+                data_sorted = data.sort_values(by="submit_time").itertuples(index=True)
                 
-                for index, row in data.iterrows():
-                    start_time = row["submit_time"] + row["wait_time"]
-                    end_time = start_time + row["run_time"]
-                    # only for helios
-                    # total_nodes = gpu_num_total[bisect.bisect(gpu_date, row["submit_time"])-1]
+                for row in data_sorted:
+                    if gpu:
+                        resource = row.gpu_num
+                    else:
+                        resource = row.node_num
                     
-                    while queue and queue[0][0]<=row["submit_time"]:
-                        temp = heappop(queue)
-                        cur_time = temp[0]
-                        job_type = temp[1]
-                        job = temp[3]
-                        
-                        if job_type == "waiting":
-                            heappush(queue, (job["submit_time"] + job["wait_time"]+job["run_time"], "running", job["index"], job))
-                            cur_wait -= 1
-                        elif job_type == "running":
-                            pass
-                                # cur_util -= job["gpu_num"] if gpu else job["node_num"]
-                        else:
-                            raise NotImplementedError
-                            
-                        util_time.append([cur_time, cur_wait])
-                        
-                    heappush(queue, (start_time, "waiting", index, row))
-                    util_time_user[row["user"]].append([row["run_time"], cur_wait])
-                    util_node_user[row["user"]].append([row["gpu_num"] if gpu else row["node_num"], cur_wait])
+                    start_time = row.submit_time + row.wait_time
+
+                    while waiting_queue and waiting_queue[0][0] <= row.submit_time:
+                        temp = waiting_queue.popleft()
+                        end_time = temp[0] + temp[3].wait_time + temp[3].run_time
+                        running_queue.append((end_time, "running", temp[2], temp[3]))
+                        cur_wait -= 1
                     
+                    # Transfer finished jobs out from the running queue
+                    while running_queue and running_queue[0][0] <= start_time:
+                        running_queue.popleft()
+
+                    # Add current job to the waiting queue
+                    waiting_queue.append((start_time, "waiting", row.Index, row))
+                    
+                    # Update util_node_user
+                    util_node_user[row.user].append([resource, cur_wait])
                     cur_wait += 1
                     
-                    if index % 10000 == 0:
-                        print(index)
-                        
-                return util_time, util_time_user, util_node_user
+                return util_node_user
 
+            def calculate_buckets(un, stride, max_util=None):
+                x = []
+                if max_util:
+                    x = ["{}".format((1+index)*stride*max_util) for index in range(int(1/stride))]
+                else:
+                    x = ["{:.0%}".format((1+index)*stride) for index in range(int(1/stride))]
+                    
+                buckets = [{} for _ in range(int(1/stride))]
+
+                for node, util in un:
+                    b = int(min(1/stride-1, util/(stride if not max_util else (max_util*stride))))
+                    if node in buckets[b]:
+                        buckets[b][node] += 1
+                    else:
+                        buckets[b][node] = 1
+
+                for i in buckets:
+                    s = sum(i.values())
+                    for j in i:
+                        i[j] /= s
+
+                return x, buckets
 
             def plot_util_node(un, data, bars, user="per", xlabel="mira"):
                 hatches= ["-", ".", "x", "-"]
-                
+
                 if user == "per":
-                    users = list(data.groupby("user").count().sort_values(by="job", ascending=False).index[:6])
+                    users = data["user"].value_counts().index[:6]
                     stride = 0.2
                     fig, axes = plt.subplots(2, 3, figsize=(18, 10))
 
                     for ui, user in enumerate(users):
-                        print(ui, user)
+                        x, buckets = calculate_buckets(un[user], stride)
 
-                        x = ["{:.0%}".format((1+index)*stride)
-                                                for index in range(int(1/stride))]
-                        buckets = [Counter() for _ in range(int(1/stride))]
-                        
-                        for node, util in un[user]:
-                            b = int(min(1/stride-1, util/stride))
-                            buckets[b][node] += 1
-                            
-                        for i in buckets:
-                            s = sum(i.values())
-                            for j in i:
-                                i[j] /= s
-                                
-                        prevy = np.array([0]*len(x))
+                        prevy = np.zeros(len(x))
                         prev_bar = -1
-                        
+
                         for bar in bars:
-                            y = np.array([sum(i[j] for j in i.keys() if prev_bar<j <=bar) for i in buckets])
+                            y = np.array([sum(i[j] for j in i.keys() if prev_bar < j <= bar) for i in buckets])
                             axes[ui//3, ui%3].bar(x, y, bottom=prevy)
-                            prevy = y+prevy
+                            prevy += y
                             prev_bar = bar
-                            
+
                         axes[ui//3, ui%3].legend(bars)
+
                 else:
-                    all_un = []
-                    for i in un:
-                        all_un.extend(un[i])
-                        
+                    all_un = sum([list(un[i]) for i in un], [])
                     max_wait = max(all_un, key=lambda x: x[1])[1]
                     stride = 1/3
-                    fig, axes = plt.subplots(1, 1, figsize=(3, 5))
 
-                    x = ["{}".format((1+index)*stride*max_wait)
-                                            for index in range(int(1/stride))]
-                    buckets = [Counter() for _ in range(int(1/stride))]
-                    
-                    for node, util in all_un:
-                        b = int(min(1/stride-1, (util/max_wait)/stride))
-                        buckets[b][node] += 1
-                        
-                    for i in buckets:
-                        i[0] = 0
-                        s = sum(list(i.values()))
-                        for j in i:
-                            i[j] /= s*0.01
-                            
-                    prevy = np.array([0]*len(x))
+                    x, buckets = calculate_buckets(all_un, stride, max_wait)
+                    fig, axes = plt.subplots(1, 1, figsize=(3, 5))
+                    prevy = np.zeros(len(x))
                     prev_bar = -1
-                    
+
                     for index, bar in enumerate(bars):
-                        y = np.array([sum(i[j] for j in i.keys() if prev_bar<j <=bar) for i in buckets])
+                        y = np.array([sum(i[j] for j in i.keys() if prev_bar < j <= bar) for i in buckets])
                         axes.bar(x, y, bottom=prevy, hatch=hatches[index], edgecolor="black")
-                        prevy = y+prevy
+                        prevy += y
                         prev_bar = bar
-                        
+
                     axes.set_xticks(x, ["Short Queue", "Middle Queue", "Long Queue"], rotation=45)
                     axes.set_xlabel(xlabel, fontsize=20)
                     axes.set_ylabel("Percentage (%)", fontsize=20)
                     st.pyplot(fig)
-                    # axes.legend([ "Minimal", "Short", "Middle", "Long"], fontsize=30, bbox_to_anchor=(0.5, 2.05),
-                    # ncol=4, fancybox=True, shadow=True)
                     
-            bw_queue_time, bw_queue_time_user,bw_queue_node_user = analyze_queue_and_user_behavior(bw_df, gpu=False)
+            bw_queue_node_user = analyze_queue_and_user_behavior(bw_df, gpu=False)
             bars = [1, 22636//10, 3*22636//10, 1000000]
             plot_util_node(bw_queue_node_user, bw_df, bars, "all", "bw")
                     
-            mira_queue_time, mira_queue_time_user, mira_queue_node_user = analyze_queue_and_user_behavior(mira_df_2, gpu=False)
+            mira_queue_node_user = analyze_queue_and_user_behavior(mira_df_2, gpu=False)
             bars = [ 512, 49152//10, 3*49152//10, 49152]
             plot_util_node(mira_queue_node_user, mira_df_2, bars, "all", "mira")
 
-            phi_queue_time, phi_queue_time_user,phi_queue_node_user = analyze_queue_and_user_behavior(philly_df, gpu=True)
+            phi_queue_node_user = analyze_queue_and_user_behavior(philly_df, gpu=True)
             bars = [1, 1, 8, 256]
             plot_util_node(phi_queue_node_user, philly_df, bars, "all", "philly")
 
-            queue_time, queue_time_user,queue_node_user = analyze_queue_and_user_behavior(hl_df, gpu=True)
+            queue_node_user = analyze_queue_and_user_behavior(hl_df, gpu=True)
             bars = [1, 1, 8, 256]
             plot_util_node(queue_node_user, hl_df, bars, "all", "helios")
                         
                         
             with st.expander(f"**{chart_description_expander_title}**", expanded=True):
                     st.write("**The Median Runtime Of Different Types Of Jobs Charts:** ")
-                    st.write("**The Resource-configuration Groups per User:** This chart visualizes the repeated job submission patterns based on resource configurations (number of nodes and run time). It shows that nearly 90% of all jobs fall within the top 10 largest groups of similar job configurations, indicating high repetition in user job submissions. Additionally, it compares repetition across different systems (Philly, Helios, Blue Waters, Mira), revealing less repeated patterns in deep learning workloads on Philly and Helios.")    
 
     elif ubc_nav_bar == "Correlation between Job Run Time and Job Statuses":
         cbjrtajs_chart_title_ubc = "Chart Selection Form"
