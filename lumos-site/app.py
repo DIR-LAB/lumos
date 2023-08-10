@@ -1537,23 +1537,15 @@ elif main_nav == "User Behavior Characteristics":
                         resource = row.gpu_num
                     else:
                         resource = row.node_num
-                    
                     start_time = row.submit_time + row.wait_time
-
                     while waiting_queue and waiting_queue[0][0] <= row.submit_time:
                         temp = waiting_queue.popleft()
                         end_time = temp[0] + temp[3].wait_time + temp[3].run_time
                         running_queue.append((end_time, "running", temp[2], temp[3]))
                         cur_wait -= 1
-                    
-                    # Transfer finished jobs out from the running queue
                     while running_queue and running_queue[0][0] <= start_time:
                         running_queue.popleft()
-
-                    # Add current job to the waiting queue
                     waiting_queue.append((start_time, "waiting", row.Index, row))
-                    
-                    # Update util_node_user
                     util_node_user[row.user].append([resource, cur_wait])
                     cur_wait += 1
                     
@@ -1567,19 +1559,16 @@ elif main_nav == "User Behavior Characteristics":
                     x = ["{:.0%}".format((1+index)*stride) for index in range(int(1/stride))]
                     
                 buckets = [{} for _ in range(int(1/stride))]
-
                 for node, util in un:
                     b = int(min(1/stride-1, util/(stride if not max_util else (max_util*stride))))
                     if node in buckets[b]:
                         buckets[b][node] += 1
                     else:
                         buckets[b][node] = 1
-
                 for i in buckets:
                     s = sum(i.values())
                     for j in i:
                         i[j] /= s
-
                 return x, buckets
 
             def plot_util_node(un, data, bars, user="per", xlabel="mira"):
@@ -1589,19 +1578,15 @@ elif main_nav == "User Behavior Characteristics":
                     users = data["user"].value_counts().index[:6]
                     stride = 0.2
                     fig, axes = plt.subplots(2, 3, figsize=(18, 10))
-
                     for ui, user in enumerate(users):
                         x, buckets = calculate_buckets(un[user], stride)
-
                         prevy = np.zeros(len(x))
                         prev_bar = -1
-
                         for bar in bars:
                             y = np.array([sum(i[j] for j in i.keys() if prev_bar < j <= bar) for i in buckets])
                             axes[ui//3, ui%3].bar(x, y, bottom=prevy)
                             prevy += y
                             prev_bar = bar
-
                         axes[ui//3, ui%3].legend(bars)
 
                 else:
@@ -1624,26 +1609,57 @@ elif main_nav == "User Behavior Characteristics":
                     axes.set_xlabel(xlabel, fontsize=20)
                     axes.set_ylabel("Percentage (%)", fontsize=20)
                     st.pyplot(fig)
-                    
+            
             bw_queue_node_user = analyze_queue_and_user_behavior(bw_df, gpu=False)
-            bars = [1, 22636//10, 3*22636//10, 1000000]
-            plot_util_node(bw_queue_node_user, bw_df, bars, "all", "bw")
-                    
+            bw_bars = [1, 22636//10, 3*22636//10, 1000000]
             mira_queue_node_user = analyze_queue_and_user_behavior(mira_df_2, gpu=False)
-            bars = [ 512, 49152//10, 3*49152//10, 49152]
-            plot_util_node(mira_queue_node_user, mira_df_2, bars, "all", "mira")
-
+            mira_bars = [ 512, 49152//10, 3*49152//10, 49152]
             phi_queue_node_user = analyze_queue_and_user_behavior(philly_df, gpu=True)
-            bars = [1, 1, 8, 256]
-            plot_util_node(phi_queue_node_user, philly_df, bars, "all", "philly")
-
+            phi_bars = [1, 1, 8, 256]
             queue_node_user = analyze_queue_and_user_behavior(hl_df, gpu=True)
-            bars = [1, 1, 8, 256]
-            plot_util_node(queue_node_user, hl_df, bars, "all", "helios")
-                        
-                        
-            with st.expander(f"**{chart_description_expander_title}**", expanded=True):
-                    st.write("**The Median Runtime Of Different Types Of Jobs Charts:** ")
+            hl_bars = [1, 1, 8, 256]
+            
+            
+                    
+            with st.spinner(spinner_text):
+                st.markdown("<h1 style='text-align: center;'>Submitted Jobs' Sizes Impacted By Queue Length Charts</h1>", unsafe_allow_html=True)
+                if len(usb_job_size_selected_list_ubc) >= 1:
+                    if usb_check_box_view_side_by_side_ubc:
+                        col1, col2 = st.columns(2)
+                        for idx, item in enumerate(usb_charts_selected_list_ubc):
+                            usb_col_logic_cal_ubc = col1 if idx % 2 == 0 else col2
+                            if item == "Blue Waters":
+                                with usb_col_logic_cal_ubc:
+                                    plot_util_node(bw_queue_node_user, bw_df, bw_bars, "all", "bw")
+                            elif item == "Mira":
+                                with usb_col_logic_cal_ubc:
+                                    plot_util_node(mira_queue_node_user, mira_df_2, mira_bars, "all", "mira")
+                            elif item == "Philly":
+                                with usb_col_logic_cal_ubc:
+                                    plot_util_node(phi_queue_node_user, philly_df, phi_bars, "all", "philly")
+                            elif item == "Helios":
+                                with usb_col_logic_cal_ubc:
+                                    plot_util_node(queue_node_user, hl_df, hl_bars, "all", "helios")
+                            else:
+                                pass
+                    else:
+                        for item in usb_charts_selected_list_ubc:
+                            if item == "Blue Waters":
+                                plot_util_node(bw_queue_node_user, bw_df, bw_bars, "all", "bw")
+                            elif item == "Mira":
+                                plot_util_node(mira_queue_node_user, mira_df_2, mira_bars, "all", "mira")
+                            elif item == "Philly":
+                                plot_util_node(phi_queue_node_user, philly_df, phi_bars, "all", "philly")
+                            elif item == "Helios":
+                                plot_util_node(queue_node_user, hl_df, hl_bars, "all", "helios")
+                            else:
+                                pass
+                                
+                    with st.expander(f"**{chart_description_expander_title}**", expanded=True):
+                            st.write("**The Median Runtime Of Different Types Of Jobs Charts:** ")
+                else:
+                    st.markdown("<h2 style='color: red'>Please select one or more job size(s) from the sidebar to plot the chart(s)</h2>", unsafe_allow_html=True)
+                    
 
     elif ubc_nav_bar == "Correlation between Job Run Time and Job Statuses":
         cbjrtajs_chart_title_ubc = "Chart Selection Form"
