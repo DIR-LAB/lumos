@@ -1221,8 +1221,6 @@ elif main_nav == "Job Failure Characteristics":
             pass
         
     elif nav_bar_jfc == "Correlation between Job Failure and Job Geometries":
-        cbjfajg_chart_title_jfc = "Chart Selection Form"
-        cbjfajg_chart_checkbox_title_jfc = "Select one or more charts"
         cbjfajg_chart_selection_options_jfc = ["Job Status w.r.t Job Size", "Job Status w.r.t Job Run Time"]
         cbjfajg_charts_selected_list_jfc = cbjfajg_chart_selection_options_jfc.copy()
 
@@ -1335,8 +1333,6 @@ elif main_nav == "User Behavior Characteristics":
     default_index=0, orientation="vertical", menu_icon="bi-list")
 
     if ubc_nav_bar == "Users’ Repeated Behaviors":
-        urb_chart_title_ubc = "Chart Selection Form"
-        urb_chart_checkbox_title_ubc = "Select one or more charts"
         urb_chart_selection_left_col_options_ubc = ["Blue Waters", "Mira"]
         urb_chart_selection_right_col_options_ubc = ["Philly", "Helios"]
         urb_chart_selection_options_ubc = urb_chart_selection_left_col_options_ubc + urb_chart_selection_right_col_options_ubc
@@ -1458,8 +1454,6 @@ elif main_nav == "User Behavior Characteristics":
             pass
 
     elif ubc_nav_bar == "Users’ Submission Behaviors":
-        usb_chart_title_ubc = "Chart Selection Form"
-        usb_chart_checkbox_title_ubc = "Select one or more charts"
         usb_chart_selection_left_col_options_ubc = ["Blue Waters", "Mira"]
         usb_chart_selection_right_col_options_ubc = ["Philly", "Helios"]
         usb_chart_selection_options_ubc = usb_chart_selection_left_col_options_ubc + usb_chart_selection_right_col_options_ubc
@@ -1504,115 +1498,116 @@ elif main_nav == "User Behavior Characteristics":
                         else:
                             pass
                 usb_submit_parameters_button_ubc = st.form_submit_button("Apply Changes")
+            
             with st.expander(f"**{chart_view_settings_title}**", expanded=True):
                     usb_check_box_view_side_by_side_ubc = st.checkbox("Select to view charts side by side") 
-
-            def analyze_queue_and_user_behavior(data, gpu=False):
-                waiting_queue = deque()  
-                running_queue = deque()
-                util_node_user = defaultdict(list)
-                
-                cur_wait = 0
-                data_sorted = data.sort_values(by="submit_time").itertuples(index=True)
-                
-                for row in data_sorted:
-                    if gpu:
-                        resource = row.gpu_num
-                    else:
-                        resource = row.node_num
-                        
-                    start_time = row.submit_time + row.wait_time
-                    while waiting_queue and waiting_queue[0][0] <= row.submit_time:
-                        temp = waiting_queue.popleft()
-                        end_time = temp[0] + temp[3].wait_time + temp[3].run_time
-                        running_queue.append((end_time, "running", temp[2], temp[3]))
-                        cur_wait -= 1
-                    while running_queue and running_queue[0][0] <= start_time:
-                        running_queue.popleft()
-                    waiting_queue.append((start_time, "waiting", row.Index, row))
-                    util_node_user[row.user].append([resource, cur_wait])
-                    cur_wait += 1
-                    
-                return util_node_user
-
-            def calculate_buckets(un, stride, max_util=None):
-                x = []
-                if max_util:
-                    x = ["{}".format((1+index)*stride*max_util) for index in range(int(1/stride))]
-                else:
-                    x = ["{:.0%}".format((1+index)*stride) for index in range(int(1/stride))]
-                    
-                buckets = [{} for _ in range(int(1/stride))]
-                for node, util in un:
-                    b = int(min(1/stride-1, util/(stride if not max_util else (max_util*stride))))
-                    if node in buckets[b]:
-                        buckets[b][node] += 1
-                    else:
-                        buckets[b][node] = 1
-                for i in buckets:
-                    s = sum(i.values())
-                    for j in i:
-                        i[j] /= s
-                return x, buckets
-
-            def plot_util_node(un, data, bars, user="per", chart_title="mira", side_by_side=False):
-                
-                if side_by_side:
-                    st.markdown(f"<h4 style='text-align: center;'>{chart_title}</h4>", unsafe_allow_html=True)
-                else:
-                    st.markdown(f"<h1 style='text-align: center;'>{chart_title}</h1>", unsafe_allow_html=True) 
-                
-                hatches= ["-", ".", "x", "-"]
-                if user == "per":
-                    users = data["user"].value_counts().index[:6]
-                    stride = 0.2
-                    fig, axes = plt.subplots(2, 3, figsize=(18, 10))
-                    for ui, user in enumerate(users):
-                        x, buckets = calculate_buckets(un[user], stride)
-                        prevy = np.zeros(len(x))
-                        prev_bar = -1
-                        for bar in bars:
-                            y = np.array([sum(i[j] for j in i.keys() if prev_bar < j <= bar) for i in buckets])
-                            axes[ui//3, ui%3].bar(x, y, bottom=prevy)
-                            prevy += y
-                            prev_bar = bar
-                        axes[ui//3, ui%3].legend(bars)
-                else:
-                    all_un = sum([list(un[i]) for i in un], [])
-                    max_wait = max(all_un, key=lambda x: x[1])[1]
-                    stride = 1/3
-                    x, buckets = calculate_buckets(all_un, stride, max_wait)
-                    fig, axes = plt.subplots(1, 1, figsize=(3, 5))
-                    prevy = np.zeros(len(x))
-                    prev_bar = -1
-                    for index, bar in enumerate(bars):
-                        y = np.array([sum(i[j] for j in i.keys() if prev_bar < j <= bar) for i in buckets])
-                        axes.bar(x, y, bottom=prevy, hatch=hatches[index], edgecolor="black")
-                        prevy += y
-                        prev_bar = bar
-                    axes.set_xticks(x, ["Short Queue", "Middle Queue", "Long Queue"], rotation=45)
-                    axes.set_ylabel("Percentage (%)", fontsize=20)
-                    st.pyplot(fig)
-            
-            # These are causing the slow loading
-            @st.cache_data
-            def system_queue_node_user():
-                bw_queue_node_user = analyze_queue_and_user_behavior(bw_df, gpu=False)
-                mira_queue_node_user = analyze_queue_and_user_behavior(mira_df_2, gpu=False)
-                phi_queue_node_user = analyze_queue_and_user_behavior(philly_df, gpu=True)
-                hl_queue_node_user = analyze_queue_and_user_behavior(hl_df, gpu=True)
-                
-                return bw_queue_node_user, mira_queue_node_user, phi_queue_node_user, hl_queue_node_user
-            
-            bw_queue_node_user, mira_queue_node_user, phi_queue_node_user, hl_queue_node_user = system_queue_node_user()
-            
-            bw_bars = [1, 22636//10, 3*22636//10, 1000000]
-            mira_bars = [ 512, 49152//10, 3*49152//10, 49152]
-            phi_bars = [1, 1, 8, 256]
-            hl_bars = [1, 1, 8, 256]
             
             with st.spinner(spinner_text):
                 st.markdown("<h1 style='text-align: center;'>Submitted Jobs' Sizes Impacted By Queue Length Charts</h1>", unsafe_allow_html=True)
+                
+                def analyze_queue_and_user_behavior(data, gpu=False):
+                    waiting_queue = deque()  
+                    running_queue = deque()
+                    util_node_user = defaultdict(list)
+                    cur_wait = 0
+                    data_sorted = data.sort_values(by="submit_time").itertuples(index=True)
+                    
+                    for row in data_sorted:
+                        if gpu:
+                            resource = row.gpu_num
+                        else:
+                            resource = row.node_num
+                            
+                        start_time = row.submit_time + row.wait_time
+                        while waiting_queue and waiting_queue[0][0] <= row.submit_time:
+                            temp = waiting_queue.popleft()
+                            end_time = temp[0] + temp[3].wait_time + temp[3].run_time
+                            running_queue.append((end_time, "running", temp[2], temp[3]))
+                            cur_wait -= 1
+                        while running_queue and running_queue[0][0] <= start_time:
+                            running_queue.popleft()
+                        waiting_queue.append((start_time, "waiting", row.Index, row))
+                        util_node_user[row.user].append([resource, cur_wait])
+                        cur_wait += 1
+                        
+                    return util_node_user
+
+                def calculate_buckets(un, stride, max_util=None):
+                    x = []
+                    if max_util:
+                        x = ["{}".format((1+index)*stride*max_util) for index in range(int(1/stride))]
+                    else:
+                        x = ["{:.0%}".format((1+index)*stride) for index in range(int(1/stride))]
+                        
+                    buckets = [{} for _ in range(int(1/stride))]
+                    for node, util in un:
+                        b = int(min(1/stride-1, util/(stride if not max_util else (max_util*stride))))
+                        if node in buckets[b]:
+                            buckets[b][node] += 1
+                        else:
+                            buckets[b][node] = 1
+                    for i in buckets:
+                        s = sum(i.values())
+                        for j in i:
+                            i[j] /= s
+                    return x, buckets
+
+                def plot_util_node(un, data, bars, user="per", chart_title="mira", side_by_side=False):
+                    
+                    if side_by_side:
+                        st.markdown(f"<h4 style='text-align: center;'>{chart_title}</h4>", unsafe_allow_html=True)
+                    else:
+                        st.markdown(f"<h1 style='text-align: center;'>{chart_title}</h1>", unsafe_allow_html=True) 
+                    
+                    hatches= ["-", ".", "x", "-"]
+                    if user == "per":
+                        users = data["user"].value_counts().index[:6]
+                        stride = 0.2
+                        fig, axes = plt.subplots(2, 3, figsize=(18, 10))
+                        for ui, user in enumerate(users):
+                            x, buckets = calculate_buckets(un[user], stride)
+                            prevy = np.zeros(len(x))
+                            prev_bar = -1
+                            for bar in bars:
+                                y = np.array([sum(i[j] for j in i.keys() if prev_bar < j <= bar) for i in buckets])
+                                axes[ui//3, ui%3].bar(x, y, bottom=prevy)
+                                prevy += y
+                                prev_bar = bar
+                            axes[ui//3, ui%3].legend(bars)
+                    else:
+                        all_un = sum([list(un[i]) for i in un], [])
+                        max_wait = max(all_un, key=lambda x: x[1])[1]
+                        stride = 1/3
+                        x, buckets = calculate_buckets(all_un, stride, max_wait)
+                        fig, axes = plt.subplots(1, 1, figsize=(3, 5))
+                        prevy = np.zeros(len(x))
+                        prev_bar = -1
+                        for index, bar in enumerate(bars):
+                            y = np.array([sum(i[j] for j in i.keys() if prev_bar < j <= bar) for i in buckets])
+                            axes.bar(x, y, bottom=prevy, hatch=hatches[index], edgecolor="black")
+                            prevy += y
+                            prev_bar = bar
+                        axes.set_xticks(x, ["Short Queue", "Middle Queue", "Long Queue"], rotation=45)
+                        axes.set_ylabel("Percentage (%)", fontsize=20)
+                        st.pyplot(fig)
+           
+                
+                @st.cache_data
+                def system_queue_node_user():
+                    bw_queue_node_user = analyze_queue_and_user_behavior(bw_df, gpu=False)
+                    mira_queue_node_user = analyze_queue_and_user_behavior(mira_df_2, gpu=False)
+                    phi_queue_node_user = analyze_queue_and_user_behavior(philly_df, gpu=True)
+                    hl_queue_node_user = analyze_queue_and_user_behavior(hl_df, gpu=True)
+                    
+                    return bw_queue_node_user, mira_queue_node_user, phi_queue_node_user, hl_queue_node_user
+                    
+                bw_queue_node_user, mira_queue_node_user, phi_queue_node_user, hl_queue_node_user = system_queue_node_user()
+                
+                bw_bars = [1, 22636//10, 3*22636//10, 1000000]
+                mira_bars = [ 512, 49152//10, 3*49152//10, 49152]
+                phi_bars = [1, 1, 8, 256]
+                hl_bars = [1, 1, 8, 256]
+                
                 if len(usb_job_size_selected_list_ubc) >= 1:
                     if usb_check_box_view_side_by_side_ubc:
                         col1, col2 = st.columns(2)
@@ -1650,8 +1645,6 @@ elif main_nav == "User Behavior Characteristics":
                     st.markdown("<h2 style='color: red'>Please select one or more job size(s) from the sidebar to plot the chart(s)</h2>", unsafe_allow_html=True)
                     
     elif ubc_nav_bar == "Correlation between Job Run Time and Job Statuses":
-        cbjrtajs_chart_title_ubc = "Chart Selection Form"
-        cbjrtajs_chart_checkbox_title_ubc = "Select one or more charts"
         cbjrtajs_chart_selection_left_col_options_ubc = ["Blue Waters", "Mira"]
         cbjrtajs_chart_selection_right_col_options_ubc = ["Philly", "Helios"]
         cbjrtajs_chart_selection_options_ubc = cbjrtajs_chart_selection_left_col_options_ubc + cbjrtajs_chart_selection_right_col_options_ubc
