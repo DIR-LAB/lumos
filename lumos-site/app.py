@@ -1251,8 +1251,7 @@ elif main_nav == "Job Failure Characteristics":
             elif len(jfd_job_status_selected_list_jfc) >= 1 and len(jfd_selected_system_models_jfc) < 1:
                 st.markdown("<h2 style='color: red'>Please select one or more system model(s) from the sidebar to plot the chart</h2>", unsafe_allow_html=True)
                 
-
-            else: # len(jfd_job_status_selected_list_jfc) < 1 and len(jfd_selected_system_models_jfc) < 1
+            else:
                 st.markdown("<h2 style='color: red'>Please select one or more job status(es) and system model(s) from the sidebar to plot the chart</h2>", unsafe_allow_html=True)
         else:
             pass
@@ -1545,98 +1544,110 @@ elif main_nav == "User Behavior Characteristics":
                 st.markdown("<h1 style='text-align: center;'>Submitted Jobs' Sizes Impacted By Queue Length Charts</h1>", unsafe_allow_html=True)
                 
                 def analyze_queue_and_user_behavior(data, gpu=False):
-                    waiting_queue = deque()  
-                    running_queue = deque()
+                    data = data.copy()
+                    data["index"] = data.index
+
+                    queue = []
                     util_node_user = defaultdict(list)
                     cur_wait = 0
-                    data_sorted = data.sort_values(by="submit_time").itertuples(index=True)
-                    
-                    for row in data_sorted:
-                        if gpu:
-                            resource = row.gpu_num
-                        else:
-                            resource = row.node_num
-                            
-                        start_time = row.submit_time + row.wait_time
-                        while waiting_queue and waiting_queue[0][0] <= row.submit_time:
-                            temp = waiting_queue.popleft()
-                            end_time = temp[0] + temp[3].wait_time + temp[3].run_time
-                            running_queue.append((end_time, "running", temp[2], temp[3]))
-                            cur_wait -= 1
-                        while running_queue and running_queue[0][0] <= start_time:
-                            running_queue.popleft()
-                        waiting_queue.append((start_time, "waiting", row.Index, row))
-                        util_node_user[row.user].append([resource, cur_wait])
-                        cur_wait += 1
+
+                    for index, row in data.iterrows():
+                        start_time = row["submit_time"] + row["wait_time"]
+                        end_time = start_time + row["run_time"]
                         
+                        while queue and queue[0][0] <= row["submit_time"]:
+                            temp = heappop(queue)
+                            cur_time = temp[0]
+                            job_type = temp[1]
+                            job = temp[3]
+                            
+                            if job_type == "waiting":
+                                heappush(queue, (job["submit_time"] + job["wait_time"] + job["run_time"], "running", job["index"], job))
+                                cur_wait -= 1
+                            elif job_type == "running":
+                                pass
+                            else:
+                                raise NotImplementedError
+
+                        heappush(queue, (start_time, "waiting", index, row))
+                        util_node_user[row["user"]].append([row["gpu_num"] if gpu else row["node_num"], cur_wait])
+                        cur_wait += 1
+
                     return util_node_user
 
-                def calculate_buckets(un, stride, max_util=None):
-                    x = []
-                    if max_util:
-                        x = ["{}".format((1+index)*stride*max_util) for index in range(int(1/stride))]
-                    else:
-                        x = ["{:.0%}".format((1+index)*stride) for index in range(int(1/stride))]
-                        
-                    buckets = [{} for _ in range(int(1/stride))]
-                    for node, util in un:
-                        b = int(min(1/stride-1, util/(stride if not max_util else (max_util*stride))))
-                        if node in buckets[b]:
-                            buckets[b][node] += 1
-                        else:
-                            buckets[b][node] = 1
-                    for i in buckets:
-                        s = sum(i.values())
-                        for j in i:
-                            i[j] /= s
-                    return x, buckets
 
                 def plot_util_node(un, data, bars, user="per", chart_title="mira", side_by_side=False):
                     if side_by_side:
                         st.markdown(f"<h4 style='text-align: center;'>{chart_title}</h4>", unsafe_allow_html=True)
                     else:
                         st.markdown(f"<h1 style='text-align: center;'>{chart_title}</h1>", unsafe_allow_html=True) 
-                    
+                        
                     hatches= ["-", ".", "x", "-"]
                     if user == "per":
-                        users = data["user"].value_counts().index[:6]
+                        users = list(data.groupby("user").count().sort_values(by="job", ascending=False).index[:6])
                         stride = 0.2
                         fig, axes = plt.subplots(2, 3, figsize=(18, 10))
+
                         for ui, user in enumerate(users):
-                            x, buckets = calculate_buckets(un[user], stride)
-                            prevy = np.zeros(len(x))
+                            print(ui, user)
+
+                            x = ["{:.0%}".format((1+index)*stride)
+                                                    for index in range(int(1/stride))]
+                            buckets = [Counter() for _ in range(int(1/stride))]
+                            for node, util in un[user]:
+                                b = int(min(1/stride-1, util/stride))
+                                buckets[b][node] += 1
+                            for i in buckets:
+                                s = sum(i.values())
+                                for j in i:
+                                    i[j] /= s
+                            prevy = np.array([0]*len(x))
                             prev_bar = -1
                             for bar in bars:
-                                y = np.array([sum(i[j] for j in i.keys() if prev_bar < j <= bar) for i in buckets])
+                                y = np.array([sum(i[j] for j in i.keys() if prev_bar<j <=bar) for i in buckets])
                                 axes[ui//3, ui%3].bar(x, y, bottom=prevy)
-                                prevy += y
+                                prevy = y+prevy
                                 prev_bar = bar
                             axes[ui//3, ui%3].legend(bars)
                     else:
-                        all_un = sum([list(un[i]) for i in un], [])
+                        all_un = []
+                        for i in un:
+                            all_un.extend(un[i])
                         max_wait = max(all_un, key=lambda x: x[1])[1]
                         stride = 1/3
-                        x, buckets = calculate_buckets(all_un, stride, max_wait)
                         fig, axes = plt.subplots(1, 1, figsize=(3, 5))
-                        prevy = np.zeros(len(x))
+
+                        x = ["{}".format((1+index)*stride*max_wait)
+                                                for index in range(int(1/stride))]
+                        buckets = [Counter() for _ in range(int(1/stride))]
+                        for node, util in all_un:
+                            b = int(min(1/stride-1, (util/max_wait)/stride))
+                            buckets[b][node] += 1
+                        for i in buckets:
+                            i[0] = 0
+                            s = sum(list(i.values()))
+                            for j in i:
+                                i[j] /= s*0.01
+                        prevy = np.array([0]*len(x))
                         prev_bar = -1
                         for index, bar in enumerate(bars):
-                            y = np.array([sum(i[j] for j in i.keys() if prev_bar < j <= bar) for i in buckets])
+                            y = np.array([sum(i[j] for j in i.keys() if prev_bar<j <=bar) for i in buckets])
                             axes.bar(x, y, bottom=prevy, hatch=hatches[index], edgecolor="black")
-                            prevy += y
+                            prevy = y+prevy
                             prev_bar = bar
                         axes.set_xticks(x, ["Short Queue", "Middle Queue", "Long Queue"], rotation=45)
                         axes.set_ylabel("Percentage (%)", fontsize=20)
+                        axes.legend(["Pass", "Failed", "Killed"], fontsize=15, loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=3)             
                         st.pyplot(fig)
                 
                 @st.cache_data
                 def system_queue_node_user():
-                    bw_queue_node_user = analyze_queue_and_user_behavior(bw_df, gpu=False)
                     mira_queue_node_user = analyze_queue_and_user_behavior(mira_df_2, gpu=False)
-                    phi_queue_node_user = analyze_queue_and_user_behavior(philly_df, gpu=True)
+                    bw_queue_node_user = analyze_queue_and_user_behavior(bw_df, gpu=False)
                     hl_queue_node_user = analyze_queue_and_user_behavior(hl_df, gpu=True)
-                    
+                    phi_queue_node_user = analyze_queue_and_user_behavior(philly_df, gpu=True)
                     return bw_queue_node_user, mira_queue_node_user, phi_queue_node_user, hl_queue_node_user
+                
                 bw_queue_node_user, mira_queue_node_user, phi_queue_node_user, hl_queue_node_user = system_queue_node_user()
                 
                 bw_bars = [1, 22636//10, 3*22636//10, 1000000]
@@ -1721,6 +1732,7 @@ elif main_nav == "User Behavior Characteristics":
                 st.write("### Alter the following settings to customize the selected chart(s):")
                 cbjrtajs_percentage_slider_ubc = st.slider("**Adjust Job Run Time (in powers of 10) (Y-axis):**", min_value=cbjrtajs_min_value_exp_run_time_slider_ubc, max_value=cbjrtajs_max_value_exp_run_time_slider_ubc, value=6, step=1)
                 cbjrtajs_percentage_slider_value_ubc = int(10**cbjrtajs_percentage_slider_ubc)
+                
                 with st.expander("**Select Job Status(es) (X-axis)**", expanded=True):
                     for item in cbjrtajs_job_status_list_ubc:
                         cbjrtajs_job_status_checkbox_ubc = st.checkbox(item, True)
@@ -1733,7 +1745,7 @@ elif main_nav == "User Behavior Characteristics":
             with st.expander(f"**{chart_view_settings_title}**", expanded=True):
                 cbjrtajs_check_box_view_side_by_side_ubc = st.checkbox("Select to view charts side by side")
                 
-            def plot_attribute_per_ml(u, data, state="state", status=None ,all_user=False, side_by_side = False, chart_title=None):
+            def plot_attribute_per_ml(u, data, state="state", status=None, frequency_slider_value=None, all_user=False, side_by_side = False, chart_title=None):
                 plt.style.use("default")
                 rows = list(data.groupby(u).sum().sort_values(by="node_hour", ascending=False).index[:3])
                 if all_user:
@@ -1755,20 +1767,31 @@ elif main_nav == "User Behavior Characteristics":
                             selected_run_times.append(st2_run_time)
                         else:
                             pass
-                        
                     fig, axes = plt.subplots(1, 1, figsize=(4, 3))
                     for index, i in enumerate(zip(*selected_run_times)):
                         k = [np.log10(np.array(j)+1) for j in i]
                         sns.violinplot(data=k,ax=axes, scale="width")
                     ax = axes
+                    
+                    # ymin = 1 if frequency_slider_value < 10 else 10 * (int(np.log10(frequency_slider_value)) - 1)
+                    # ymax = frequency_slider_value
+                    # ax.yaxis.set_major_formatter(mticker.StrMethodFormatter("$10^{{{x:.0f}}}$"))
+                    # tick_range = np.arange(np.floor(np.log10(ymin)), np.ceil(np.log10(ymax)) + 1)
+                    # ax.yaxis.set_ticks(tick_range)
+                    # ax.yaxis.set_ticks([np.log10(x) for p in tick_range for x in np.linspace(10 ** p, 10 ** (p + 1), 10)], minor=True)
+                    # ax.yaxis.grid(True)
+                    # ymin = 1 if frequency_slider_value < 10 else 10 * (int(np.log10(frequency_slider_value)) - 1)
+                    # ymax = frequency_slider_value
+                    
                     ax.yaxis.set_major_formatter(mticker.StrMethodFormatter("$10^{{{x:.0f}}}$"))
                     ymin, ymax = ax.get_ylim()
+                    print(ax.get_ylim())
                     tick_range = np.arange(np.floor(ymin), ymax)
                     ax.yaxis.set_ticks(tick_range)
                     ax.yaxis.set_ticks([np.log10(x) for p in tick_range for x in np.linspace(10 ** p, 10 ** (p + 1), 10)], minor=True)
                     ax.yaxis.grid(True)
                     ax.set_xticks([y for y in range(len(status))])
-                    ax.set_xticklabels(status, fontsize=24)
+                    ax.set_xticklabels(status, fontsize=24)      
                     ax.set_ylabel('Job Run time (s)', fontsize=20)
                     st.pyplot(fig)
                 else:
@@ -1817,28 +1840,28 @@ elif main_nav == "User Behavior Characteristics":
                             cbjrtajs_col_logic_cal_ubc = col1 if idx % 2 == 0 else col2
                             if item == "Blue Waters":
                                 with cbjrtajs_col_logic_cal_ubc:
-                                    plot_attribute_per_ml("user", data=bw_df, state="new_status", status=cbjrtajs_job_status_selected_list_ubc, all_user=True, side_by_side = True, chart_title = "Blue Waters")
+                                    plot_attribute_per_ml("user", data=bw_df, state="new_status", status=cbjrtajs_job_status_selected_list_ubc, frequency_slider_value = cbjrtajs_percentage_slider_value_ubc, all_user=True, side_by_side = True, chart_title = "Blue Waters")
                             elif item == "Mira":
                                 with cbjrtajs_col_logic_cal_ubc:
-                                    plot_attribute_per_ml("user", data=mira_df_2, state="new_status", status=cbjrtajs_job_status_selected_list_ubc, all_user=True, side_by_side = True, chart_title = "Mira")
+                                    plot_attribute_per_ml("user", data=mira_df_2, state="new_status", status=cbjrtajs_job_status_selected_list_ubc, frequency_slider_value=  cbjrtajs_percentage_slider_value_ubc, all_user=True, side_by_side = True, chart_title = "Mira")
                             elif item == "Philly":
                                 with cbjrtajs_col_logic_cal_ubc:
-                                    plot_attribute_per_ml("user", data=philly_df, state="state", status=cbjrtajs_job_status_selected_list_ubc, all_user=True, side_by_side = True, chart_title = "Philly")
+                                    plot_attribute_per_ml("user", data=philly_df, state="state", status=cbjrtajs_job_status_selected_list_ubc, frequency_slider_value=cbjrtajs_percentage_slider_value_ubc, all_user=True, side_by_side = True, chart_title = "Philly")
                             elif item == "Helios":
                                 with cbjrtajs_col_logic_cal_ubc:
-                                    plot_attribute_per_ml("user", data=hl_df, state="state", status=cbjrtajs_job_status_selected_list_ubc, all_user=True, side_by_side = True, chart_title = "Helios")
+                                    plot_attribute_per_ml("user", data=hl_df, state="state", status=cbjrtajs_job_status_selected_list_ubc, frequency_slider_value=cbjrtajs_percentage_slider_value_ubc, all_user=True, side_by_side = True, chart_title = "Helios")
                             else:
                                 pass                           
                     else:
                         for item in cbjrtajs_charts_selected_list_ubc:
                             if item == "Blue Waters":
-                                plot_attribute_per_ml("user", data=bw_df, state="new_status", status=cbjrtajs_job_status_selected_list_ubc, all_user=True, side_by_side = False, chart_title = "Blue Waters")                          
+                                plot_attribute_per_ml("user", data=bw_df, state="new_status", status=cbjrtajs_job_status_selected_list_ubc, frequency_slider_value=cbjrtajs_percentage_slider_value_ubc, all_user=True, side_by_side = False, chart_title = "Blue Waters")                          
                             elif item == "Mira":
-                                plot_attribute_per_ml("user", data=mira_df_2, state="new_status", status=cbjrtajs_job_status_selected_list_ubc, all_user=True, side_by_side = False, chart_title = "Mira")                        
+                                plot_attribute_per_ml("user", data=mira_df_2, state="new_status", status=cbjrtajs_job_status_selected_list_ubc, frequency_slider_value=cbjrtajs_percentage_slider_value_ubc, all_user=True, side_by_side = False, chart_title = "Mira")                        
                             elif item == "Philly":
-                                plot_attribute_per_ml("user", data=philly_df, state="state", status=cbjrtajs_job_status_selected_list_ubc, all_user=True, side_by_side = False, chart_title = "Philly")                      
+                                plot_attribute_per_ml("user", data=philly_df, state="state", status=cbjrtajs_job_status_selected_list_ubc, frequency_slider_value=cbjrtajs_percentage_slider_value_ubc,  all_user=True, side_by_side = False, chart_title = "Philly")                      
                             elif item == "Helios":
-                                plot_attribute_per_ml("user", data=hl_df, state="state", status=cbjrtajs_job_status_selected_list_ubc, all_user=True, side_by_side = False, chart_title = "Helios")
+                                plot_attribute_per_ml("user", data=hl_df, state="state", status=cbjrtajs_job_status_selected_list_ubc, frequency_slider_value=cbjrtajs_percentage_slider_value_ubc, all_user=True, side_by_side = False, chart_title = "Helios")
                             else:
                                 pass
                     with st.expander(f"**{chart_description_expander_title}**", expanded=True):
