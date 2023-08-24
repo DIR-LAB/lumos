@@ -22,13 +22,13 @@ from matplotlib.lines import Line2D
 st.set_page_config(page_title="Job Trace Visualization Application", page_icon="📊")
 curr_dir = os.path.dirname(__file__)
 
-banner_image_path = os.path.join(curr_dir, '../images/App Banner Image.png')
+banner_image_path = os.path.join(curr_dir, 'images/App Banner Image.png')
 
-data_blue_waters_path = os.path.join(curr_dir, '../data/data_blue_waters.csv')
-data_mira_path = os.path.join(curr_dir, '../data/data_mira.csv')
-data_helios_path = os.path.join(curr_dir, '../data/data_helios.csv')
-data_philly_path = os.path.join(curr_dir, '../data/data_philly.csv')
-data_philly_gpu_schedule_path = os.path.join(curr_dir, '../data/philly_df_schedule.csv')
+data_blue_waters_path = os.path.join(curr_dir, 'data/data_blue_waters.csv')
+data_mira_path = os.path.join(curr_dir, 'data/data_mira.csv')
+data_helios_path = os.path.join(curr_dir, 'data/data_helios.csv')
+data_philly_path = os.path.join(curr_dir, 'data/data_philly.csv')
+data_philly_gpu_schedule_path = os.path.join(curr_dir, 'data/philly_df_schedule.csv')
 
 banner_image = Image.open(banner_image_path)
 st.image(banner_image)
@@ -42,7 +42,10 @@ def load_data():
     philly_gpu = pd.read_csv(data_philly_gpu_schedule_path)
     return bw, mira, hl, philly, philly_gpu
 
+
 bw_df, mira_df_2, hl_df, philly_df, philly_gpu_schedule_df = load_data()
+
+columns=["job", "user", "project", "state", "gpu_num", "cpu_num", "node_num", "submit_time", "wait_time", "run_time", "wall_time", "node_hour"]
 
 styles = {
     "nav-link-selected": {
@@ -59,44 +62,54 @@ chart_view_settings_title = "Charts View Settings"
 
 spinner_text = "In progress...., Please do not change any settings now"
 
-columns=["job", "user", "project", "state", "gpu_num", "cpu_num", "node_num", "submit_time", "wait_time", "run_time", "wall_time", "node_hour"]
-
 if 'file_counter' not in st.session_state:
     st.session_state.file_counter = 2
 
-cluster_names = {}
-uploaded_files = {}
+user_entered_cluster_names = {}
+user_uploaded_cluster_data_files = {}
+with st.expander("**Upload Own Files Section**", expanded=True):
+    with st.form("Upload_Files_form"):
+        st.markdown("<h3 style = 'text-align: center'>Provide Your CSV Data for Visual Analysis</h3>", unsafe_allow_html = True)
+        st.markdown("<h6>Make sure the file you have the necessary columns and data needed for Visual Plotting, example file - <a href='https://github.com/DIR-LAB/lumos/blob/main/lumos-site/data/data_mira.csv'>Click Here To View</a></h6>", unsafe_allow_html = True)
+        col1, col2 = st.columns(2)
+        with col1:
+                add_more_files_button = st.form_submit_button("Add More Files") 
+        with col2:
+                remove_files_button = st.form_submit_button("Remove File")
+                
+        if add_more_files_button:
+            st.session_state.file_counter += 1
+        elif remove_files_button:
+            st.session_state.file_counter -= 1
+        else:
+            pass
+            
+        for i in range(1, st.session_state.file_counter):
+            cluster_name = st.text_input(f"{i}] Enter The Name of the Cluster:", help="Enter the name of the clusters for which you will be uploading the file below.")
+            user_entered_cluster_names[i] = cluster_name
+            
+            uploaded_file = st.file_uploader(f"Upload File {i}", type=["csv"])
+            if uploaded_file:
+                user_uploaded_cluster_data_files[i] = uploaded_file
+                
+        submit_all_forms = st.form_submit_button("Submit All Files")
 
-with st.form("Upload_Files_form"):
-    col1, col2 = st.columns(2)
-    with col1:
-        add_more_files_button = st.form_submit_button("Add More Files") 
-    with col2:
-        remove_files_button = st.form_submit_button("Remove File")
+    if submit_all_forms: 
+        for i, name in user_entered_cluster_names.items():
+            get_uploaded_file = user_uploaded_cluster_data_files.get(i)
+            
+            if get_uploaded_file:
+                uploaded_file_columns = pd.read_csv(get_uploaded_file).columns
+                all_columns_present_check = set(columns).issubset(uploaded_file_columns)        
 
-    if add_more_files_button:
-        st.session_state.file_counter += 1
-    
-    if remove_files_button:
-        st.session_state.file_counter -= 1
-        
-    for i in range(1, st.session_state.file_counter):
-        cluster_name = st.text_input(f" {i}] Enter The Name of the Cluster:")
-        cluster_names[i] = cluster_name
-        
-        uploaded_file = st.file_uploader(f"Upload File {i}", label_visibility='hidden')
-        if uploaded_file:
-            uploaded_files[i] = uploaded_file
-
-for i, name in cluster_names.items():
-    st.write(f"Cluster {i}: {name}")
-    if i in uploaded_files:
-        st.write(f"File for Cluster {i} has been uploaded.")
-    
+                if not all_columns_present_check:
+                    user_uploaded_cluster_data_files[i] = None
+                    st.markdown(f"<h6 style='color: red'>The file '{name}' is missing essential columns. Please re-upload with the required columns and click 'Submit All Files'. Required columns: {columns}</h6>", unsafe_allow_html = True)
+                
 main_nav = option_menu(options=["Job Geometric Characteristics", "Job Failure Characteristics", "User Behavior Characteristics"],
-                                menu_title="Pick a characteristic to view available model options",
-                                icons=["bi-1-circle", "bi-2-circle", "bi-3-circle"],
-                                styles=styles, orientation="horizontal", menu_icon="bi-segmented-nav")
+                                 menu_title="Pick a characteristic to view available model options",
+                                 icons=["bi-1-circle", "bi-2-circle", "bi-3-circle"],
+                                 styles=styles, orientation="horizontal", menu_icon="bi-segmented-nav")
 
 if main_nav == "Job Geometric Characteristics":
     nav_bar_horizontal = option_menu("Job Geometric: Pick a model to load related charts",
@@ -993,13 +1006,13 @@ if main_nav == "Job Geometric Characteristics":
                                     if len(jwt_awtjs_job_sizes_selected_list_jgc) >= 1:
                                         plot_avg_wait_wrt_time_job_size(True, "Avg waiting Time w.r.t Job Size")
                                     else:    
-                                        st.markdown("<h5 style='color: red'>Please select one or more 'Job size(s)' and click 'Apply Changes' in sidebar to plot this chart</h5>", unsafe_allow_html=True)  
+                                        st.markdown("<h6 style='color: red'>Please select one or more 'Job size(s)' and click 'Apply Changes' in sidebar to plot this chart</h6>", unsafe_allow_html=True)  
                             elif item == "Avg Waiting Time w.r.t Job Run Time":
                                 with jwt_col_logic_cal_jgc:
                                     if len(jwt_awtjrt_job_run_time_selected_list_jgc) >= 1:
                                         plot_avg_wait_time_wrt_job_run_time(True, "Avg Waiting Time w.r.t Job Run Time")
                                     else:
-                                        st.markdown("<h5 style='color: red'>Please select one or more 'Job Run Time(s)' and click 'Apply Changes' in sidebar to plot this chart</h5>", unsafe_allow_html=True)
+                                        st.markdown("<h6 style='color: red'>Please select one or more 'Job Run Time(s)' and click 'Apply Changes' in sidebar to plot this chart</h6>", unsafe_allow_html=True)
                             else:
                                 pass
                     else:
@@ -1012,12 +1025,12 @@ if main_nav == "Job Geometric Characteristics":
                                 if len(jwt_awtjs_job_sizes_selected_list_jgc) >= 1:
                                     plot_avg_wait_wrt_time_job_size(False, "Avg waiting Time w.r.t Job Size")
                                 else:    
-                                    st.markdown("<h5 style='color: red'>Please select one or more 'Job size(s)' and click 'Apply Changes' in sidebar to plot this chart</h5>", unsafe_allow_html=True)  
+                                    st.markdown("<h3 style='color: red'>Please select one or more 'Job size(s)' and click 'Apply Changes' in sidebar to plot this chart</h3>", unsafe_allow_html=True)  
                             elif item == "Avg Waiting Time w.r.t Job Run Time":
                                 if len(jwt_awtjrt_job_run_time_selected_list_jgc) >= 1:
                                     plot_avg_wait_time_wrt_job_run_time(False, "Avg Waiting Time w.r.t Job Run Time")
                                 else:
-                                    st.markdown("<h5 style='color: red'>Please select one or more 'Job Run Time(s)' and click 'Apply Changes' in sidebar to plot this chart</h5>", unsafe_allow_html=True)
+                                    st.markdown("<h3 style='color: red'>Please select one or more 'Job Run Time(s)' and click 'Apply Changes' in sidebar to plot this chart</h3>", unsafe_allow_html=True)
                             else:
                                 pass
                               
@@ -1560,7 +1573,7 @@ elif main_nav == "User Behavior Characteristics":
             with st.sidebar.form("usb_sidebar_form_ubc"):
                 st.write("### Alter the following settings to customize the selected chart(s):")
                 
-                # Hide it for now (Future code) - to make the job status dynamic 
+                # Hide it for now - Future code to make the job status dynamic 
                 # with st.expander("**Select Job Status(es)**", expanded=True):
                     # for item in usb_job_sizes_list_ubc:
                     #     usb_job_sizes_checkbox_ubc = st.checkbox(item, True)

@@ -42,7 +42,10 @@ def load_data():
     philly_gpu = pd.read_csv(data_philly_gpu_schedule_path)
     return bw, mira, hl, philly, philly_gpu
 
+
 bw_df, mira_df_2, hl_df, philly_df, philly_gpu_schedule_df = load_data()
+
+columns=["job", "user", "project", "state", "gpu_num", "cpu_num", "node_num", "submit_time", "wait_time", "run_time", "wall_time", "node_hour"]
 
 styles = {
     "nav-link-selected": {
@@ -59,12 +62,55 @@ chart_view_settings_title = "Charts View Settings"
 
 spinner_text = "In progress...., Please do not change any settings now"
 
+if 'file_counter' not in st.session_state:
+    st.session_state.file_counter = 2
+
+user_entered_cluster_names = {}
+user_uploaded_cluster_data_files = {}
+with st.expander("**Upload Own Files Section**", expanded=True):
+    with st.form("Upload_Files_form"):
+        st.markdown("<h3 style = 'text-align: center'>Provide Your CSV Data for Visual Analysis</h3>", unsafe_allow_html = True)
+        #Ask Dr.Dai to create a GitHub Gists for the Mira data file to show the users as an example here- https://gist.github.com/MonishSoundarRaj/56f2e24982b89761761b02dac481077c
+        st.markdown("<h6>Make sure the file you have the necessary columns and data needed for Visual Plotting, example file - <a href='https://gist.github.com/MonishSoundarRaj/56f2e24982b89761761b02dac481077c'>Click Here To View</a></h6>", unsafe_allow_html = True)
+        col1, col2 = st.columns(2)
+        with col1:
+                add_more_files_button = st.form_submit_button("Add More Files") 
+        with col2:
+                remove_files_button = st.form_submit_button("Remove File")
+                
+        if add_more_files_button:
+            st.session_state.file_counter += 1
+        elif remove_files_button:
+            st.session_state.file_counter -= 1
+        else:
+            pass
+            
+        for i in range(1, st.session_state.file_counter):
+            cluster_name = st.text_input(f"{i}] Enter The Name of the Cluster:", help="Enter the name of the clusters for which you will be uploading the file below.")
+            user_entered_cluster_names[i] = cluster_name
+            
+            uploaded_file = st.file_uploader(f"Upload File {i}", type=["csv"])
+            if uploaded_file:
+                user_uploaded_cluster_data_files[i] = uploaded_file
+                
+        submit_all_forms = st.form_submit_button("Submit All Files")
+
+    if submit_all_forms: 
+        for i, name in user_entered_cluster_names.items():
+            get_uploaded_file = user_uploaded_cluster_data_files.get(i)
+            
+            if get_uploaded_file:
+                uploaded_file_columns = pd.read_csv(get_uploaded_file).columns
+                all_columns_present_check = set(columns).issubset(uploaded_file_columns)        
+
+                if not all_columns_present_check:
+                    user_uploaded_cluster_data_files[i] = None
+                    st.markdown(f"<h6 style='color: red'>The file '{name}' is missing essential columns. Please re-upload with the required columns and click 'Submit All Files'. Required columns: {columns}</h6>", unsafe_allow_html = True)
+                
 main_nav = option_menu(options=["Job Geometric Characteristics", "Job Failure Characteristics", "User Behavior Characteristics"],
                                  menu_title="Pick a characteristic to view available model options",
                                  icons=["bi-1-circle", "bi-2-circle", "bi-3-circle"],
                                  styles=styles, orientation="horizontal", menu_icon="bi-segmented-nav")
-
-columns=["job", "user", "project", "state", "gpu_num", "cpu_num", "node_num", "submit_time", "wait_time", "run_time", "wall_time", "node_hour"]
 
 if main_nav == "Job Geometric Characteristics":
     nav_bar_horizontal = option_menu("Job Geometric: Pick a model to load related charts",
