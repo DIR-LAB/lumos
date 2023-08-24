@@ -71,7 +71,9 @@ with st.expander("**Upload Own Files Section**", expanded=True):
     with st.form("Upload_Files_form"):
         st.markdown("<h3 style = 'text-align: center'>Provide Your CSV Data for Visual Analysis</h3>", unsafe_allow_html = True)
         #Ask Dr.Dai to create a GitHub Gists for the Mira data file to show the users as an example here- https://gist.github.com/MonishSoundarRaj/56f2e24982b89761761b02dac481077c
-        st.markdown("<h6>Make sure the file you have the necessary columns and data needed for Visual Plotting, example file - <a href='https://gist.github.com/MonishSoundarRaj/56f2e24982b89761761b02dac481077c'>Click Here To View</a></h6>", unsafe_allow_html = True)
+        st.markdown("<h6>Ensure the files your are uploading contains the essential columns and data for visual plotting. See the sample file for reference - <a href='https://gist.github.com/MonishSoundarRaj/56f2e24982b89761761b02dac481077c'>Click Here To View</a></h6>", unsafe_allow_html = True)
+        st.markdown("<p style='color: teal; background-color: yellow; padding: 8px; border-radius: 5px;'>Note: We won't store any of your information, all your uploaded files will be automatically deleted after your session ends.</p>", unsafe_allow_html=True)
+
         col1, col2 = st.columns(2)
         with col1:
                 add_more_files_button = st.form_submit_button("Add More Files") 
@@ -92,7 +94,8 @@ with st.expander("**Upload Own Files Section**", expanded=True):
             uploaded_file = st.file_uploader(f"Upload File {i}", type=["csv"])
             if uploaded_file:
                 user_uploaded_cluster_data_files[i] = uploaded_file
-                
+        
+        
         submit_all_forms = st.form_submit_button("Submit All Files")
 
     if submit_all_forms: 
