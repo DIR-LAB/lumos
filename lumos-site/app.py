@@ -29,6 +29,7 @@ data_mira_path = os.path.join(curr_dir, 'data/data_mira.csv')
 data_helios_path = os.path.join(curr_dir, 'data/data_helios.csv')
 data_philly_path = os.path.join(curr_dir, 'data/data_philly.csv')
 data_philly_gpu_schedule_path = os.path.join(curr_dir, 'data/philly_df_schedule.csv')
+data_supercloud_path = os.path.join(curr_dir, 'data/data_supercloud.csv')
 
 banner_image = Image.open(banner_image_path)
 st.image(banner_image)
@@ -40,10 +41,10 @@ def load_data():
     hl = pd.read_csv(data_helios_path)
     philly = pd.read_csv(data_philly_path)
     philly_gpu = pd.read_csv(data_philly_gpu_schedule_path)
-    return bw, mira, hl, philly, philly_gpu
+    supercloud = pd.read_csv(data_supercloud_path)
+    return bw, mira, hl, philly, philly_gpu, supercloud
 
-
-bw_df, mira_df_2, hl_df, philly_df, philly_gpu_schedule_df = load_data()
+bw_df, mira_df_2, hl_df, philly_df, philly_gpu_schedule_df, sc_df = load_data()
 
 columns=["job", "user", "project", "state", "gpu_num", "cpu_num", "node_num", "submit_time", "wait_time", "run_time", "wall_time", "node_hour"]
 
@@ -70,7 +71,6 @@ user_uploaded_cluster_data_files = {}
 with st.expander("**Upload Own Files Section**", expanded=True):
     with st.form("Upload_Files_form"):
         st.markdown("<h3 style = 'text-align: center'>Provide Your CSV Data for Visual Analysis</h3>", unsafe_allow_html = True)
-        #Ask Dr.Dai to create a GitHub Gists for the Mira data file to show the users as an example here- https://gist.github.com/MonishSoundarRaj/56f2e24982b89761761b02dac481077c
         st.markdown("<h6>Ensure the files your are uploading contains the essential columns and data for visual plotting. See the sample file for reference - <a href='https://gist.github.com/MonishSoundarRaj/56f2e24982b89761761b02dac481077c'>Click Here To View</a></h6>", unsafe_allow_html = True)
         st.markdown("<p style='color: teal; background-color: yellow; padding: 8px; border-radius: 5px;'>Note: We won't store any of your information, all your uploaded files will be automatically deleted after your session ends.</p>", unsafe_allow_html=True)
 
@@ -121,7 +121,7 @@ if main_nav == "Job Geometric Characteristics":
      default_index=0, orientation="vertical", menu_icon="bi-list")
 
     if nav_bar_horizontal == "Job Run Time":
-        jrt_system_models_jgc = ["Mira", "Blue Waters", "Philly", "Helios"]
+        jrt_system_models_jgc = ["Mira", "Blue Waters", "Philly", "Helios", "Super Cloud"] 
         jrt_selected_system_models_jgc = jrt_system_models_jgc.copy() 
         
         jrt_chart_selection_left_col_options_jgc = ["CDF Run Time"]
@@ -189,20 +189,7 @@ if main_nav == "Job Geometric Characteristics":
                                     jrt_drt_selected_time_range_jgc.remove(item)  
                                     
                 jrt_submit_parameters_button_jgc = st.form_submit_button("Apply Changes")
-                
-            # Plots Figure 1(a) from page 3, 3.1.
-            def plot_detailed_run_time_distribution(data, bins, xlabel, ylabel="Frequency (%)", color="", linestyle="--"):
-                plt.xticks(fontsize=16)
-                plt.yticks(fontsize=16)
-                counts, bin_edges = np.histogram(data, bins=bins)
-                counts = counts / float(sum(counts))
-                bin_width = bin_edges[1] - bin_edges[0]
-                bin_centers = bin_edges[:-1] + bin_width / 2
-                if color:
-                    plt.bar(bin_centers, counts * 100, width=bin_width, color=color)
-                else:
-                    plt.bar(bin_centers, counts * 100, width=bin_width)
-                        
+                  
             def plot_cdf(x, bins, xlabel, ylabel="Frequency (%)", color="", linestyle="--"):
                 plt.xticks(fontsize=16)
                 plt.yticks(fontsize=16)
@@ -219,25 +206,6 @@ if main_nav == "Job Geometric Characteristics":
                 plt.xlim(10**0, jrt_cdf_run_time_slider_value_jgc) 
                 plt.grid(True)
                 plt.style.use("default")
-                
-            def plot_detailed_run_time_distribution(data, bins, xlabel, ylabel="Frequency (%)", color="", linestyle="--"):
-                plt.xticks(fontsize=16)
-                plt.yticks(fontsize=16)
-                counts, bin_edges = np.histogram(data, bins=bins)
-                counts = counts / float(sum(counts))
-                bin_width = bin_edges[1] - bin_edges[0]
-                bin_centers = bin_edges[:-1] + bin_width / 2
-                if color:
-                    plt.bar(bin_centers, counts * 100, width=bin_width, color=color)
-                else:
-                    plt.bar(bin_centers, counts * 100, width=bin_width)
-                plt.xlabel(xlabel, fontsize=14)
-                plt.ylabel(ylabel, fontsize=14)
-                plt.margins(0)
-                plt.ylim(0, drt_frequency_slider_jrt * 100)
-                plt.xlim(0, jrt_drt_selected_system_models_jgc)
-                plt.grid(True)
-                plt.style.use("default")
                     
             def lt_xs(data, t1, t2):
                 lt10min_jobs_num = len(data[data < t2][data >= t1])
@@ -250,6 +218,7 @@ if main_nav == "Job Geometric Characteristics":
                 res.append(lt_xs(mira_df_2["run_time"], t1, t2))
                 res.append(lt_xs(philly_df["run_time"], t1, t2))
                 res.append(lt_xs(hl_df["run_time"], t1, t2))
+                res.append(lt_xs(sc_df["run_time"], t1, t2))
                 return res
                         
             def polt_cdf_job_run_time(side_by_side, chart_title):
@@ -266,6 +235,8 @@ if main_nav == "Job Geometric Characteristics":
                         plot_cdf(philly_df["run_time"], 1000, "Time (s)", linestyle="-.", color="green")
                     if "Helios" in jrt_selected_system_models_jgc:
                         plot_cdf(hl_df["run_time"], 10009999, "Job Run Time (s)", linestyle="--", color="violet")
+                    if "Super Cloud" in jrt_selected_system_models_jgc:
+                        plot_cdf(sc_df["run_time"], 1000, "Job Run Time (s)", linestyle="solid", color="black")
                         
                 plt.rc('legend', fontsize=12)
                 plt.legend(jrt_selected_system_models_jgc, loc="lower right")
@@ -281,7 +252,8 @@ if main_nav == "Job Geometric Characteristics":
                 mr = []
                 ply = []
                 hl = []
-                width = 0.2
+                sc = []
+                width = 0.17
                 
                 for i in range(1, len(x)):
                     if labels[i-1] in jrt_drt_selected_time_range_jgc:
@@ -290,6 +262,7 @@ if main_nav == "Job Geometric Characteristics":
                         mr.append(res[1])
                         ply.append(res[2])
                         hl.append(res[3])
+                        sc.append(res[4])
                                 
                 x_value_selected = np.arange(1, len(jrt_drt_selected_time_range_jgc) + 1)
                 
@@ -307,6 +280,9 @@ if main_nav == "Job Geometric Characteristics":
                             plt.bar(x_value_selected + width / 2, ply, width, edgecolor='black', hatch=".", color="green")
                         if "Helios" in jrt_selected_system_models_jgc:
                             plt.bar(x_value_selected + 3 * width / 2, hl, width, edgecolor='black', hatch="-", color="violet")
+                        if "Super Cloud" in jrt_selected_system_models_jgc:
+                             plt.bar(x_value_selected + 5 * width / 2, sc, width, edgecolor='black', hatch="--", color="black")
+                             
                 plt.ylim(0.00, jrt_drt_frequency_slider_jgc)
                 plt.xticks(x_value_selected, jrt_drt_selected_time_range_jgc)
                 plt.legend(jrt_selected_system_models_jgc, prop={'size': 12}, loc="upper right")
@@ -345,8 +321,7 @@ if main_nav == "Job Geometric Characteristics":
                             if len(jrt_drt_selected_time_range_jgc) >= 1:
                                     plot_detailed_run_time(False, "Detailed Run Time Distribution")
                             else:
-                                st.markdown("<h2 style='color: red'>Detailed Run Time Distribution: Please select one or more 'Run Time Range' options (X-axis) from sidebar to plot this chart</h2>", unsafe_allow_html=True)         
-                                
+                                st.markdown("<h2 style='color: red'>Detailed Run Time Distribution: Please select one or more 'Run Time Range' options (X-axis) from sidebar to plot this chart</h2>", unsafe_allow_html=True)              
                         else:
                             pass  
                         
@@ -356,10 +331,9 @@ if main_nav == "Job Geometric Characteristics":
                 else:
                     st.markdown("<h2 style='color: red'>Please select one or more system model(s) from sidebar to plot the chart</h2>", unsafe_allow_html=True)         
                     
-
     # Job Arrival pattern page code
     elif nav_bar_horizontal == "Job Arrival Pattern":
-        jap_system_models_jgc = ["Blue Waters", "Mira", "Philly", "Helios"]
+        jap_system_models_jgc = ["Blue Waters", "Mira", "Philly", "Helios", "Super Cloud"]
         jap_selected_system_models_jgc = jap_system_models_jgc.copy()
         jap_chart_selection_left_col_options_jgc = ["Daily Submit Pattern", "Weekly Submit Pattern"]
         jap_chart_selection_right_col_options_jgc = ["Job Arrival Interval"]
@@ -424,8 +398,7 @@ if main_nav == "Job Geometric Characteristics":
                         jap_jai_job_count_slider_jgc = st.slider("**Adjust Frequency Range (y-axis):**", min_value=0, max_value=100, step=20, value=100)
                         jap_jai_hour_of_the_day_slider_jgc = st.slider("**Adjust Job Arrival Interval Range (in powers of 10) (X-axis):**", jap_jai_min_value_exp_arrival_interval_slider_jgc, jap_jai_max_value_exp_arrival_interval_slider_jgc, step=1, value=8)
                         jap_jai_hour_of_the_day_slider_value_jgc = int(10**jap_jai_hour_of_the_day_slider_jgc)
-                    
-                                    
+                                      
                 jap_submit_parameters_button_jgc = st.form_submit_button("Apply Changes")
                 
             def get_time_of_day(time, timestamp=True):
@@ -472,7 +445,8 @@ if main_nav == "Job Geometric Characteristics":
                     "Blue Waters": (bw_df["submit_time"], "^", "blue"),
                     "Mira": (mira_df_2["submit_time"], "o", "red"),
                     "Philly": (philly_df["submit_time"], "s", "green"),
-                    "Helios": (hl_df["submit_time"], "d", "violet")
+                    "Helios": (hl_df["submit_time"], "d", "violet"),
+                    "Super Cloud": (sc_df["submit_time"], "x", "black")
                 }
 
                 for system, (data, marker, color) in system_data.items():
@@ -505,7 +479,8 @@ if main_nav == "Job Geometric Characteristics":
                     "Blue Waters": (bw_df["submit_time"], "^", "blue"),
                     "Mira": (mira_df_2["submit_time"], "o", "red"),
                     "Philly": (philly_df["submit_time"], "s", "green"),
-                    "Helios": (hl_df["submit_time"], "d", "violet")
+                    "Helios": (hl_df["submit_time"], "d", "violet"),
+                    "Super Cloud": (sc_df["submit_time"], "x", "black")
                 }
 
                 for system, (data, marker, color) in system_data.items():
@@ -567,7 +542,8 @@ if main_nav == "Job Geometric Characteristics":
                     "Blue Waters": (get_interval(bw_df["submit_time"]), 1000, "Time (s)", ":"),
                     "Mira": (get_interval(mira_df_2["submit_time"]), 1000, "Time (s)", "--"),
                     "Philly": (get_interval(philly_df["submit_time"]), 1000, "Time (s)", "-."),
-                    "Helios": (get_interval(hl_df["submit_time"]), 10009999, "Job Arrival Interval (s)", "--")
+                    "Helios": (get_interval(hl_df["submit_time"]), 10009999, "Job Arrival Interval (s)", "--"),
+                    "Super Cloud": (get_interval(sc_df["submit_time"]), 1000, "Job Arrival Interval (s)", "solid")
                 }
 
                 for system, (data, value, xlabel, linestyle) in system_data.items():
@@ -620,9 +596,9 @@ if main_nav == "Job Geometric Characteristics":
                     st.markdown("<h2 style='color: red'>Please select one or more system model(s) from sidebar to plot the chart</h2>", unsafe_allow_html=True)  
              
     elif nav_bar_horizontal == "System Utilization & Resource Occupation":
-        suaro_cpu_chart_options_jgc = ["Blue Waters CPU", "Mira CPU"]
+        suaro_cpu_chart_options_jgc = ["Blue Waters CPU", "Mira CPU", "Super Cloud CPU"]
         suaro_gpu_chart_options_jgc = ["Blue Waters GPU", 
-                    "Philly GPU", "Helios GPU", "Philly GPU-SchedGym"]
+                    "Philly GPU", "Helios GPU", "Super Cloud GPU", "Philly GPU-SchedGym"]
         suaro_chart_options_jgc = suaro_cpu_chart_options_jgc + suaro_gpu_chart_options_jgc
         suaro_charts_selected_list_jgc = suaro_chart_options_jgc.copy()
 
@@ -709,10 +685,14 @@ if main_nav == "Job Geometric Characteristics":
                         suaro_col_logic_cal_jgc = col1 if idx % 2 == 0 else col2
                         if item == "Blue Waters CPU":
                             with suaro_col_logic_cal_jgc:
+                                # Find out about the total_nodes to plot Super Cloud
                                 plot_util_jgc(bw_df[1000:], 22636*32, "cpu_num", color="#1f77b4", side_by_side=True, chart_title="Blue Waters CPU Chart")  
                         elif item == "Mira CPU":
                             with suaro_col_logic_cal_jgc:
                                 plot_util_jgc(mira_df_2, 49152, color='#ff7f0e', side_by_side=True, chart_title="Mira CPU Chart")
+                        elif item == "Super Cloud CPU":
+                            with suaro_col_logic_cal_jgc:
+                                plot_util_jgc(sc_df, 704, color='#ff7f0e', side_by_side=True, chart_title="Super Cloud CPU Chart")
                         elif item == "Blue Waters GPU":
                             with suaro_col_logic_cal_jgc:
                                 plot_util_jgc(bw_df[1000:], 4228, "gpu_num", color="#1f77b4", side_by_side=True, chart_title="Blue Waters GPU Chart")
@@ -722,6 +702,9 @@ if main_nav == "Job Geometric Characteristics":
                         elif item == "Helios GPU":
                             with suaro_col_logic_cal_jgc:
                                 plot_util_jgc(hl_df, 1080, "gpu_num", side_by_side=True, chart_title="Helios GPU Chart")
+                        elif item == "Super Cloud GPU":
+                            with suaro_col_logic_cal_jgc:
+                                plot_util_jgc(sc_df, 448, "gpu_num", color='#9467bd', side_by_side=True, chart_title="Super Cloud GPU Chart")
                         elif item == "Philly GPU-SchedGym":
                             with suaro_col_logic_cal_jgc:
                                 plot_util_jgc(philly_gpu_schedule_df, 2490, "gpu_num", color='#9467bd', side_by_side=True, chart_title="Philly GPU-SchedGym Chart")
@@ -733,12 +716,16 @@ if main_nav == "Job Geometric Characteristics":
                             plot_util_jgc(bw_df[1000:], 22636*32, "cpu_num", color="#1f77b4", side_by_side=False, chart_title="Blue Waters CPU Chart")  
                         elif item == "Mira CPU":
                             plot_util_jgc(mira_df_2, 49152, color='#ff7f0e', side_by_side=False, chart_title="Mira CPU Chart")
+                        elif item == "Super Cloud CPU":
+                            plot_util_jgc(sc_df, 704, color='#ff7f0e', side_by_side=True, chart_title="Super Cloud CPU Chart")
                         elif item == "Blue Waters GPU":
                             plot_util_jgc(bw_df[1000:], 4228, "gpu_num", color="#1f77b4", side_by_side=False, chart_title="Blue Waters GPU Chart")
                         elif item == "Philly GPU":
                             plot_util_jgc(philly_df, 2490, "gpu_num", color='#2ca02c', side_by_side=False, chart_title="Philly GPU Chart")
                         elif item == "Helios GPU":
                             plot_util_jgc(hl_df, 1080, "gpu_num", side_by_side=False, chart_title="Helios GPU Chart")
+                        elif item == "Super Cloud GPU":
+                            plot_util_jgc(sc_df, 448, "gpu_num", color='#9467bd', side_by_side=True, chart_title="Super Cloud GPU Chart")
                         elif item == "Philly GPU-SchedGym":
                             plot_util_jgc(philly_gpu_schedule_df, 2490, "gpu_num", color='#9467bd', side_by_side=False, chart_title="Philly GPU-SchedGym Chart")
                         else:
@@ -750,7 +737,7 @@ if main_nav == "Job Geometric Characteristics":
                     """)
 
     elif nav_bar_horizontal == "Job Waiting Time":
-        jwt_system_models_jgc = ["Blue Waters", "Mira", "Philly", "Helios"]
+        jwt_system_models_jgc = ["Blue Waters", "Mira", "Philly", "Helios", "Super Cloud"]
         jwt_selected_system_models_jgc = jwt_system_models_jgc.copy()
         jwt_cdf_chart_options_jgc = ["CDF of Wait Time", "CDF of Turnaround Time"]
         jwt_avg_wait_time_chart_options_jgc = ["Avg waiting Time w.r.t Job Size",  "Avg Waiting Time w.r.t Job Run Time"]
@@ -841,7 +828,6 @@ if main_nav == "Job Geometric Characteristics":
                                         pass
 
                                 jwt_awtjrt_avg_wait_time_slider_jgc = st.slider("**Adjust Average Wait Time (hours) Range (Y-axis) :**", min_value=0, max_value=100, value=100, step=10)
-                        
                                         
                     jwt_submit_parameters_button_jgc = st.form_submit_button("Apply Changes")
                          
@@ -859,19 +845,19 @@ if main_nav == "Job Geometric Characteristics":
                 plt.margins(0)
                 plt.ylim(0, 100)
                 plt.grid(True)
+                
             #Function to calculate Average Wait Time charts
             def plot_percentage_corehour(selected_job_sizes, frequency_value, selected_models, run_time=False):
                 plt.style.use("default")
                 traces = selected_models
-                # Chart - Average Waiting Time w.r.t Job Run Time
-                short_job_size_dic = {'Blue Waters': 1.74, 'Mira': 4.70, 'Philly': 1.17, 'Helios': 1.97}
-                medium_job_size_dic = {'Blue Waters': 62.07, 'Mira': 81.24, 'Philly': 14.32, 'Helios': 22.28}
-                long_job_size_dic = {'Blue Waters': 36.18, 'Mira': 14.05, 'Philly': 84.51, 'Helios': 75.75}
+                short_job_size_dic = {'Blue Waters': 1.74, 'Mira': 4.70, 'Philly': 1.17, 'Helios': 1.97, 'Super Cloud': 2.78}
+                medium_job_size_dic = {'Blue Waters': 62.07, 'Mira': 81.24, 'Philly': 14.32, 'Helios': 22.28, 'Super Cloud': 32.19}
+                long_job_size_dic = {'Blue Waters': 36.18, 'Mira': 14.05, 'Philly': 84.51, 'Helios': 75.75, 'Super Cloud': 65.03}
 
-                small_job_size_dic = {'Blue Waters': 86.21, 'Mira': 34.12, 'Philly': 18.48, 'Helios': 4.57}
-                middle_job_size_dic = {'Blue Waters': 4.48, 'Mira': 46.63, 'Philly': 68.87, 'Helios': 37.93}
-                large_job_size_dic = {'Blue Waters': 9.31, 'Mira': 19.25, 'Philly': 12.65, 'Helios': 57.50}
-
+                small_job_size_dic = {'Blue Waters': 86.21, 'Mira': 34.12, 'Philly': 18.48, 'Helios': 4.57, 'Super Cloud': 99.65}
+                middle_job_size_dic = {'Blue Waters': 4.48, 'Mira': 46.63, 'Philly': 68.87, 'Helios': 37.93, 'Super Cloud': 0.35}
+                large_job_size_dic = {'Blue Waters': 9.31, 'Mira': 19.25, 'Philly': 12.65, 'Helios': 57.50, 'Super Cloud': 0.0}
+            
                 if run_time:
                     status = {}
                     if "Short" in selected_job_sizes:
@@ -907,6 +893,7 @@ if main_nav == "Job Geometric Characteristics":
 
                 fig, ax = plt.subplots()
                 hatches= ["-", ".", "x", "-"]
+                
                 for i, (attribute, measurement) in enumerate(status.items()):
                     offset = width * multiplier
                     rects = ax.bar(x + offset, measurement, width, label=attribute, hatch=hatches[i], edgecolor='black')
@@ -916,7 +903,7 @@ if main_nav == "Job Geometric Characteristics":
                 # Add some text for labels, title and custom x-axis tick labels, etc.
                 ax.set_ylabel('Percentage (%)', fontsize=18)
                 ax.set_xlabel('Traces', fontsize=18)
-                ax.set_xticks(x + width, traces, fontsize=15)
+                ax.set_xticks(x + width, traces, fontsize=12)
                 ax.legend(fontsize=14, loc="upper right")
                 ax.set_ylim(0, frequency_value)
                 plt.grid(axis="y")
@@ -937,6 +924,8 @@ if main_nav == "Job Geometric Characteristics":
                         plot_cdf(philly_df[10000:130000]["wait_time"], 100000, "Job Wait Time (s)")
                     if "Helios" in jwt_selected_system_models_jgc:
                         plot_cdf(hl_df["wait_time"], 100000, "Job Wait Time (s)")
+                    if "Helios" in jwt_selected_system_models_jgc:
+                        plot_cdf(sc_df["wait_time"], 100000, "Job Wait Time (s)")
 
                 plt.ylabel('Frequency (%)', fontsize=18)
                 plt.xlabel('Time Range', fontsize=18)
@@ -963,6 +952,8 @@ if main_nav == "Job Geometric Characteristics":
                         plot_cdf(philly_df["wait_time"]+philly_df["run_time"], 100000, "Job Wait Time (s)", linestyle="-.")
                     if "Helios" in jwt_selected_system_models_jgc:
                         plot_cdf(hl_df["wait_time"]+hl_df["run_time"], 100000, "Job Turnaround Time (s)", linestyle="--")
+                    if "Helios" in jwt_selected_system_models_jgc:
+                        plot_cdf(sc_df["wait_time"]+sc_df["run_time"], 100000, "Job Turnaround Time (s)", linestyle="solid")
                 plt.xscale("log")
                 plt.ylabel('Frequency (%)', fontsize=18)
                 plt.xlabel('Time Range', fontsize=18)
@@ -1419,7 +1410,7 @@ elif main_nav == "User Behavior Characteristics":
 
     if ubc_nav_bar == "Users’ Repeated Behaviors":
         urb_chart_selection_left_col_options_ubc = ["Blue Waters", "Mira"]
-        urb_chart_selection_right_col_options_ubc = ["Philly", "Helios"]
+        urb_chart_selection_right_col_options_ubc = ["Philly", "Helios", "Super Cloud"]
         urb_chart_selection_options_ubc = urb_chart_selection_left_col_options_ubc + urb_chart_selection_right_col_options_ubc
         urb_charts_selected_list_ubc = urb_chart_selection_options_ubc.copy()
 
@@ -1484,6 +1475,7 @@ elif main_nav == "User Behavior Characteristics":
                 b = [0.6918350088912488, 0.8533482445948762, 0.921081711512026, 0.9533918131448507, 0.9710197995695022, 0.9810033596267114, 0.9872495542508333, 0.9916599140171835, 0.9944420135092896, 0.9964546220465884]
                 c = [0.28569096620357964, 0.4384045247520146, 0.545916628344075, 0.6263372405355048, 0.6897181499719287, 0.7429051624867624, 0.7877784887121456, 0.8257544812862695, 0.8583802658301265, 0.8858856158005057]
                 d = [0.3412589175944932, 0.5253771632298813, 0.6401852895114848, 0.7268169396811582, 0.7918618794877094, 0.8394237557838181, 0.8733033543091736, 0.9005927265133411, 0.9214560290971314, 0.9370205635505027]
+                e = [0.3425449121803357, 0.5011493382960683, 0.6061926043200405, 0.6804210712592412, 0.73688249734531, 0.781803925903025, 0.8181606623414925, 0.8478007174679538, 0.8724569694064028, 0.8932016520137196]
                 colors = []
                 x = []
                 urb_chart_titles_ubc = []
@@ -1506,6 +1498,10 @@ elif main_nav == "User Behavior Characteristics":
                         x.append(d[:urb_x_axis_slice_end_value_ubc]) 
                         urb_chart_titles_ubc.append("Helios")
                         colors.append('#d62728')
+                    elif "Super Cloud" == item:
+                        x.append(e[:urb_x_axis_slice_end_value_ubc])
+                        urb_chart_titles_ubc.append("Super Cloud")
+                        colors.append('#d64572')
                     else:
                         pass
 
@@ -1525,6 +1521,9 @@ elif main_nav == "User Behavior Characteristics":
                         elif item == "Helios":
                             with urb_col_logic_cal_ubc:
                                 plot_123(d[:urb_x_axis_slice_end_value_ubc], colors[idx], "Helios", urb_no_of_top_groups_per_user_slider_ubc, urb_percentage_slider_ubc)
+                        elif item == "Helios":
+                            with urb_col_logic_cal_ubc:
+                                plot_123(e[:urb_x_axis_slice_end_value_ubc], colors[idx], "Super Cloud", urb_no_of_top_groups_per_user_slider_ubc, urb_percentage_slider_ubc)
                         else:
                             pass          
                 else:
@@ -1538,7 +1537,7 @@ elif main_nav == "User Behavior Characteristics":
 
     elif ubc_nav_bar == "Users’ Submission Behaviors":
         usb_chart_selection_left_col_options_ubc = ["Blue Waters", "Mira"]
-        usb_chart_selection_right_col_options_ubc = ["Philly", "Helios"]
+        usb_chart_selection_right_col_options_ubc = ["Philly", "Helios", "Super Cloud"]
         usb_chart_selection_options_ubc = usb_chart_selection_left_col_options_ubc + usb_chart_selection_right_col_options_ubc
         usb_charts_selected_list_ubc = usb_chart_selection_options_ubc.copy()
         usb_job_sizes_list_ubc = ["Minimal", "Small", "Middle", "Large"]
@@ -1632,7 +1631,7 @@ elif main_nav == "User Behavior Characteristics":
                     else:
                         st.markdown(f"<h1 style='text-align: center;'>{chart_title}</h1>", unsafe_allow_html=True) 
                         
-                    hatches= ["-", ".", "x", "-"]
+                    hatches= ["-", ".", "x", "-", "solid"]
                     
                     fig, axes = plt.subplots(1, 1, figsize=(3, 5))
                     
@@ -1685,28 +1684,30 @@ elif main_nav == "User Behavior Characteristics":
                 def system_queue_node_user():
                     mira_queue_node_user = analyze_queue_and_user_behavior(mira_df_2, gpu=False)
                     bw_queue_node_user = analyze_queue_and_user_behavior(bw_df, gpu=False)
+                    sc_queue_node_user = analyze_queue_and_user_behavior(sc_df, gpu=False)
                     hl_queue_node_user = analyze_queue_and_user_behavior(hl_df, gpu=True)
                     phi_queue_node_user = analyze_queue_and_user_behavior(philly_df, gpu=True)
-                    return bw_queue_node_user, mira_queue_node_user, phi_queue_node_user, hl_queue_node_user
+                    return bw_queue_node_user, mira_queue_node_user, sc_queue_node_user, phi_queue_node_user, hl_queue_node_user
                 
-                bw_queue_node_user, mira_queue_node_user, phi_queue_node_user, hl_queue_node_user = system_queue_node_user()
+                bw_queue_node_user, mira_queue_node_user, sc_queue_node_user, phi_queue_node_user, hl_queue_node_user = system_queue_node_user()
                 
                 values_dict = {
-                    "Minimal": (1, 512, 1, 1),
-                    "Small": (22636//10, 49152//10, 1, 1),
-                    "Middle": (3*22636//10, 3*49152//10, 8, 8),
-                    "Large": (1000000, 49152, 256, 256)
+                    "Minimal": (1, 512, 1, 1, 1),
+                    "Small": (22636//10, 49152//10, 1, 1, 704//10),
+                    "Middle": (3*22636//10, 3*49152//10, 8, 8, 3*704//10),
+                    "Large": (1000000, 49152, 256, 256, 891)
                 }
                 
-                bw_bars, mira_bars, phi_bars, hl_bars = [], [], [], []
+                bw_bars, mira_bars, phi_bars, hl_bars, sc_bars = [], [], [], [], []
                 
                 for item in usb_job_sizes_selected_list_ubc:
                     if item in values_dict:
-                        bw, mira, phi, hl = values_dict[item]
+                        bw, mira, phi, hl, sc = values_dict[item]
                         bw_bars.append(bw)
                         mira_bars.append(mira)
                         phi_bars.append(phi)
                         hl_bars.append(hl)
+                        sc_bars.append(sc)
 
                 if len(usb_job_size_selected_list_ubc) >= 1:
                     if usb_check_box_view_side_by_side_ubc:
@@ -1725,6 +1726,9 @@ elif main_nav == "User Behavior Characteristics":
                             elif item == "Helios":
                                 with usb_col_logic_cal_ubc:
                                     plot_util_node(hl_queue_node_user, hl_df, hl_bars, "all", "Helios", usb_job_sizes_selected_list_ubc, usb_percentage_slider_ubc, usb_job_size_selected_list_ubc, True)
+                            elif item == "Super Cloud":
+                                with usb_col_logic_cal_ubc:
+                                    plot_util_node(sc_queue_node_user, sc_df, sc_bars, "all", "Super Cloud", usb_job_sizes_selected_list_ubc, usb_percentage_slider_ubc, usb_job_size_selected_list_ubc, True)
                             else:
                                 pass
                     else:
@@ -1737,6 +1741,8 @@ elif main_nav == "User Behavior Characteristics":
                                 plot_util_node(phi_queue_node_user, philly_df, phi_bars, "all", "Philly", usb_job_sizes_selected_list_ubc, usb_percentage_slider_ubc, usb_job_size_selected_list_ubc, False)
                             elif item == "Helios":
                                 plot_util_node(hl_queue_node_user, hl_df, hl_bars, "all", "Helios", usb_job_sizes_selected_list_ubc, usb_percentage_slider_ubc, usb_job_size_selected_list_ubc, False)
+                            elif item == "Super Cloud":
+                                plot_util_node(sc_queue_node_user, sc_df, sc_bars, "all", "Super Cloud", usb_job_sizes_selected_list_ubc, usb_percentage_slider_ubc, usb_job_size_selected_list_ubc, False)
                             else:
                                 pass   
                             
