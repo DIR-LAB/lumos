@@ -772,7 +772,6 @@ if main_nav == "Job Geometric Characteristics":
                 plt.ylabel("System Utilization(%)", fontsize=26)
                 st.pyplot()
                     
-                
             with st.expander(f"**{chart_view_settings_title}**", expanded=True):
                     suaro_check_box_view_side_by_side_jgc = st.checkbox("Select to view charts side by side")
             
@@ -1099,7 +1098,7 @@ if main_nav == "Job Geometric Characteristics":
                     if "CDF of Turnaround Time" in jwt_charts_selected_list_jgc:
                         with st.expander("**CDF of Turnaround Time Controls (Y and X - axis)**", expanded=True): 
                             jwt_cdfott_min_value_exp_arrival_interval_slider_jgc = 0
-                            jwt_cdfott_max_value_exp_arrival_interval_slider_suaro = 8
+                            jwt_cdfott_max_value_exp_arrival_interval_slider_jgc = 8
                             jwt_cdfott_frequency_slider_jgc = st.slider("**Adjust Frequency(%) Range (Y-axis) :**", min_value=0, max_value=100, value=100, step=20)
                             jwt_cdfott_turnaround_time_slider_jgc = st.slider("**Adjust Turnaround Time Range (in powers of 10) (X-axis) :**", jwt_cdfott_min_value_exp_arrival_interval_slider_jgc, jwt_cdfott_max_value_exp_arrival_interval_slider_jgc, value=8, step=1)
                             jwt_cdfott_turnaround_time_slider_value_jgc = int(10 ** jwt_cdfott_turnaround_time_slider_jgc) 
@@ -2153,7 +2152,7 @@ elif main_nav == "User Behavior Characteristics":
                     
                     # Job Run time              
                     st.markdown("<h1 style='text-align: center;'>Submitted Jobs' Runtime Impacted By Queue Length Charts</h1>", unsafe_allow_html=True)  
-                    runtime_bar = [60, 3600, 3600*24, 100000]
+                    runtime_bar = [60, 3600, 3600*24, 1000000000]
                     usb_job_runtime_selected_list_ubc = ["Minimal", "Short", "Middle", "Long"]
                     if usb_check_box_view_side_by_side_ubc:
                         col1, col2 = st.columns(2)
