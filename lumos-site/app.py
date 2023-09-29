@@ -21,6 +21,7 @@ from matplotlib.lines import Line2D
 
 st.set_page_config(page_title="Job Trace Visualization Application", page_icon="📊")
 curr_dir = os.path.dirname(__file__)
+plt.rcParams['font.family'] = 'Arial'
 
 banner_image_path = os.path.join(curr_dir, 'images/App Banner Image.png')
 
@@ -301,8 +302,8 @@ if main_nav == "Job Geometric Characteristics":
                 plt.ylim(0.00, jrt_drt_frequency_slider_jgc)
                 plt.xticks(x_value_selected, jrt_drt_selected_time_range_jgc)
                 plt.legend(jrt_selected_system_models_jgc, prop={'size': 10}, loc="upper right")
-                plt.ylabel("Frequency (%)", fontsize=14)
-                plt.xlabel("Job Run Time (s)", fontsize=14)
+                plt.ylabel("Frequency (%)", fontsize=14, fontfamily="Arial")
+                plt.xlabel("Job Run Time (s)", fontsize=14, fontfamily="Arial")
                 st.set_option('deprecation.showPyplotGlobalUse', False)
                 st.pyplot()
             
@@ -557,7 +558,7 @@ if main_nav == "Job Geometric Characteristics":
                 plt.figure(figsize=[6,5])
                 
                 system_data = {
-                    "Blue Waters": (get_interval(bw_df["submit_time"]), 1000, "Job Arrival Interval (s)", ":",  "blue"),
+                    "Blue Waters": (get_interval(bw_df["submit_time"]), 1000, "Job Arrival Interval (s)", ":", "blue"),
                     "Mira": (get_interval(mira_df_2["submit_time"]), 1000, "Job Arrival Interval (s)", "--",  "orange"),
                     "Philly": (get_interval(philly_df["submit_time"]), 1000, "Job Arrival Interval (s)","-.", "green"),
                     "Helios": (get_interval(hl_df["submit_time"]), 10009999, "Job Arrival Interval (s)", "--", "red"),
@@ -568,7 +569,7 @@ if main_nav == "Job Geometric Characteristics":
 
                 for system, (data, value, xlabel, linestyle, color) in system_data.items():
                     if system in jap_selected_system_models_jgc:
-                        plot_cdf(data, value, xlabel, linestyle=linestyle)
+                        plot_cdf(data, value, xlabel, linestyle=linestyle, color = color)
                     
                 plt.rc('legend',fontsize=22)
                 plt.legend(jap_selected_system_models_jgc, loc = "upper right", prop={'size': 12})
@@ -735,42 +736,74 @@ if main_nav == "Job Geometric Characteristics":
                             suaro_cdfoch_core_hour_slider_value_jgc = int(10 ** suaro_cdfoch_core_hour_slider_jgc)                       
                             
                 suaro_submit_button_sidebar_jgc = st.form_submit_button("Apply Changes")
-                    
+            
+            @st.cache_data
             def plot_util_jgc(data, total_nodes, key="node_num", color='b', side_by_side=False, chart_title=None):
-                data = data.copy()
-                start_time = data["submit_time"].min()
-                end_time = data["submit_time"].max()
-                duration = end_time - start_time
-                days = int(duration/(86400))
-                days_usage = np.zeros(days)
-                
                 if side_by_side:
                     st.markdown(f"<h4 style='text-align: center;'>{chart_title}</h4>", unsafe_allow_html=True)
                 else:
                     st.markdown(f"<h2 style='text-align: center;'>{chart_title}</h2>", unsafe_allow_html=True)
-
-                data["start_time"] = data["submit_time"] + data["wait_time"] - start_time
-                data["end_time"] = data["start_time"] + data["run_time"]
-                data["start_day"] = (data["start_time"]/(86400)).astype(int)
-                data["end_day"] = (data["end_time"]/(86400)).astype(int) + 1
-
-                clipped_start_days = np.clip(data["start_day"], 0, days-1)
-                clipped_end_days = np.clip(data["end_day"], 0, days)
-
-                for day in range(days):
-                    mask = (clipped_start_days <= day) & (day < clipped_end_days)
-                    days_usage[day] += np.sum(data.loc[mask, key] * (np.minimum(data.loc[mask, "end_time"], (day + 1) * 86400) - np.maximum(data.loc[mask, "start_time"], day * 86400)))
-
-                plt.bar(range(len(days_usage)), 100 * days_usage / (total_nodes * 86400), color=color)
-                plt.plot([-10, 150], [80] * 2, color="black", linestyle="--")
-                plt.ylim(0, suaro_sys_utilization_slider_jgc)
-                plt.xlim(0, suaro_time_slider_jgc)
+                data = data.copy()
+                start_time = list(data["submit_time"])[0]
+                end_time = list(data["submit_time"])[-1]
+                duration = end_time - start_time
+                days = int(duration/(24*3600))
+                days_usage = [0]*days
+                data["start_time"] = data.apply(lambda row: row["submit_time"] + row["wait_time"]-start_time, axis=1)
+                data["end_time"] = data.apply(lambda row: row["start_time"] + row["run_time"], axis=1)
+                data["start_day"] = data.apply(lambda row: int(row["start_time"]/(24*3600)), axis=1)
+                data["end_day"] = data.apply(lambda row: int(row["end_time"]/(24*3600))+1, axis=1)
+                for index, row in data.iterrows():
+                    for i in range(int(row["start_day"]), int(row["end_day"])):
+                        if i <len(days_usage):
+                            days_usage[i] += row[key]*(min(row["end_time"], (i+1)*24*3600)-max(row["start_time"], i*24*3600))
+                # print(np.mean(np.array(days_usage)/(total_nodes*24*3600)))
+                plt.bar(range(len(days_usage)), 100*np.array(days_usage)/(total_nodes*24*3600), color=color)
+                plt.plot([-10, 150], [80]*2, color="black", linestyle="--")
+                plt.ylim([0, 100])
+                plt.xlim([-5, 121])
                 plt.xticks(fontsize=20)
                 plt.yticks(fontsize=20)
                 st.set_option('deprecation.showPyplotGlobalUse', False)
                 plt.xlabel("Time (Days)", fontsize=26)
                 plt.ylabel("System Utilization(%)", fontsize=26)
-                st.pyplot()
+                st.pyplot()    
+                
+            # def plot_util_jgc(data, total_nodes, key="node_num", color='b', side_by_side=False, chart_title=None):
+            #     data = data.copy()
+            #     start_time = data["submit_time"].min()
+            #     end_time = data["submit_time"].max()
+            #     duration = end_time - start_time
+            #     days = int(duration/(86400))
+            #     days_usage = np.zeros(days)
+                
+            #     if side_by_side:
+            #         st.markdown(f"<h4 style='text-align: center;'>{chart_title}</h4>", unsafe_allow_html=True)
+            #     else:
+            #         st.markdown(f"<h2 style='text-align: center;'>{chart_title}</h2>", unsafe_allow_html=True)
+
+            #     data["start_time"] = data["submit_time"] + data["wait_time"] - start_time
+            #     data["end_time"] = data["start_time"] + data["run_time"]
+            #     data["start_day"] = (data["start_time"]/(86400)).astype(int)
+            #     data["end_day"] = (data["end_time"]/(86400)).astype(int) + 1
+
+            #     clipped_start_days = np.clip(data["start_day"], 0, days-1)
+            #     clipped_end_days = np.clip(data["end_day"], 0, days)
+
+            #     for day in range(days):
+            #         mask = (clipped_start_days <= day) & (day < clipped_end_days)
+            #         days_usage[day] += np.sum(data.loc[mask, key] * (np.minimum(data.loc[mask, "end_time"], (day + 1) * 86400) - np.maximum(data.loc[mask, "start_time"], day * 86400)))
+
+            #     plt.bar(range(len(days_usage)), 100 * days_usage / (total_nodes * 86400), color=color)
+            #     plt.plot([-10, 150], [80] * 2, color="black", linestyle="--")
+            #     plt.ylim(0, suaro_sys_utilization_slider_jgc)
+            #     plt.xlim(0, suaro_time_slider_jgc)
+            #     plt.xticks(fontsize=20)
+            #     plt.yticks(fontsize=20)
+            #     st.set_option('deprecation.showPyplotGlobalUse', False)
+            #     plt.xlabel("Time (Days)", fontsize=26)
+            #     plt.ylabel("System Utilization(%)", fontsize=26)
+            #     st.pyplot()
                     
             with st.expander(f"**{chart_view_settings_title}**", expanded=True):
                     suaro_check_box_view_side_by_side_jgc = st.checkbox("Select to view charts side by side")
@@ -850,13 +883,13 @@ if main_nav == "Job Geometric Characteristics":
                     else:
                         st.markdown(f"<h2 style='text-align: center;'>{chart_title}</h2>", unsafe_allow_html=True)
                         
-                    short_job_size_dic = {'Blue Waters': 1.74, 'Mira': 4.70, 'Philly': 1.17, 'Helios': 1.97, 'Super Cloud': 2.78, 'Theta': 2.23, 'Theta GPU': 5.60}
-                    medium_job_size_dic = {'Blue Waters': 62.07, 'Mira': 81.24, 'Philly': 14.32, 'Helios': 22.28, 'Super Cloud': 32.19, 'Theta': 78.47, 'Theta GPU': 94.34}
-                    long_job_size_dic = {'Blue Waters': 36.18, 'Mira': 14.05, 'Philly': 84.51, 'Helios': 75.75, 'Super Cloud': 65.03, 'Theta': 19.30, 'Theta GPU': 0.07}
+                    short_job_size_dic = {'Blue Waters': 1.74, 'Mira': 4.70, 'Philly': 1.17, 'Helios': 1.97, 'Super Cloud': 2.98, 'Theta': 2.03, 'Theta GPU': 5.60}
+                    medium_job_size_dic = {'Blue Waters': 62.07, 'Mira': 81.24, 'Philly': 14.32, 'Helios': 22.28, 'Super Cloud': 32.19, 'Theta': 79.56, 'Theta GPU': 94.34}
+                    long_job_size_dic = {'Blue Waters': 36.18, 'Mira': 14.05, 'Philly': 84.51, 'Helios': 75.75, 'Super Cloud': 64.88, 'Theta': 18.39, 'Theta GPU': 0.07}
 
-                    small_job_size_dic = {'Blue Waters': 86.21, 'Mira': 34.12, 'Philly': 18.48, 'Helios': 4.57, 'Super Cloud': 99.65, 'Theta': 17.43, 'Theta GPU': 53.24}
-                    middle_job_size_dic = {'Blue Waters': 4.48, 'Mira': 46.63, 'Philly': 68.87, 'Helios': 37.93, 'Super Cloud': 0.35, 'Theta': 48.13, 'Theta GPU': 38.77}
-                    large_job_size_dic = {'Blue Waters': 9.31, 'Mira': 19.25, 'Philly': 12.65, 'Helios': 57.50, 'Super Cloud': 0.0, 'Theta': 34.44, 'Theta GPU': 7.98}
+                    small_job_size_dic = {'Blue Waters': 86.21, 'Mira': 34.12, 'Philly': 18.48, 'Helios': 4.57, 'Super Cloud': 99.44, 'Theta': 15.83, 'Theta GPU': 53.24}
+                    middle_job_size_dic = {'Blue Waters': 4.48, 'Mira': 46.63, 'Philly': 68.87, 'Helios': 37.93, 'Super Cloud': 0.56, 'Theta': 45.25, 'Theta GPU': 38.77}
+                    large_job_size_dic = {'Blue Waters': 9.31, 'Mira': 19.25, 'Philly': 12.65, 'Helios': 57.50, 'Super Cloud': 0.0, 'Theta': 38.91, 'Theta GPU': 7.98}
 
                     if run_time:
                         status = {}
@@ -1115,7 +1148,7 @@ if main_nav == "Job Geometric Characteristics":
                                     jwt_awtjs_job_sizes_selected_list_jgc.remove(item)
                                 else:
                                     pass
-                            jwt_awtjs_avg_wait_time_slider_jgc = st.slider("**Adjust Average Wait Time (hours) Range (Y-axis):**", min_value=0, max_value=100, value=100, step=10)
+                            jwt_awtjs_avg_wait_time_slider_jgc = st.slider("**Adjust Average Wait Time (hours) Range (Y-axis):**", min_value=0, max_value=200, value=200, step=10)
                     
                     if "Avg Waiting Time w.r.t Job Run Time" in jwt_charts_selected_list_jgc:
                             jwt_awtjrt_job_run_time_list_jgc = ["Short", "Medium", "Long"]
@@ -1153,13 +1186,13 @@ if main_nav == "Job Geometric Characteristics":
                 plt.style.use("default")
                 traces = selected_models
                 
-                short_job_size_dic = {'Blue Waters': 1.74, 'Mira': 4.70, 'Philly': 1.17, 'Helios': 1.97, 'Super Cloud': 2.78, 'Theta': 2.23, 'Theta GPU': 5.60}
-                medium_job_size_dic = {'Blue Waters': 62.07, 'Mira': 81.24, 'Philly': 14.32, 'Helios': 22.28, 'Super Cloud': 32.19, 'Theta': 78.47, 'Theta GPU': 94.34}
-                long_job_size_dic = {'Blue Waters': 36.18, 'Mira': 14.05, 'Philly': 84.51, 'Helios': 75.75, 'Super Cloud': 65.03, 'Theta': 19.30, 'Theta GPU': 0.07}
+                short_job_size_dic = {'Blue Waters': 13.28, 'Mira': 7.21, 'Philly': 4.98, 'Helios': 0.20, 'Super Cloud': 1.64, 'Theta': 2.57, 'Theta GPU': 0.38}
+                medium_job_size_dic = {'Blue Waters': 24.82, 'Mira': 20.94, 'Philly': 8.84, 'Helios': 1.64, 'Super Cloud': 4.78, 'Theta': 18.39, 'Theta GPU': 2.96}
+                long_job_size_dic = {'Blue Waters': 35.33, 'Mira': 75.19, 'Philly': 44.15, 'Helios': 1.53, 'Super Cloud': 5.48, 'Theta': 58.71, 'Theta GPU': 0.001}
 
-                small_job_size_dic = {'Blue Waters': 86.21, 'Mira': 34.12, 'Philly': 18.48, 'Helios': 4.57, 'Super Cloud': 99.65, 'Theta': 17.43, 'Theta GPU': 53.24}
-                middle_job_size_dic = {'Blue Waters': 4.48, 'Mira': 46.63, 'Philly': 68.87, 'Helios': 37.93, 'Super Cloud': 0.35, 'Theta': 48.13, 'Theta GPU': 38.77}
-                large_job_size_dic = {'Blue Waters': 9.31, 'Mira': 19.25, 'Philly': 12.65, 'Helios': 57.50, 'Super Cloud': 0.0, 'Theta': 34.44, 'Theta GPU': 7.98}
+                small_job_size_dic = {'Blue Waters': 15.61, 'Mira': 12.22, 'Philly': 5.68, 'Helios': 0.3, 'Super Cloud': 3.10, 'Theta': 3.34, 'Theta GPU': 1.28}
+                middle_job_size_dic = {'Blue Waters': 143.62, 'Mira': 50.96, 'Philly': 15.84, 'Helios': 0.4, 'Super Cloud': 1.10, 'Theta': 28.20, 'Theta GPU': 1.28}
+                large_job_size_dic = {'Blue Waters': 53.33, 'Mira': 42.83, 'Philly': 13.26, 'Helios': 0.53, 'Super Cloud': 0.0, 'Theta': 189.70, 'Theta GPU': 5.23}
             
                 if run_time:
                     status = {}
@@ -1220,8 +1253,8 @@ if main_nav == "Job Geometric Characteristics":
                     else:
                         traces_ticks.append("th_gpu")
                     
-                ax.set_ylabel('Percentage (%)', fontsize=18)
-                ax.set_xlabel('Traces', fontsize=18)
+                ax.set_ylabel('Average Wait Time (hours)', fontsize=18)
+                ax.set_xlabel('Clusters', fontsize=18)
                 ax.set_xticks(x + width, traces_ticks, fontsize=12)
                 ax.legend(fontsize=14, loc="upper right")
                 ax.set_ylim(0, frequency_value)
@@ -1374,22 +1407,20 @@ elif main_nav == "Job Failure Characteristics":
 
     # Job Failures Distribution charts plotting function.
     def plot_percentage_status(selected_status, frequency_value, selected_models, side_by_side, chart_title, job_counts=True):
-        
         if side_by_side:
             st.markdown(f"<h4 style='text-align: center;'>{chart_title}</h4>", unsafe_allow_html=True)
         else:
             st.markdown(f"<h2 style='text-align: center;'>{chart_title}</h2>", unsafe_allow_html=True)
-           
         plt.style.use("default") 
         traces = selected_models
         
-        pass_dict = {'Blue Waters': 64.99, 'Mira': 70.05, 'Philly': 59.58, 'Helios': 64.72, 'Super Cloud': 93.50, 'Theta': 63.91, 'Theta GPU': 24.44}
-        failed_dict = {'Blue Waters': 7.26, 'Mira': 9.01, 'Philly': 30.90, 'Helios': 14.06, 'Super Cloud': 1.15, 'Theta': 7.92, 'Theta GPU': 55.43}
-        killed_dict = {'Blue Waters': 27.74, 'Mira': 20.94, 'Philly': 9.52, 'Helios': 21.15, 'Super Cloud': 5.36, 'Theta': 28.17, 'Theta GPU': 20.13}
+        pass_dict = {'Blue Waters': 64.99, 'Mira': 70.05, 'Philly': 59.58, 'Helios': 64.72, 'Super Cloud': 93.32, 'Theta': 62.14, 'Theta GPU': 24.44}
+        failed_dict = {'Blue Waters': 7.26, 'Mira': 9.01, 'Philly': 30.90, 'Helios': 14.06, 'Super Cloud': 1.48, 'Theta': 8.24, 'Theta GPU': 55.43}
+        killed_dict = {'Blue Waters': 27.74, 'Mira': 20.94, 'Philly': 9.52, 'Helios': 21.15, 'Super Cloud': 5.20, 'Theta': 29.62, 'Theta GPU': 20.13}
 
-        pass_dict_2 = {'Blue Waters': 53.64, 'Mira': 56.94, 'Philly': 33.78, 'Helios': 52.42, 'Super Cloud': 91.70, 'Theta': 52.96, 'Theta GPU': 28.21}
-        failed_dict_2 = {'Blue Waters': 4.91, 'Mira': 5.78, 'Philly': 33.40, 'Helios': 6.64, 'Super Cloud': 2.16, 'Theta': 3.68, 'Theta GPU': 66.37}
-        killed_dict_2 = {'Blue Waters': 41.45, 'Mira': 37.28, 'Philly': 32.82, 'Helios': 40.94, 'Super Cloud': 6.15, 'Theta': 43.36, 'Theta GPU': 5.42}
+        pass_dict_2 = {'Blue Waters': 53.64, 'Mira': 56.94, 'Philly': 33.78, 'Helios': 52.42, 'Super Cloud': 91.96, 'Theta': 51.41, 'Theta GPU': 28.21}
+        failed_dict_2 = {'Blue Waters': 4.91, 'Mira': 5.78, 'Philly': 33.40, 'Helios': 6.64, 'Super Cloud': 1.37, 'Theta': 3.67, 'Theta GPU': 66.37}
+        killed_dict_2 = {'Blue Waters': 41.45, 'Mira': 37.28, 'Philly': 32.82, 'Helios': 40.94, 'Super Cloud': 6.67, 'Theta': 44.92, 'Theta GPU': 5.42}
 
         if job_counts:
             status = {}
@@ -1456,57 +1487,58 @@ elif main_nav == "Job Failure Characteristics":
         
         if run_time:
             bw = [[77.38959920341603, 10.274344986835594, 12.336055809748379],
-    [53.084873994352385, 5.706217699397944, 41.20890830624967],
-    [59.617663499161544, 2.222470653996646, 38.15986584684181]]
+ [53.084873994352385, 5.706217699397944, 41.20890830624967],
+ [59.617663499161544, 2.222470653996646, 38.15986584684181]]
             mira = [[76.86672302056917, 15.995115995115993, 7.13816098431483],
-    [64.34694050751082, 2.5799881184757703, 33.07307137401341],
-    [2.564102564102564, 0, 97.43589743589743]]
+ [64.34694050751082, 2.5799881184757703, 33.07307137401341],
+ [2.564102564102564, 0, 97.43589743589743]]
             philly = [[60.49915507604315, 32.72672126175311, 6.774123662203735],
-    [60.98551323079041, 22.593854306458827, 16.420632462750763],
-    [39.69247516668935, 35.07960266702953, 25.227922166281125]]
+ [60.98551323079041, 22.593854306458827, 16.420632462750763],
+ [39.69247516668935, 35.07960266702953, 25.227922166281125]]
             hl = [[65.05428807036834, 15.161489829576691, 19.784222100054976],
-    [64.9508786495088, 4.849868548498685, 30.199252801992525],
-    [49.60118168389956, 8.951255539143279, 41.44756277695716]]
-            sc = [[93.44135211267606, 0.8396619718309859, 5.718985915492958],
-    [93.9306831500992, 1.402575972865197, 4.666740877035601],
-    [90.88649155722325, 2.5891181988742966, 6.524390243902439]]
-            th = [[72.29591836734693, 11.020408163265307, 16.683673469387756],
-    [47.777189732733525, 1.587721619476052, 50.63508864779042],
-    [0, 2.684563758389262, 97.31543624161074]]
+ [64.9508786495088, 4.849868548498685, 30.199252801992525],
+ [49.60118168389956, 8.951255539143279, 41.44756277695716]]
+            sc = [[93.47785725987004, 1.4372303827881832, 5.0849123573417785],
+ [93.48346984479977, 1.5457378666624904, 4.970792288537735],
+ [91.12041325258284, 1.4962593516209477, 7.383327395796224]]
+            th = [[69.79630808402291, 11.903246339910885, 18.3004455760662],
+ [48.276569552728766, 1.2105047189167009, 50.51292572835453],
+ [0, 4.054054054054054, 95.94594594594594]]
             th_gpu = [[25.809303590859628, 46.78318824809576, 27.407508161044614],
-    [21.88330591064422, 71.52259207695228, 6.594102012403494],
-    [0, 100.0, 0]]
+ [21.88330591064422, 71.52259207695228, 6.594102012403494],
+ [0, 100.0, 0]]
 
             z = ["Short","Middle","Long"]
 
         else:
             bw = [[67.00871394770195, 7.114774934564608, 25.876511117733443],
-        [47.096774193548384, 1.2903225806451613, 51.61290322580645],
-        [67.36842105263158, 4.2105263157894735, 28.421052631578945]]
+     [47.096774193548384, 1.2903225806451613, 51.61290322580645],
+     [67.36842105263158, 4.2105263157894735, 28.421052631578945]]
             mira = [[70.73658165207462, 8.288922725542443, 20.974495622382946],
-        [58.49765258215962, 19.342723004694836, 22.15962441314554],
-        [65.33957845433255, 13.817330210772832, 20.843091334894616]]
+     [58.49765258215962, 19.342723004694836, 22.15962441314554],
+     [65.33957845433255, 13.817330210772832, 20.843091334894616]]
             philly = [[67.6981199964019, 24.18899801287136, 8.112881990726734],
-        [26.483950799689726, 58.283160344254426, 15.232888856055848],
-        [20.27687296416938, 63.27361563517915, 16.449511400651463]]
+     [26.483950799689726, 58.283160344254426, 15.232888856055848],
+     [20.27687296416938, 63.27361563517915, 16.449511400651463]]
             hl = [[57.48994568597371, 21.9826692648949, 20.527385049131393],
-        [45.79295637720701, 22.9936964907329, 31.213347132060086],
-        [36.688236653570605, 13.173099144904091, 50.13866420152531]]
-            sc = [[93.42672413793103, 0.831953019123626, 5.74132284294534],
-    [93.94928116761103, 1.0545788239406872, 4.996140008448283],
-    [93.3411184411193, 1.7995799527664729, 4.859301606114214]]
-            th = [[64.4215076529487, 8.045520709276168, 27.532971637775134],
-    [48.06763285024155, 5.555555555555555, 46.3768115942029],
-    [47.35099337748344, 1.6556291390728477, 50.993377483443716]]
+     [45.79295637720701, 22.9936964907329, 31.213347132060086],
+     [36.688236653570605, 13.173099144904091, 50.13866420152531]]
+            sc = [[93.44890531638681, 1.395707434324652, 5.155387249288541],
+ [93.69253042219353, 1.9877137379191612, 4.319755839887311],
+ [92.92871998487426, 1.3840045377197958, 5.687275477405937]]
+            th = [[62.583136665951514, 8.331545448044054, 29.085317886004436],
+ [43.290043290043286, 6.926406926406926, 49.78354978354979],
+ [50.625, 1.875, 47.5]]
             th_gpu = [[22.512866769247093, 53.446171804531225, 24.04096142622168],
-    [34.30376270255424, 65.14693765449053, 0.549299642955232],
-    [27.11864406779661, 72.88135593220339, 0]]
+ [34.30376270255424, 65.14693765449053, 0.549299642955232],
+ [27.11864406779661, 72.88135593220339, 0]]
 
             z = ["Small","Middle","Large"]
             status = {
-                'Small': (15.61, 12.22, 5.68, 0.3, 4.73, 4.28, 1.28),
-                'Middle': (143.62, 50.96, 15.84, 0.4, 1.10, 30.98, 1.28),
-                'Large': (53.33, 42.83, 13.26, 0.53, 0.0, 159.76, 5.23),
+                   'Small': (15.61, 12.22, 5.68, 0.3, 3.10, 3.34, 1.28),
+                    'Middle': (143.62, 50.96, 15.84, 0.4, 1.10, 28.20, 1.28),
+                    # here theta has changed to 153.07 -> 66.07 -> 189.70
+                    'Large': (53.33, 42.83, 13.26, 0.53, 0.0, 189.70, 5.23),
             }
             
         categories = ["Pass", "Failed", "Killed"]
@@ -1528,7 +1560,6 @@ elif main_nav == "Job Failure Characteristics":
         x = np.arange(len(traces))
         width = 0.25  
         multiplier = 0
-
         fig, ax = plt.subplots()
         hatches = ["-", ".", "x"]
         colors = ['#1f77b4', '#ff7f0e', '#2ca02c']
@@ -1782,13 +1813,10 @@ elif main_nav == "Job Failure Characteristics":
                 with st.expander(f"**{chart_description_expander_title}**", expanded=True):
                     st.write("**Job Status w.r.t Job Size:** This chart illustrates the status of jobs (Pass, Failed, Killed) with respect to their sizes. It provides insight into how job size may impact completion status, thereby helping to predict potential job execution outcomes.")
                     st.write("**Job Status w.r.t Job Run Time:** This visualization represents the correlation between job status and job run time. By analyzing job completion (Pass, Failed, Killed) in relation to run time, it aids in understanding the efficiency of jobs and can assist in identifying potential bottlenecks or issues in job execution.")
-           
             elif len(cbjfajg_job_status_selected_list_jfc) < 1 and len(cbjfajg_selected_system_models_jfc) >= 1:
                 st.markdown("<h2 style='color: red'>Please select one or more job status(es) from the sidebar to plot the chart</h2>", unsafe_allow_html=True)         
-
             elif len(cbjfajg_job_status_selected_list_jfc) >= 1 and len(cbjfajg_selected_system_models_jfc) < 1:
                 st.markdown("<h2 style='color: red'>Please select one or more system model(s) from the sidebar to plot the chart</h2>", unsafe_allow_html=True)
-
             else: 
                 st.markdown("<h2 style='color: red'>Please select one or more job status(es) and system model(s) from the sidebar to plot the chart</h2>", unsafe_allow_html=True)
     else:
@@ -1865,8 +1893,8 @@ elif main_nav == "User Behavior Characteristics":
                 b =[0.6918350088912488, 0.8533482445948762, 0.921081711512026, 0.9533918131448507, 0.9710197995695022, 0.9810033596267114, 0.9872495542508333, 0.9916599140171835, 0.9944420135092896, 0.9964546220465884]
                 c =[0.28569096620357964, 0.4384045247520146, 0.545916628344075, 0.6263372405355048, 0.6897181499719287, 0.7429051624867624, 0.7877784887121456, 0.8257544812862695, 0.8583802658301265, 0.8858856158005057]
                 d = [0.3412589175944932, 0.5253771632298813, 0.6401852895114848, 0.7268169396811582, 0.7918618794877094, 0.8394237557838181, 0.8733033543091736, 0.9005927265133411, 0.9214560290971314, 0.9370205635505027]
-                e = [0.34546400428022095, 0.5045269734214348, 0.6100105002787073, 0.6842132563596424, 0.7400938395959942, 0.7848193747836403, 0.820948816948782, 0.8503210056286024, 0.8747755404127091, 0.8953885311573875]
-                f = [0.7518056020202507, 0.8558925637313898, 0.899646125474168, 0.9293387269242847, 0.9477965077320011, 0.9625355964106591, 0.9713036041859342, 0.9774447097600966, 0.9824553576493343, 0.9861430093312263]
+                e = [0.37812096510106935, 0.5460267910297131, 0.6543554731644691, 0.7257310264517329, 0.7779060788796653, 0.8176796317880507, 0.8483537742727538, 0.8737624241729415, 0.8949461489059588, 0.9129710010351852]
+                f = [0.7662938436666162, 0.8668546215769767, 0.909571534301365, 0.9400391693101179, 0.9592881972727516, 0.9700582043362783, 0.9783881259698083, 0.9836006993258972, 0.9874667950535888, 0.9907747370684433]
                 g = [0.5456415087066954, 0.6540775322952421, 0.736053563391097, 0.7961297625424151, 0.8294600959018047, 0.8593692636586076, 0.8821934734113498, 0.9031370845055565, 0.9197546224720765, 0.9343792133174184] 
                 
                 colors = []
