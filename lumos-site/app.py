@@ -21,7 +21,7 @@ from matplotlib.lines import Line2D
 
 st.set_page_config(page_title="Job Trace Visualization Application", page_icon="📊")
 curr_dir = os.path.dirname(__file__)
-plt.rcParams['font.family'] = 'Arial'
+
 
 banner_image_path = os.path.join(curr_dir, 'images/App Banner Image.png')
 
@@ -302,8 +302,8 @@ if main_nav == "Job Geometric Characteristics":
                 plt.ylim(0.00, jrt_drt_frequency_slider_jgc)
                 plt.xticks(x_value_selected, jrt_drt_selected_time_range_jgc)
                 plt.legend(jrt_selected_system_models_jgc, prop={'size': 10}, loc="upper right")
-                plt.ylabel("Frequency (%)", fontsize=14, fontfamily="Arial")
-                plt.xlabel("Job Run Time (s)", fontsize=14, fontfamily="Arial")
+                plt.ylabel("Frequency (%)", fontsize=14)
+                plt.xlabel("Job Run Time (s)", fontsize=14)
                 st.set_option('deprecation.showPyplotGlobalUse', False)
                 st.pyplot()
             
