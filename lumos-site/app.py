@@ -758,7 +758,7 @@ if main_nav == "Job Geometric Characteristics":
             def days_usage_calc():
                 bw_days_usage = plot_util_jgc(bw_df[1000:], "cpu_num")
                 mira_days_usage = plot_util_jgc(mira_df_2)
-                sc_days_usage = plot_util_jgc(sc_df, "cpu_num")
+                sc_days_usage = plot_util_jgc(sc_df)
                 theta_days_usage = plot_util_jgc(th_df)
                 bw_gpu_days_usage = plot_util_jgc(bw_df[1000:], "gpu_num")
                 philly_days_usage = plot_util_jgc(philly_df, "gpu_num")
@@ -2264,7 +2264,7 @@ elif main_nav == "User Behavior Characteristics":
                 fig, axes = plt.subplots(1, 1, figsize=(4, 3))
                 for index, i in enumerate(zip(*selected_run_times)):
                     k = [np.log10(np.array(j)+1) for j in i]
-                    sns.violinplot(data=k,ax=axes, scale="width")
+                    sns.violinplot(data=k,ax=axes, density_norm="width")
                 ax = axes
                 
                 ymin = 1 if frequency_slider_value < 10 else 10 * (int(np.log10(frequency_slider_value)) - 1)
