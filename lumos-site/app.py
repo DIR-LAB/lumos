@@ -1,28 +1,26 @@
 import streamlit as st
 from PIL import Image
-from heapq import *
-from collections import defaultdict, Counter
-import bisect
 import numpy as np
 import pandas as pd
 import warnings
 from streamlit_option_menu import option_menu
-from matplotlib import pyplot as plt
 import matplotlib.ticker as mticker
+import matplotlib
+from collections import defaultdict, Counter
+import bisect
+import os 
+from collections import deque
+import json
+from matplotlib.lines import Line2D
 import seaborn as sns
 from datetime import datetime
 from collections import Counter, defaultdict
-import json
+from matplotlib import pyplot as plt
 import time 
-import matplotlib
-import os 
-from collections import deque
-from matplotlib.lines import Line2D
+from heapq import *
 
 st.set_page_config(page_title="Job Trace Visualization Application", page_icon="📊")
 curr_dir = os.path.dirname(__file__)
-
-
 banner_image_path = os.path.join(curr_dir, 'images/App Banner Image.png')
 
 data_blue_waters_path = os.path.join(curr_dir, 'data/data_blue_waters.csv')
@@ -73,6 +71,7 @@ if 'file_counter' not in st.session_state:
 
 user_entered_cluster_names = {}
 user_uploaded_cluster_data_files = {}
+
 with st.expander("**Upload Own Files Section**", expanded=False):
     with st.form("Upload_Files_form"):
         st.markdown("<h2 style = 'text-align: center; background-color: red'>This upload feature is still under construction, please do not upload anything.</h2>", unsafe_allow_html = True)
@@ -108,13 +107,15 @@ with st.expander("**Upload Own Files Section**", expanded=False):
             get_uploaded_file = user_uploaded_cluster_data_files.get(i)
             
             if get_uploaded_file:
-                uploaded_file_columns = pd.read_csv(get_uploaded_file).columns
-                all_columns_present_check = set(columns).issubset(uploaded_file_columns)        
+                uploaded_file = pd.read_csv(get_uploaded_file)
+                uploaded_file_columns = uploaded_file.columns
+                all_columns_present_check = set(columns).issubset(uploaded_file_columns)    
+                get_uploaded_file.seek(0)   
 
                 if not all_columns_present_check:
                     user_uploaded_cluster_data_files[i] = None
                     st.markdown(f"<h6 style='color: red'>The file '{name}' is missing essential columns. Please re-upload with the required columns and click 'Submit All Files'. Required columns: {columns}</h6>", unsafe_allow_html = True)
-                
+               
 main_nav = option_menu(options=["Job Geometric Characteristics", "Job Failure Characteristics", "User Behavior Characteristics"],
                                  menu_title="Pick a characteristic to view available model options",
                                  icons=["bi-1-circle", "bi-2-circle", "bi-3-circle"],
@@ -342,8 +343,8 @@ if main_nav == "Job Geometric Characteristics":
                             pass  
                         
                     with st.expander(f"**{chart_description_expander_title}**", expanded=True):
-                        st.write("**CDF Of Run Time:** Displays a Cumulative Distribution Functions (CDFs) of the runtime comparisons of the four job traces (Blue Waters, Mira, Philly, and Helios).")
-                        st.write("**Detailed Run Time Distribution:** Displays a bar chart of the four job traces categorized by run times (30 sec, 1 min, 10 mins, 1h, and 12+hrs) alongside the frequency in which they occur.")
+                        st.write("**CDF Of Run Time:** Displays a Cumulative Distribution Functions (CDFs) of the runtime comparisons of the seven job traces (Blue Waters, Mira, Super Cloud, Philly, Helios, Theta, and Theta GPU).")
+                        st.write("**Detailed Run Time Distribution:** Displays a bar chart of the seven job traces categorized by run times (30 sec, 1 min, 10 mins, 1h, and 12+hrs) alongside the frequency in which they occur.")
                 else:
                     st.markdown("<h2 style='color: red'>Please select one or more system model(s) from sidebar to plot the chart</h2>", unsafe_allow_html=True)         
                     
@@ -612,7 +613,7 @@ if main_nav == "Job Geometric Characteristics":
                     with st.expander(f"**{chart_description_expander_title}**", expanded=True):
                         st.write("**Daily Submit Pattern Chart Description:** Displays a chart presenting the job arrival counts of each job trace for each hour of the day")
                         st.write("**Weekly Submit Pattern Chart Description:** Displays a chart presenting the job arrival counts of each job trace for each day of the week")
-                        st.write("**Job Arrival Interval:** Displays a Cumulative Distribution Functions (CDF) of job arrival interval(s) comparison of the four job traces (Blue Waters, Mira, Philly, and Helios).")          
+                        st.write("**Job Arrival Interval:** Displays a Cumulative Distribution Functions (CDF) of job arrival interval(s) comparison of the seven job traces (Blue Waters, Mira, Super Cloud, Philly, Helios, Theta, and Theta GPU).")          
                 else:
                     st.markdown("<h2 style='color: red'>Please select one or more system model(s) from sidebar to plot the chart</h2>", unsafe_allow_html=True)  
              
@@ -666,7 +667,6 @@ if main_nav == "Job Geometric Characteristics":
             suaro_select_charts_checkbox_main_form_button_jgc = st.form_submit_button("Load Charts")
             
             if suaro_select_charts_checkbox_main_form_button_jgc:
-                # fix this to include the other charts
                 if len(suaro_charts_selected_list_jgc) >= 1 or len(suaro_other_charts_selected_list_jgc) >= 1:
                     st.write(f'**You have selected:** {suaro_charts_selected_list_jgc} {suaro_other_charts_selected_list_jgc}')
                 else:
@@ -737,12 +737,7 @@ if main_nav == "Job Geometric Characteristics":
                             
                 suaro_submit_button_sidebar_jgc = st.form_submit_button("Apply Changes")
             
-            @st.cache_data
-            def plot_util_jgc(data, total_nodes, key="node_num", color='b', side_by_side=False, chart_title=None):
-                if side_by_side:
-                    st.markdown(f"<h4 style='text-align: center;'>{chart_title}</h4>", unsafe_allow_html=True)
-                else:
-                    st.markdown(f"<h2 style='text-align: center;'>{chart_title}</h2>", unsafe_allow_html=True)
+            def plot_util_jgc(data, key="node_num"):
                 data = data.copy()
                 start_time = list(data["submit_time"])[0]
                 end_time = list(data["submit_time"])[-1]
@@ -757,53 +752,38 @@ if main_nav == "Job Geometric Characteristics":
                     for i in range(int(row["start_day"]), int(row["end_day"])):
                         if i <len(days_usage):
                             days_usage[i] += row[key]*(min(row["end_time"], (i+1)*24*3600)-max(row["start_time"], i*24*3600))
-                # print(np.mean(np.array(days_usage)/(total_nodes*24*3600)))
+                return days_usage
+            
+            @st.cache_data
+            def days_usage_calc():
+                bw_days_usage = plot_util_jgc(bw_df[1000:], "cpu_num")
+                mira_days_usage = plot_util_jgc(mira_df_2)
+                sc_days_usage = plot_util_jgc(sc_df, "cpu_num")
+                theta_days_usage = plot_util_jgc(th_df)
+                bw_gpu_days_usage = plot_util_jgc(bw_df[1000:], "gpu_num")
+                philly_days_usage = plot_util_jgc(philly_df, "gpu_num")
+                helios_days_usage = plot_util_jgc(hl_df, "gpu_num")
+                sc_gpu_days_usage = plot_util_jgc(sc_df, "gpu_num")
+                philly_gpu_sched_days_usage = plot_util_jgc(philly_gpu_schedule_df, "gpu_num")
+                theta_gpu_days_usage = plot_util_jgc(th_gpu_df, "gpu_num")
+                return bw_days_usage, mira_days_usage, sc_days_usage, theta_days_usage, bw_gpu_days_usage, philly_days_usage, helios_days_usage, sc_gpu_days_usage, philly_gpu_sched_days_usage, theta_gpu_days_usage
+                    
+            def chart_util_jgc(days_usage ,total_nodes, color='b', side_by_side=False, chart_title=None):
+                if side_by_side:
+                    st.markdown(f"<h4 style='text-align: center;'>{chart_title}</h4>", unsafe_allow_html=True)
+                else:
+                    st.markdown(f"<h2 style='text-align: center;'>{chart_title}</h2>", unsafe_allow_html=True)
+                    
                 plt.bar(range(len(days_usage)), 100*np.array(days_usage)/(total_nodes*24*3600), color=color)
                 plt.plot([-10, 150], [80]*2, color="black", linestyle="--")
-                plt.ylim([0, 100])
-                plt.xlim([-5, 121])
+                plt.ylim([0, suaro_sys_utilization_slider_jgc])
+                plt.xlim([-5, suaro_time_slider_jgc ])
                 plt.xticks(fontsize=20)
                 plt.yticks(fontsize=20)
                 st.set_option('deprecation.showPyplotGlobalUse', False)
                 plt.xlabel("Time (Days)", fontsize=26)
                 plt.ylabel("System Utilization(%)", fontsize=26)
                 st.pyplot()    
-                
-            # def plot_util_jgc(data, total_nodes, key="node_num", color='b', side_by_side=False, chart_title=None):
-            #     data = data.copy()
-            #     start_time = data["submit_time"].min()
-            #     end_time = data["submit_time"].max()
-            #     duration = end_time - start_time
-            #     days = int(duration/(86400))
-            #     days_usage = np.zeros(days)
-                
-            #     if side_by_side:
-            #         st.markdown(f"<h4 style='text-align: center;'>{chart_title}</h4>", unsafe_allow_html=True)
-            #     else:
-            #         st.markdown(f"<h2 style='text-align: center;'>{chart_title}</h2>", unsafe_allow_html=True)
-
-            #     data["start_time"] = data["submit_time"] + data["wait_time"] - start_time
-            #     data["end_time"] = data["start_time"] + data["run_time"]
-            #     data["start_day"] = (data["start_time"]/(86400)).astype(int)
-            #     data["end_day"] = (data["end_time"]/(86400)).astype(int) + 1
-
-            #     clipped_start_days = np.clip(data["start_day"], 0, days-1)
-            #     clipped_end_days = np.clip(data["end_day"], 0, days)
-
-            #     for day in range(days):
-            #         mask = (clipped_start_days <= day) & (day < clipped_end_days)
-            #         days_usage[day] += np.sum(data.loc[mask, key] * (np.minimum(data.loc[mask, "end_time"], (day + 1) * 86400) - np.maximum(data.loc[mask, "start_time"], day * 86400)))
-
-            #     plt.bar(range(len(days_usage)), 100 * days_usage / (total_nodes * 86400), color=color)
-            #     plt.plot([-10, 150], [80] * 2, color="black", linestyle="--")
-            #     plt.ylim(0, suaro_sys_utilization_slider_jgc)
-            #     plt.xlim(0, suaro_time_slider_jgc)
-            #     plt.xticks(fontsize=20)
-            #     plt.yticks(fontsize=20)
-            #     st.set_option('deprecation.showPyplotGlobalUse', False)
-            #     plt.xlabel("Time (Days)", fontsize=26)
-            #     plt.ylabel("System Utilization(%)", fontsize=26)
-            #     st.pyplot()
                     
             with st.expander(f"**{chart_view_settings_title}**", expanded=True):
                     suaro_check_box_view_side_by_side_jgc = st.checkbox("Select to view charts side by side")
@@ -811,68 +791,69 @@ if main_nav == "Job Geometric Characteristics":
             with st.spinner("In Progess... Please do not change any settings now"):
                 if len(suaro_charts_selected_list_jgc) >= 1:
                     st.markdown("<h1 style='text-align: center;'>The System Utilization Across Multiple Systems Charts</h1>", unsafe_allow_html=True)
-                    
+                
+                bw_days_usage, mira_days_usage, sc_days_usage, theta_days_usage, bw_gpu_days_usage, philly_days_usage, helios_days_usage, sc_gpu_days_usage, philly_gpu_sched_days_usage, theta_gpu_days_usage = days_usage_calc()
+                
                 if suaro_check_box_view_side_by_side_jgc:          
                     col1, col2 = st.columns(2)
                     for idx, item in enumerate(suaro_charts_selected_list_jgc):
                         suaro_col_logic_cal_jgc = col1 if idx % 2 == 0 else col2
                         if item == "Blue Waters CPU":
-                            with suaro_col_logic_cal_jgc:
-                                plot_util_jgc(bw_df[1000:], 22636*32, "cpu_num", color="blue", side_by_side=True, chart_title="Blue Waters CPU Chart")  
+                            with suaro_col_logic_cal_jgc:                                 
+                                chart_util_jgc(bw_days_usage, 22636*32, color="blue", side_by_side=True, chart_title="Blue Waters CPU Chart")
                         elif item == "Mira CPU":
-                            with suaro_col_logic_cal_jgc:
-                                plot_util_jgc(mira_df_2, 49152, color='orange', side_by_side=True, chart_title="Mira CPU Chart")
+                            with suaro_col_logic_cal_jgc:                               
+                                chart_util_jgc(mira_days_usage, 49152, color="orange", side_by_side=True, chart_title="Mira CPU Chart")
                         elif item == "Super Cloud CPU":
-                            with suaro_col_logic_cal_jgc:
-                                plot_util_jgc(sc_df, 704, color='lightblue', side_by_side=True, chart_title="Super Cloud CPU Chart")
+                            with suaro_col_logic_cal_jgc:                                
+                                chart_util_jgc(sc_days_usage, 704, color="lightblue", side_by_side=True, chart_title="Super Cloud CPU Chart")
                         elif item == "Theta CPU":
-                            with suaro_col_logic_cal_jgc:
-                                plot_util_jgc(th_df, 4392, color='violet', side_by_side=True, chart_title="Theta CPU Chart")
+                            with suaro_col_logic_cal_jgc:                               
+                                chart_util_jgc(theta_days_usage, 4392, color="violet", side_by_side=True, chart_title="Theta CPU Chart")
                         elif item == "Blue Waters GPU":
-                            with suaro_col_logic_cal_jgc:
-                                plot_util_jgc(bw_df[1000:], 4228, "gpu_num", color="#1f77b4", side_by_side=True, chart_title="Blue Waters GPU Chart")
+                            with suaro_col_logic_cal_jgc:                                
+                                chart_util_jgc(bw_gpu_days_usage, 4228, color="#1f77b4", side_by_side=True, chart_title="Blue Waters GPU Chart")
                         elif item == "Philly GPU":
-                            with suaro_col_logic_cal_jgc:
-                                plot_util_jgc(philly_df, 2490, "gpu_num", color='#2ca02c', side_by_side=True, chart_title="Philly GPU Chart")
+                            with suaro_col_logic_cal_jgc:                                
+                                chart_util_jgc(philly_days_usage, 2490, color="#2ca02c", side_by_side=True, chart_title="Philly GPU Chart")
                         elif item == "Helios GPU":
-                            with suaro_col_logic_cal_jgc:
-                                plot_util_jgc(hl_df, 1080, "gpu_num", side_by_side=True, chart_title="Helios GPU Chart")
+                            with suaro_col_logic_cal_jgc:                                
+                                chart_util_jgc(helios_days_usage, 1080, color="red", side_by_side=True, chart_title="Helios GPU Chart")
                         elif item == "Super Cloud GPU":
-                            with suaro_col_logic_cal_jgc:
-                                plot_util_jgc(sc_df, 448, "gpu_num", color='#9467bd', side_by_side=True, chart_title="Super Cloud GPU Chart")
+                            with suaro_col_logic_cal_jgc:                               
+                                chart_util_jgc(sc_gpu_days_usage, 448, color="#9467bd", side_by_side=True, chart_title="Super Cloud GPU Chart")
                         elif item == "Philly GPU-SchedGym":
-                            with suaro_col_logic_cal_jgc:
-                                plot_util_jgc(philly_gpu_schedule_df, 2490, "gpu_num", color='#9467bd', side_by_side=True, chart_title="Philly GPU-SchedGym Chart")
+                            with suaro_col_logic_cal_jgc:                              
+                                chart_util_jgc(philly_gpu_sched_days_usage, 2490, color="#9467bd", side_by_side=True, chart_title="Philly GPU-SchedGym Chart")
                         elif item == "Theta GPU":
-                            with suaro_col_logic_cal_jgc:
-                                plot_util_jgc(th_gpu_df, 24, "gpu_num", color='#9467bd', side_by_side=True, chart_title="Theta GPU Chart")
+                            with suaro_col_logic_cal_jgc:                              
+                                chart_util_jgc(theta_gpu_days_usage, 24, color="#9467bd", side_by_side=True, chart_title="Theta GPU Chart")
                         else:
                             pass
                 else:
                     for item in suaro_charts_selected_list_jgc:
-                        if item == "Blue Waters CPU":
-                            plot_util_jgc(bw_df[1000:], 22636*32, "cpu_num", color="blue", side_by_side=False, chart_title="Blue Waters CPU Chart")  
-                        elif item == "Mira CPU":
-                            plot_util_jgc(mira_df_2, 49152, color='orange', side_by_side=False, chart_title="Mira CPU Chart")
-                        elif item == "Super Cloud CPU":
-                            plot_util_jgc(sc_df, 704, color='lightblue', side_by_side=False, chart_title="Super Cloud CPU Chart")
-                        elif item == "Theta CPU":
-                            plot_util_jgc(th_df, 4392, color='violet', side_by_side=False, chart_title="Theta CPU Chart")
-                        elif item == "Blue Waters GPU":
-                            plot_util_jgc(bw_df[1000:], 4228, "gpu_num", color="#1f77b4", side_by_side=False, chart_title="Blue Waters GPU Chart")
-                        elif item == "Philly GPU":
-                            plot_util_jgc(philly_df, 2490, "gpu_num", color='#2ca02c', side_by_side=False, chart_title="Philly GPU Chart")
-                        elif item == "Helios GPU":
-                            plot_util_jgc(hl_df, 1080, "gpu_num", side_by_side=False, chart_title="Helios GPU Chart")
+                        if item == "Blue Waters CPU":                           
+                            chart_util_jgc(bw_days_usage, 22636*32, color="blue", side_by_side=False, chart_title="Blue Waters CPU Chart")
+                        elif item == "Mira CPU":                         
+                            chart_util_jgc(mira_days_usage, 49152, color="orange", side_by_side=False, chart_title="Mira CPU Chart")
+                        elif item == "Super Cloud CPU":                           
+                            chart_util_jgc(sc_days_usage, 704, color="lightblue", side_by_side=False, chart_title="Super Cloud CPU Chart")
+                        elif item == "Theta CPU":                           
+                            chart_util_jgc(theta_days_usage, 4392, color="violet", side_by_side=False, chart_title="Theta CPU Chart")
+                        elif item == "Blue Waters GPU":                           
+                            chart_util_jgc(bw_gpu_days_usage, 4228, color="#1f77b4", side_by_side=False, chart_title="Blue Waters GPU Chart")
+                        elif item == "Philly GPU":                           
+                            chart_util_jgc(philly_days_usage, 2490, color="#2ca02c", side_by_side=False, chart_title="Philly GPU Chart")
+                        elif item == "Helios GPU":                           
+                            chart_util_jgc(helios_days_usage, 1080, color="red", side_by_side=False, chart_title="Helios GPU Chart")
                         elif item == "Super Cloud GPU":
-                            plot_util_jgc(sc_df, 448, "gpu_num", color='#9467bd', side_by_side=False, chart_title="Super Cloud GPU Chart")
-                        elif item == "Philly GPU-SchedGym":
-                            plot_util_jgc(philly_gpu_schedule_df, 2490, "gpu_num", color='#9467bd', side_by_side=False, chart_title="Philly GPU-SchedGym Chart")
-                        elif item == "Theta GPU":
-                            plot_util_jgc(th_gpu_df, 24, "gpu_num", color='#9467bd', side_by_side=False, chart_title="Theta GPU Chart")
+                            chart_util_jgc(sc_gpu_days_usage, 448, color="#9467bd", side_by_side=True, chart_title="Super Cloud GPU Chart")
+                        elif item == "Philly GPU-SchedGym":                        
+                            chart_util_jgc(philly_gpu_sched_days_usage, 2490, color="#9467bd", side_by_side=False, chart_title="Philly GPU-SchedGym Chart")
+                        elif item == "Theta GPU":                           
+                            chart_util_jgc(theta_gpu_days_usage, 24, color="#9467bd", side_by_side=False, chart_title="Theta GPU Chart")
                         else:
                             pass
-                        
                         
                 def plot_percentage_corehour(selected_job_sizes, frequency_value, selected_models, run_time=False, side_by_side=False, chart_title="none"):
                     plt.style.use("default")
@@ -1069,7 +1050,8 @@ if main_nav == "Job Geometric Characteristics":
                     
                 with st.expander(f"**{chart_description_expander_title}**", expanded=True):
                     st.write("""
-                    **System Utilization Overview:** Analyzing four systems, Blue Waters showcases both CPU and GPU usage due to its combined design, while Philly and Helios focus on GPU utilization, as their CPUs are auxiliary. Philly and Helios have notably lower utilization, often under 80% even with waiting jobs. Two issues with Philly are an initial low utilization phase and a potentially ineffective Fair scheduler. Testing with SchedGym using the FCFS+Backfilling approach showed utilization could hit 100%, up from the original 80% peak.
+                    **The System Utilization Across Multiple Systems Charts:** Analyzing seven systems, Blue Waters and Super Cloud showcases both CPU and GPU usage due to its combined design, while Philly and Helios focus on GPU utilization, as their CPUs are auxiliary. Philly and Helios have notably lower utilization, often under 80% even with waiting jobs. Two issues with Philly are an initial low utilization phase and a potentially ineffective Fair scheduler. Testing with SchedGym using the FCFS+Backfilling approach showed utilization could hit 100%, up from the original 80% peak.
+                    
                     """)
 
     elif nav_bar_horizontal == "Job Waiting Time":
@@ -1966,7 +1948,7 @@ elif main_nav == "User Behavior Characteristics":
                         plot_123(i, j, z, urb_no_of_top_groups_per_user_slider_ubc, urb_percentage_slider_ubc)
                     
                 with st.expander(f"**{chart_description_expander_title}**", expanded=True):
-                    st.write("**The Resource-Configuration Groups Per User:** This chart visualizes the repeated job submission patterns based on resource configurations (number of nodes and run time). It shows that nearly 90% of all jobs fall within the top 10 largest groups of similar job configurations, indicating high repetition in user job submissions. Additionally, it compares repetition across different systems (Philly, Helios, Blue Waters, Mira), revealing less repeated patterns in deep learning workloads on Philly and Helios.")
+                    st.write("**The Resource-Configuration Groups Per User:** This chart visualizes the repeated job submission patterns based on resource configurations (number of nodes and run time). It shows that nearly 90% of all jobs fall within the top 10 largest groups of similar job configurations, indicating high repetition in user job submissions. Additionally, it compares repetition across different systems (Philly, Helios, Blue Waters, Mira, Theta, Theta GPU and Super Cloud), revealing less repeated patterns in deep learning workloads on Philly and Helios.")
         else:
             pass
 
@@ -2162,21 +2144,25 @@ elif main_nav == "User Behavior Characteristics":
                     'Theta': (th_queue_node_user, th_util_time_user, th_df, th_bars),
                     'Theta GPU': (th_gpu_queue_node_user, th_gpu_util_time_user, th_gpu_df, th_gpu_bars)
                 }
+                
+                usb_selected_system_data_ubc = {}
+                
+                for key, value in system_data.items():
+                    if key in usb_charts_selected_list_ubc:
+                        usb_selected_system_data_ubc[key] = value
 
                 if len(usb_job_size_selected_list_ubc) >= 1:
                     # Job sizes
                     st.markdown("<h1 style='text-align: center;'>Submitted Jobs' Sizes Impacted By Queue Length Charts</h1>", unsafe_allow_html=True)
                     if usb_check_box_view_side_by_side_ubc:
                         col1, col2 = st.columns(2)
-                        for idx, (system, (node_user, time_user, data, bars)) in enumerate(system_data.items()):
+                        for idx, (system, (node_user, time_user, data, bars)) in enumerate(usb_selected_system_data_ubc.items()):
                             usb_col_logic_cal_ubc = col1 if idx % 2 == 0 else col2
-                            if system in usb_charts_selected_list_ubc:
-                                with usb_col_logic_cal_ubc:
-                                    plot_util_node(node_user, data, bars, "all", system, usb_job_sizes_selected_list_ubc, usb_percentage_slider_ubc, usb_job_size_selected_list_ubc, True)
+                            with usb_col_logic_cal_ubc:
+                                plot_util_node(node_user, data, bars, "all", system, usb_job_sizes_selected_list_ubc, usb_percentage_slider_ubc, usb_job_size_selected_list_ubc, True)
                     else:
-                        for idx, (system, (node_user, time_user, data, bars)) in enumerate(system_data.items()):
-                            if system in usb_charts_selected_list_ubc:
-                                plot_util_node(node_user, data, bars, "all", system, usb_job_sizes_selected_list_ubc, usb_percentage_slider_ubc, usb_job_size_selected_list_ubc, False)   
+                        for idx, (system, (node_user, time_user, data, bars)) in enumerate(usb_selected_system_data_ubc.items()):
+                            plot_util_node(node_user, data, bars, "all", system, usb_job_sizes_selected_list_ubc, usb_percentage_slider_ubc, usb_job_size_selected_list_ubc, False)   
                     
                     # Job Run time              
                     st.markdown("<h1 style='text-align: center;'>Submitted Jobs' Runtime Impacted By Queue Length Charts</h1>", unsafe_allow_html=True)  
@@ -2184,20 +2170,18 @@ elif main_nav == "User Behavior Characteristics":
                     usb_job_runtime_selected_list_ubc = ["Minimal", "Short", "Middle", "Long"]
                     if usb_check_box_view_side_by_side_ubc:
                         col1, col2 = st.columns(2)
-                        for idx, (system, (node_user, time_user, data, bars)) in enumerate(system_data.items()):
+                        for idx, (system, (node_user, time_user, data, bars)) in enumerate(usb_selected_system_data_ubc.items()):
                             usb_col_logic_cal_ubc = col1 if idx % 2 == 0 else col2
-                            if system in usb_charts_selected_list_ubc:
-                                with usb_col_logic_cal_ubc:
-                                    plot_util_node(time_user, data, runtime_bar, "all", system, usb_job_runtime_selected_list_ubc, usb_percentage_slider_ubc, usb_job_size_selected_list_ubc, True)
+                            with usb_col_logic_cal_ubc:
+                                plot_util_node(time_user, data, runtime_bar, "all", system, usb_job_runtime_selected_list_ubc, usb_percentage_slider_ubc, usb_job_size_selected_list_ubc, True)
                     else:
-                        for idx, (system, (node_user, time_user, data, bars)) in enumerate(system_data.items()):
-                            if system in usb_charts_selected_list_ubc:
-                                plot_util_node(time_user, data, runtime_bar, "all", system, usb_job_runtime_selected_list_ubc, usb_percentage_slider_ubc, usb_job_size_selected_list_ubc, False)    
-                    
+                        for idx, (system, (node_user, time_user, data, bars)) in enumerate(usb_selected_system_data_ubc.items()):
+                            plot_util_node(time_user, data, runtime_bar, "all", system, usb_job_runtime_selected_list_ubc, usb_percentage_slider_ubc, usb_job_size_selected_list_ubc, False)    
                        
                     with st.expander(f"**{chart_description_expander_title}**", expanded=True):
                         st.write("""
                         **Submitted Jobs' Sizes Impacted By Queue Length:** This chart provides a visual analysis of how the sizes of submitted jobs correlate with the length of the job queue. It seeks to understand whether the queue length (how many jobs are waiting) has any bearing on the sizes of jobs that get submitted. For instance, when the queue is long, are smaller or larger jobs predominantly submitted? Understanding this relationship can have implications for resource allocation, scheduling strategies, and overall system efficiency. Such insights can also inform decision-makers about optimizing queue management techniques.
+                        **Submitted Jobs' Runtime Impacted By Queue Length:** This chart analyzes the connection between job runtime and queue length, exploring if the length of the queue influences the duration of submitted jobs. It's key in identifying trends that can improve job scheduling and queue management, enhancing overall system efficiency.
                         """)
                 else:
                     st.markdown("<h2 style='color: red'>Please select one or more job size(s) from the sidebar to plot the chart(s)</h2>", unsafe_allow_html=True)
@@ -2353,3 +2337,6 @@ elif main_nav == "User Behavior Characteristics":
         pass
 else:
     pass
+
+
+
