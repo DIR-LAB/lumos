@@ -1,6 +1,0 @@
-streamlit == 1.25.0
-streamlit_option_menu
-seaborn
-matplotlib
-numpy
-pandas
