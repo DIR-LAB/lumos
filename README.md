@@ -3,7 +3,7 @@
 
 # Job Trace Analysis Tool
 
-This application delivers extensive plots for analyzing job traces with dynamic functionalities, concentrating on geometric, user, and failure characteristics. In its current iteration, it exclusively showcases pre-existing job traces for analysis. A forthcoming update will introduce the capability for users to upload and analyze their own job traces, significantly enhancing its utility and flexibility.
+This application delivers extensive plots for analyzing HPC job traces with dynamic functionalities, concentrating on geometric, user, and failure characteristics. In its current iteration, it exclusively showcases pre-existing job traces for analysis. A forthcoming update will introduce the capability for users to upload and analyze their own job traces, significantly enhancing its utility and flexibility.
 
 ## Live Application
 
