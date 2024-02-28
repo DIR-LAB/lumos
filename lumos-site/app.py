@@ -147,6 +147,16 @@ if main_nav == "Job Geometric Characteristics":
                 jrt_submit_parameters_button_jgc = st.form_submit_button("Apply Changes")
                   
             def plot_cdf(x, bins, xlabel, ylabel="Frequency (%)", color="", linestyle="--"):
+                """
+                Plot a cumulative distribution function (CDF) of the input data.
+                @param x - the input data to plot
+                @param bins - the number of bins for the histogram
+                @param xlabel - label for the x-axis
+                @param ylabel - label for the y-axis (default is "Frequency (%)")
+                @param color - color of the plot (optional)
+                @param linestyle - style of the line (default is "--")
+                @return None
+                """
                 plt.xticks(fontsize=16)
                 plt.yticks(fontsize=16)
                 x = np.sort(x)
@@ -164,6 +174,13 @@ if main_nav == "Job Geometric Characteristics":
                 plt.style.use("default")
                     
             def lt_xs(data, t1, t2):
+                """
+                Calculate the ratio of jobs that have a runtime less than a specified time interval to all jobs.
+                @param data - the runtime data
+                @param t1 - the lower bound of the time interval
+                @param t2 - the upper bound of the time interval
+                @return the ratio of jobs with runtime less than the specified interval to all jobs
+                """
                 lt10min_jobs_num = len(data[data < t2][data >= t1])
                 all_jobs_num = len(data)
                 return lt10min_jobs_num / all_jobs_num

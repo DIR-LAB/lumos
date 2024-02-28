@@ -1,3 +1,6 @@
+![Version](https://img.shields.io/badge/version-1.0.0-blue.svg) ![Website status](https://img.shields.io/website-up-down-green-red/https/lumos-job-traces.streamlit.app.svg) 
+
+
 # Job Trace Analysis Tool
 
 This application delivers extensive plots for analyzing job traces with dynamic functionalities, concentrating on geometric, user, and failure characteristics. In its current iteration, it exclusively showcases pre-existing job traces for analysis. A forthcoming update will introduce the capability for users to upload and analyze their own job traces, significantly enhancing its utility and flexibility.
@@ -10,7 +13,7 @@ The project is also live at [https://lumos-job-traces.streamlit.app/](https://lu
 
 Here's a quick preview of what you can expect from the Job Trace Analysis Tool:
 
-![Application Preview](images/site_preview.png)
+![Application Preview](lumos-site/images/site_preview.png)
 
 ## Interpreting Results
 
@@ -30,7 +33,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ```
 git clone https://github.com/DIR-LAB/lumos.git
-cd lumos
+cd lumos/lumos-site
 ```
 
 2. Install required packages:
